@@ -1,0 +1,319 @@
+// Prisma Schema for Community App
+// Database: PostgreSQL (Supabase or standard)
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ==================== AUTH & USERS ====================
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?   // null for OAuth users
+  role          Role      @default(MEMBER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  accounts      Account[]
+  sessions      Session[]
+  eventsCreated Event[]
+  rsvps         RSVP[]
+  prayers       Prayer[]
+  reflections   Reflection[]
+  recipes       Recipe[]
+  recipeRatings RecipeRating[]
+  reactions     Reaction[]
+  feedback      Feedback[]
+
+  @@index([email])
+  @@index([role])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+enum Role {
+  ADMIN
+  MEMBER
+}
+
+// ==================== EVENTS ====================
+
+model Event {
+  id          String    @id @default(cuid())
+  title       String
+  description String?   @db.Text
+  startAt     DateTime
+  endAt       DateTime?
+  location    String?
+  isPotluck   Boolean   @default(false)
+  capacity    Int?      // null = unlimited
+  tags        String[]  @default([])
+  isPublished Boolean   @default(true)
+  createdById String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  createdBy User   @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  rsvps     RSVP[]
+
+  @@index([startAt])
+  @@index([createdById])
+  @@index([isPublished])
+}
+
+model RSVP {
+  id        String   @id @default(cuid())
+  eventId   String
+  userId    String
+  adults    Int      @default(1)
+  kids      Int      @default(0)
+  note      String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+  @@index([eventId])
+  @@index([userId])
+}
+
+// ==================== PRAYER WALL ====================
+
+model Prayer {
+  id             String      @id @default(cuid())
+  authorId       String?     // null if anonymous
+  type           PrayerType
+  title          String
+  body           String      @db.Text
+  isAnonymous    Boolean     @default(false)
+  isApproved     Boolean     @default(false)
+  reactionsCount Int         @default(0)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  deletedAt      DateTime?   // soft delete
+
+  // Relations
+  author User? @relation(fields: [authorId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([isApproved])
+  @@index([type])
+  @@index([deletedAt])
+}
+
+enum PrayerType {
+  REQUEST
+  PRAISE
+}
+
+// ==================== REFLECTIONS ====================
+
+model Reflection {
+  id         String      @id @default(cuid())
+  authorId   String
+  title      String
+  body       String      @db.Text
+  tags       String[]    @default([])
+  isApproved Boolean     @default(false)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  deletedAt  DateTime?   // soft delete
+
+  // Relations
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([authorId])
+  @@index([createdAt])
+  @@index([isApproved])
+  @@index([deletedAt])
+}
+
+// ==================== RECIPES ====================
+
+model Recipe {
+  id            String   @id @default(cuid())
+  authorId      String
+  title         String
+  ingredients   String   @db.Text
+  steps         String   @db.Text
+  imageUrl      String?
+  categories    String[] @default([])
+  isPotluckHit  Boolean  @default(false)
+  ratingAvg     Float    @default(0)
+  ratingCount   Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  author  User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  ratings RecipeRating[]
+
+  @@index([authorId])
+  @@index([createdAt])
+  @@index([isPotluckHit])
+}
+
+model RecipeRating {
+  id        String   @id @default(cuid())
+  recipeId  String
+  userId    String
+  rating    Int      // 1-5
+  comment   String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([recipeId, userId])
+  @@index([recipeId])
+  @@index([userId])
+}
+
+// ==================== MUSIC ====================
+
+model Playlist {
+  id                String   @id @default(cuid())
+  title             String
+  youtubePlaylistId String?
+  spotifyUrl        String?
+  description       String?  @db.Text
+  isPublic          Boolean  @default(true)
+  sortOrder         Int      @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([isPublic])
+  @@index([sortOrder])
+}
+
+// ==================== KIDS CORNER ====================
+
+model KidsAsset {
+  id           String     @id @default(cuid())
+  title        String
+  description  String?    @db.Text
+  type         AssetType
+  fileUrl      String
+  thumbnailUrl String?
+  tags         String[]   @default([])
+  downloadCount Int       @default(0)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([type])
+  @@index([createdAt])
+}
+
+enum AssetType {
+  VERSE
+  ACTIVITY
+  COLORING
+}
+
+// ==================== FEEDBACK ====================
+
+model Feedback {
+  id        String         @id @default(cuid())
+  userId    String?        // null if anonymous
+  category  String
+  message   String         @db.Text
+  status    FeedbackStatus @default(NEW)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+enum FeedbackStatus {
+  NEW
+  SEEN
+  CLOSED
+}
+
+// ==================== REACTIONS ====================
+
+model Reaction {
+  id           String   @id @default(cuid())
+  userId       String
+  targetType   String   // "prayer" or "reflection"
+  targetId     String
+  reactionType String   @default("prayed") // "prayed", "heart", etc.
+  createdAt    DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, targetType, targetId, reactionType])
+  @@index([targetType, targetId])
+  @@index([userId])
+}
+
+// ==================== SITE SETTINGS ====================
+
+model SiteSettings {
+  id                    String   @id @default("default")
+  siteName              String   @default("Community Hub")
+  logoUrl               String?
+  primaryColor          String   @default("#0ea5e9")
+  allowAnonymousPrayer  Boolean  @default(true)
+  requireModeration     Boolean  @default(true)
+  maxRsvpAdults         Int      @default(10)
+  maxRsvpKids           Int      @default(10)
+  updatedAt             DateTime @updatedAt
+}
