@@ -1,6 +1,5 @@
 import NextAuth from 'next-auth';
 import { PrismaAdapter } from '@auth/prisma-adapter';
-import Google from 'next-auth/providers/google';
 import Credentials from 'next-auth/providers/credentials';
 import { prisma } from '@/lib/prisma';
 import { compare } from 'bcryptjs';
@@ -22,10 +21,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     error: '/auth/error',
   },
   providers: [
-    Google({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    }),
     Credentials({
       name: 'credentials',
       credentials: {
@@ -44,6 +39,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             return null;
           }
 
+          // Check if user is blocked
+          if (user.status === 'BLOCKED') {
+            throw new Error('Your account has been blocked. Please contact an administrator.');
+          }
+
           const isValid = await compare(password, user.password);
 
           if (!isValid) {
@@ -57,7 +57,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             image: user.image,
             role: user.role,
           };
-        } catch {
+        } catch (error) {
+          if (error instanceof Error && error.message.includes('blocked')) {
+            throw error;
+          }
           return null;
         }
       },

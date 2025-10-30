@@ -14,15 +14,16 @@ generator client {
 // ==================== AUTH & USERS ====================
 
 model User {
-  id            String    @id @default(cuid())
+  id            String     @id @default(cuid())
   name          String?
-  email         String    @unique
+  email         String     @unique
   emailVerified DateTime?
   image         String?
-  password      String?   // null for OAuth users
-  role          Role      @default(MEMBER)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  password      String?    // null for OAuth users
+  role          Role       @default(MEMBER)
+  status        UserStatus @default(ACTIVE)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
 
   // Relations
   accounts      Account[]
@@ -38,6 +39,7 @@ model User {
 
   @@index([email])
   @@index([role])
+  @@index([status])
 }
 
 model Account {
@@ -81,6 +83,11 @@ model VerificationToken {
 enum Role {
   ADMIN
   MEMBER
+}
+
+enum UserStatus {
+  ACTIVE
+  BLOCKED
 }
 
 // ==================== EVENTS ====================

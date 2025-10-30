@@ -6,6 +6,8 @@ import { isAdmin } from '@/lib/auth-utils';
 import { prisma } from '@/lib/prisma';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { UserRoleToggle } from '@/components/admin/user-role-toggle';
+import { UserInviteForm } from '@/components/admin/user-invite-form';
+import { UserManagementActions } from '@/components/admin/user-management-actions';
 
 export const metadata: Metadata = {
   title: 'User Management - Admin',
@@ -19,6 +21,7 @@ async function getUsers() {
       name: true,
       email: true,
       role: true,
+      status: true,
       createdAt: true,
       image: true,
     },
@@ -52,22 +55,19 @@ export default async function AdminUsersPage() {
         <div className="mt-6">
           <h1 className="heading-2">User Management</h1>
           <p className="mt-2 text-gray-600 dark:text-gray-400">
-            Manage user roles and permissions
+            Create new users and manage roles and permissions
           </p>
         </div>
 
-        {/* Instructions Card */}
-        <div className="card mt-6 bg-blue-50 dark:bg-blue-900/20">
-          <h3 className="text-sm font-medium text-blue-800 dark:text-blue-300">
-            How to Make Someone an Admin
+        {/* Invite User Form */}
+        <div className="card mt-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+            Invite New User
           </h3>
-          <p className="mt-1 text-sm text-blue-700 dark:text-blue-400">
-            1. Ask the person to sign up at: <strong>https://hopevale-tsvsq.ondigitalocean.app/auth/signup</strong>
-            <br />
-            2. Once they&apos;ve created an account, find them in the list below
-            <br />
-            3. Toggle their role from &quot;Member&quot; to &quot;Admin&quot;
+          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 mb-4">
+            Create a new user account. They&apos;ll be able to sign in with the email and password you provide.
           </p>
+          <UserInviteForm />
         </div>
 
         {/* Users Table */}
@@ -84,6 +84,9 @@ export default async function AdminUsersPage() {
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                     Role
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    Status
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                     Joined
@@ -130,15 +133,34 @@ export default async function AdminUsersPage() {
                         {user.role}
                       </span>
                     </td>
+                    <td className="whitespace-nowrap px-6 py-4">
+                      <span
+                        className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${
+                          user.status === 'ACTIVE'
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+                            : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+                        }`}
+                      >
+                        {user.status}
+                      </span>
+                    </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                       {new Date(user.createdAt).toLocaleDateString()}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm">
-                      <UserRoleToggle
-                        userId={user.id}
-                        currentRole={user.role}
-                        disabled={user.id === session?.user?.id}
-                      />
+                      <div className="flex items-center gap-2">
+                        <UserRoleToggle
+                          userId={user.id}
+                          currentRole={user.role}
+                          disabled={user.id === session?.user?.id}
+                        />
+                        <UserManagementActions
+                          userId={user.id}
+                          userName={user.name || user.email}
+                          userStatus={user.status}
+                          disabled={user.id === session?.user?.id}
+                        />
+                      </div>
                     </td>
                   </tr>
                 ))}

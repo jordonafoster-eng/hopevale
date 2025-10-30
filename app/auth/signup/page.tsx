@@ -1,11 +1,11 @@
 import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
-import { SignUpForm } from '@/components/auth/signup-form';
+import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'Sign Up - Community Hub',
-  description: 'Create your account',
+  description: 'Invite-only registration',
 };
 
 export default async function SignUpPage({
@@ -29,14 +29,29 @@ export default async function SignUpPage({
             <span className="text-2xl font-bold text-white">C</span>
           </div>
           <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-            Create your account
+            Invite-Only Registration
           </h2>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            Join our community and start connecting
+            This community uses invite-only registration
           </p>
         </div>
 
-        <SignUpForm callbackUrl={params.callbackUrl} />
+        <div className="card">
+          <div className="text-center space-y-4">
+            <p className="text-gray-700 dark:text-gray-300">
+              Public registration has been disabled for this community. Accounts must be created by an administrator.
+            </p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              If you would like to join, please contact an administrator to request an invitation.
+            </p>
+            <Link
+              href="/auth/signin"
+              className="btn-primary inline-block mt-4"
+            >
+              Back to Sign In
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );
