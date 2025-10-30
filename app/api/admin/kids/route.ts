@@ -4,10 +4,16 @@ import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+function getSupabaseClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error('Supabase environment variables are not configured');
+  }
+
+  return createClient(supabaseUrl, supabaseKey);
+}
 
 const kidsAssetSchema = z.object({
   title: z.string().min(1),
@@ -37,6 +43,7 @@ export async function POST(request: NextRequest) {
     const data = kidsAssetSchema.parse({ title, type, description });
 
     // Upload file to Supabase Storage
+    const supabase = getSupabaseClient();
     const fileExt = file.name.split('.').pop();
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
     const filePath = `kids-assets/${fileName}`;

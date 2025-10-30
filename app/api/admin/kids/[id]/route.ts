@@ -4,10 +4,16 @@ import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+function getSupabaseClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error('Supabase environment variables are not configured');
+  }
+
+  return createClient(supabaseUrl, supabaseKey);
+}
 
 const updateAssetSchema = z.object({
   title: z.string().min(1).optional(),
@@ -79,6 +85,7 @@ export async function DELETE(
 
     // Extract the file path from the URL
     // URL format: https://xxx.supabase.co/storage/v1/object/public/assets/kids-assets/filename.ext
+    const supabase = getSupabaseClient();
     const url = new URL(asset.fileUrl);
     const pathParts = url.pathname.split('/');
     const filePath = pathParts.slice(pathParts.indexOf('assets') + 1).join('/');

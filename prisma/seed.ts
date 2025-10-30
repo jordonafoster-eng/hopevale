@@ -244,7 +244,7 @@ async function main() {
     prisma.playlist.create({
       data: {
         title: 'Sunday Worship Songs',
-        youtubePlaylistId: 'PLp4z5DYR2xtYt8MQC2XTOBgAh8PL9LRgZ',
+        youtubeUrl: 'https://www.youtube.com/playlist?list=PLp4z5DYR2xtYt8MQC2XTOBgAh8PL9LRgZ',
         description: 'Our favorite worship songs for Sunday services',
         isPublic: true,
         sortOrder: 1,
@@ -253,7 +253,7 @@ async function main() {
     prisma.playlist.create({
       data: {
         title: 'Contemporary Christian',
-        youtubePlaylistId: 'PLp4z5DYR2xtYBq4E3B3KnQbL0zqg7V9xM',
+        youtubeUrl: 'https://www.youtube.com/playlist?list=PLp4z5DYR2xtYBq4E3B3KnQbL0zqg7V9xM',
         description: 'Contemporary Christian music playlist',
         isPublic: true,
         sortOrder: 2,
