@@ -16,7 +16,7 @@ async function main() {
   await prisma.recipe.deleteMany();
   await prisma.reflection.deleteMany();
   await prisma.prayer.deleteMany();
-  await prisma.rsvp.deleteMany();
+  await prisma.rSVP.deleteMany();
   await prisma.event.deleteMany();
   await prisma.session.deleteMany();
   await prisma.account.deleteMany();
@@ -120,7 +120,7 @@ async function main() {
 
   // Create RSVPs
   await Promise.all([
-    prisma.rsvp.create({
+    prisma.rSVP.create({
       data: {
         eventId: events[0].id,
         userId: members[0].id,
@@ -128,7 +128,7 @@ async function main() {
         kids: 1,
       },
     }),
-    prisma.rsvp.create({
+    prisma.rSVP.create({
       data: {
         eventId: events[0].id,
         userId: members[1].id,
@@ -136,7 +136,7 @@ async function main() {
         kids: 0,
       },
     }),
-    prisma.rsvp.create({
+    prisma.rSVP.create({
       data: {
         eventId: events[1].id,
         userId: members[0].id,
