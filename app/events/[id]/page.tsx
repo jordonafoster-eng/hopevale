@@ -6,6 +6,7 @@ import { auth } from '@/lib/auth';
 import { formatDateTime } from '@/lib/utils';
 import { RSVPForm } from '@/components/events/rsvp-form';
 import { RSVPList } from '@/components/events/rsvp-list';
+import { EventAdminActions } from '@/components/admin/event-admin-actions';
 import {
   CalendarIcon,
   MapPinIcon,
@@ -134,6 +135,13 @@ export default async function EventDetailPage({
                 <span className="badge-primary flex-shrink-0">Potluck</span>
               )}
             </div>
+
+            {/* Admin Actions */}
+            {session?.user?.role === 'ADMIN' && (
+              <div className="mt-4 border-t border-gray-200 pt-4 dark:border-gray-700">
+                <EventAdminActions eventId={event.id} />
+              </div>
+            )}
 
             {/* Event Details */}
             <div className="mt-6 space-y-4">
