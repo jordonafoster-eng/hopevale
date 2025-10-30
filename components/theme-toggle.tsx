@@ -1,10 +1,22 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { MoonIcon, SunIcon } from '@heroicons/react/24/outline';
 import { useTheme } from './theme-provider';
 
 export function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="h-9 w-9" aria-hidden="true" />
+    );
+  }
 
   return (
     <button

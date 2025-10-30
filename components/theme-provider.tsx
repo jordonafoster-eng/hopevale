@@ -44,10 +44,6 @@ export function ThemeProvider({ children, defaultTheme = 'light' }: ThemeProvide
     setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
   };
 
-  if (!mounted) {
-    return <>{children}</>;
-  }
-
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
       {children}
