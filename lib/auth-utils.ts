@@ -1,6 +1,9 @@
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 
+// Re-export auth for convenience
+export { auth };
+
 /**
  * Get current session or redirect to sign in
  */

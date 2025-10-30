@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import { prisma } from '@/lib/prisma';
-import { auth, isAdmin } from '@/lib/auth-utils';
+import { auth } from '@/lib/auth';
+import { isAdmin } from '@/lib/auth-utils';
 import { PrayerList } from '@/components/prayer/prayer-list';
 import { PrayerForm } from '@/components/prayer/prayer-form';
 import { PrayerFilters } from '@/components/prayer/prayer-filters';
