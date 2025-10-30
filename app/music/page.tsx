@@ -65,9 +65,9 @@ export default async function MusicPage() {
                 </div>
 
                 <div className="mt-6">
-                  {playlist.youtubePlaylistId && (
+                  {playlist.youtubeUrl && (
                     <PlaylistEmbed
-                      playlistId={playlist.youtubePlaylistId}
+                      youtubeUrl={playlist.youtubeUrl}
                       title={playlist.title}
                     />
                   )}

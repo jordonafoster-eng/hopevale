@@ -232,15 +232,15 @@ model RecipeRating {
 // ==================== MUSIC ====================
 
 model Playlist {
-  id                String   @id @default(cuid())
-  title             String
-  youtubePlaylistId String?
-  spotifyUrl        String?
-  description       String?  @db.Text
-  isPublic          Boolean  @default(true)
-  sortOrder         Int      @default(0)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id          String   @id @default(cuid())
+  title       String
+  youtubeUrl  String?
+  spotifyUrl  String?
+  description String?  @db.Text
+  isPublic    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@index([isPublic])
   @@index([sortOrder])

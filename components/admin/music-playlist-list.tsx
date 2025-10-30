@@ -8,7 +8,7 @@ import toast from 'react-hot-toast';
 type Playlist = {
   id: string;
   title: string;
-  youtubePlaylistId: string | null;
+  youtubeUrl: string | null;
   spotifyUrl: string | null;
   description: string | null;
   sortOrder: number;
@@ -21,7 +21,7 @@ export function MusicPlaylistList({ playlists }: { playlists: Playlist[] }) {
   const [isUpdating, setIsUpdating] = useState(false);
   const [editForm, setEditForm] = useState({
     title: '',
-    youtubePlaylistId: '',
+    youtubeUrl: '',
     spotifyUrl: '',
     description: '',
   });
@@ -30,7 +30,7 @@ export function MusicPlaylistList({ playlists }: { playlists: Playlist[] }) {
     setEditingPlaylist(playlist);
     setEditForm({
       title: playlist.title,
-      youtubePlaylistId: playlist.youtubePlaylistId || '',
+      youtubeUrl: playlist.youtubeUrl || '',
       spotifyUrl: playlist.spotifyUrl || '',
       description: playlist.description || '',
     });
@@ -115,10 +115,15 @@ export function MusicPlaylistList({ playlists }: { playlists: Playlist[] }) {
                   </p>
                 )}
                 <div className="mt-2 flex flex-wrap gap-2 text-xs">
-                  {playlist.youtubePlaylistId && (
-                    <span className="rounded-full bg-red-100 px-2 py-1 text-red-800 dark:bg-red-900/20 dark:text-red-400">
-                      YouTube: {playlist.youtubePlaylistId}
-                    </span>
+                  {playlist.youtubeUrl && (
+                    <a
+                      href={playlist.youtubeUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rounded-full bg-red-100 px-2 py-1 text-red-800 hover:underline dark:bg-red-900/20 dark:text-red-400"
+                    >
+                      YouTube →
+                    </a>
                   )}
                   {playlist.spotifyUrl && (
                     <a
@@ -175,13 +180,14 @@ export function MusicPlaylistList({ playlists }: { playlists: Playlist[] }) {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  YouTube Playlist ID
+                  YouTube Playlist URL
                 </label>
                 <input
-                  type="text"
-                  value={editForm.youtubePlaylistId}
-                  onChange={(e) => setEditForm({ ...editForm, youtubePlaylistId: e.target.value })}
+                  type="url"
+                  value={editForm.youtubeUrl}
+                  onChange={(e) => setEditForm({ ...editForm, youtubeUrl: e.target.value })}
                   className="input mt-1"
+                  placeholder="https://www.youtube.com/playlist?list=..."
                 />
               </div>
 

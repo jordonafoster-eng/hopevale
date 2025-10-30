@@ -9,7 +9,7 @@ export function MusicPlaylistForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
-    youtubePlaylistId: '',
+    youtubeUrl: '',
     spotifyUrl: '',
     description: '',
   });
@@ -30,7 +30,7 @@ export function MusicPlaylistForm() {
       }
 
       toast.success('Playlist added successfully!');
-      setFormData({ title: '', youtubePlaylistId: '', spotifyUrl: '', description: '' });
+      setFormData({ title: '', youtubeUrl: '', spotifyUrl: '', description: '' });
       router.refresh();
     } catch (error) {
       toast.error('Failed to add playlist');
@@ -57,17 +57,17 @@ export function MusicPlaylistForm() {
 
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-          YouTube Playlist ID
+          YouTube Playlist URL
         </label>
         <input
-          type="text"
-          value={formData.youtubePlaylistId}
-          onChange={(e) => setFormData({ ...formData, youtubePlaylistId: e.target.value })}
+          type="url"
+          value={formData.youtubeUrl}
+          onChange={(e) => setFormData({ ...formData, youtubeUrl: e.target.value })}
           className="input mt-1"
-          placeholder="e.g., PLrAXtmErZgOeiKm4sgNOknGvNjby9efdf"
+          placeholder="https://www.youtube.com/playlist?list=..."
         />
         <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">
-          Find this in the YouTube playlist URL after &quot;list=&quot;
+          Paste the full YouTube playlist URL
         </p>
       </div>
 

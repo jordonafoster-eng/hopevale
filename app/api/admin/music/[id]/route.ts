@@ -5,7 +5,7 @@ import { auth } from '@/lib/auth';
 
 const updatePlaylistSchema = z.object({
   title: z.string().min(1).optional(),
-  youtubePlaylistId: z.string().optional(),
+  youtubeUrl: z.string().url().optional().or(z.literal('')),
   spotifyUrl: z.string().url().optional().or(z.literal('')),
   description: z.string().optional(),
 });
@@ -29,7 +29,7 @@ export async function PATCH(
       where: { id: params.id },
       data: {
         title: data.title,
-        youtubePlaylistId: data.youtubePlaylistId || null,
+        youtubeUrl: data.youtubeUrl || null,
         spotifyUrl: data.spotifyUrl || null,
         description: data.description || null,
       },
