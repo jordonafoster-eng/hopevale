@@ -7,9 +7,10 @@ import { RatingStars } from '@/components/recipes/rating-stars';
 import { RatingForm } from '@/components/recipes/rating-form';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
   const recipe = await prisma.recipe.findUnique({
-    where: { id: params.id },
+    where: { id },
     select: { title: true },
   });
   return { title: recipe ? `${recipe.title} - Recipes` : 'Recipe Not Found' };
@@ -28,8 +29,9 @@ async function getRecipe(id: string) {
   });
 }
 
-export default async function RecipeDetailPage({ params }: { params: { id: string } }) {
-  const [recipe, session] = await Promise.all([getRecipe(params.id), auth()]);
+export default async function RecipeDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const [recipe, session] = await Promise.all([getRecipe(id), auth()]);
   if (!recipe) notFound();
 
   const userRating = session?.user ? recipe.ratings.find((r) => r.userId === session.user.id) : null;

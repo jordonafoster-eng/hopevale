@@ -89,7 +89,7 @@ export function FeedbackForm({ userId }: { userId?: string }) {
       {!userId && (
         <div className="rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
           <p className="text-sm text-blue-800 dark:text-blue-400">
-            You're submitting feedback anonymously. If you'd like us to follow up,
+            You&rsquo;re submitting feedback anonymously. If you&rsquo;d like us to follow up,
             please{' '}
             <a
               href="/auth/signin?callbackUrl=/feedback"

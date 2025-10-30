@@ -10,10 +10,11 @@ import { ArrowLeftIcon, ShareIcon } from '@heroicons/react/24/outline';
 export async function generateMetadata({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }): Promise<Metadata> {
+  const { id } = await params;
   const reflection = await prisma.reflection.findUnique({
-    where: { id: params.id },
+    where: { id },
     select: { title: true, body: true },
   });
 
@@ -47,10 +48,11 @@ async function getReflection(id: string) {
 export default async function ReflectionDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
   const [reflection, session] = await Promise.all([
-    getReflection(params.id),
+    getReflection(id),
     auth(),
   ]);
 

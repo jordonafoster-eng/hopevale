@@ -37,11 +37,12 @@ async function getKidsAssets(filters?: {
 export default async function KidsPage({
   searchParams,
 }: {
-  searchParams: { type?: 'VERSE' | 'ACTIVITY' | 'COLORING'; search?: string };
+  searchParams: Promise<{ type?: 'VERSE' | 'ACTIVITY' | 'COLORING'; search?: string }>;
 }) {
+  const params = await searchParams;
   const assets = await getKidsAssets({
-    type: searchParams.type,
-    search: searchParams.search,
+    type: params.type,
+    search: params.search,
   });
 
   return (
@@ -72,7 +73,7 @@ export default async function KidsPage({
                 No resources found
               </h3>
               <p className="mt-2 text-gray-600 dark:text-gray-400">
-                {searchParams.search || searchParams.type
+                {params.search || params.type
                   ? 'Try adjusting your search or filters'
                   : 'Check back soon for new resources!'}
               </p>

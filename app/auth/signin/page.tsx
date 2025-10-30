@@ -11,13 +11,14 @@ export const metadata: Metadata = {
 export default async function SignInPage({
   searchParams,
 }: {
-  searchParams: { callbackUrl?: string; error?: string };
+  searchParams: Promise<{ callbackUrl?: string; error?: string }>;
 }) {
+  const params = await searchParams;
   const session = await auth();
 
   // Redirect if already signed in
   if (session?.user) {
-    redirect(searchParams.callbackUrl || '/');
+    redirect(params.callbackUrl || '/');
   }
 
   return (
@@ -36,8 +37,8 @@ export default async function SignInPage({
         </div>
 
         <SignInForm
-          callbackUrl={searchParams.callbackUrl}
-          error={searchParams.error}
+          callbackUrl={params.callbackUrl}
+          error={params.error}
         />
       </div>
     </div>

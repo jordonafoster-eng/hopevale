@@ -4,9 +4,10 @@ import { auth } from '@/lib/auth';
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  props: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await props.params;
     const session = await auth();
 
     if (!session?.user) {

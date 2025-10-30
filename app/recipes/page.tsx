@@ -71,15 +71,16 @@ async function getAllCategories() {
 export default async function RecipesPage({
   searchParams,
 }: {
-  searchParams: { search?: string; category?: string; potluckHit?: string };
+  searchParams: Promise<{ search?: string; category?: string; potluckHit?: string }>;
 }) {
+  const params = await searchParams;
   const session = await auth();
 
   const [recipes, allCategories] = await Promise.all([
     getRecipes({
-      search: searchParams.search,
-      category: searchParams.category,
-      potluckHit: searchParams.potluckHit === 'true',
+      search: params.search,
+      category: params.category,
+      potluckHit: params.potluckHit === 'true',
     }),
     getAllCategories(),
   ]);
@@ -134,7 +135,7 @@ export default async function RecipesPage({
                 No recipes found
               </h3>
               <p className="mt-2 text-gray-600 dark:text-gray-400">
-                {searchParams.search || searchParams.category
+                {params.search || params.category
                   ? 'Try adjusting your search or filters'
                   : 'Be the first to share a recipe!'}
               </p>

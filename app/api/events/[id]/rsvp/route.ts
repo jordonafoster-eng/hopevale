@@ -12,9 +12,10 @@ const rsvpSchema = z.object({
 // Create or update RSVP
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  props: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await props.params;
     const session = await auth();
 
     if (!session?.user) {
@@ -68,7 +69,7 @@ export async function POST(
     }
 
     // Create RSVP
-    const rsvp = await prisma.rsvp.create({
+    const rsvp = await prisma.rSVP.create({
       data: {
         eventId: params.id,
         userId: session.user.id,
@@ -106,9 +107,10 @@ export async function POST(
 // Update RSVP
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  props: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await props.params;
     const session = await auth();
 
     if (!session?.user) {
@@ -119,7 +121,7 @@ export async function PATCH(
     const validatedData = rsvpSchema.parse(body);
 
     // Find existing RSVP
-    const existingRSVP = await prisma.rsvp.findUnique({
+    const existingRSVP = await prisma.rSVP.findUnique({
       where: {
         eventId_userId: {
           eventId: params.id,
@@ -168,7 +170,7 @@ export async function PATCH(
     }
 
     // Update RSVP
-    const rsvp = await prisma.rsvp.update({
+    const rsvp = await prisma.rSVP.update({
       where: {
         eventId_userId: {
           eventId: params.id,
@@ -210,9 +212,10 @@ export async function PATCH(
 // Delete RSVP
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  props: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await props.params;
     const session = await auth();
 
     if (!session?.user) {
@@ -220,7 +223,7 @@ export async function DELETE(
     }
 
     // Delete RSVP
-    await prisma.rsvp.delete({
+    await prisma.rSVP.delete({
       where: {
         eventId_userId: {
           eventId: params.id,

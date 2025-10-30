@@ -11,13 +11,14 @@ export const metadata: Metadata = {
 export default async function SignUpPage({
   searchParams,
 }: {
-  searchParams: { callbackUrl?: string };
+  searchParams: Promise<{ callbackUrl?: string }>;
 }) {
+  const params = await searchParams;
   const session = await auth();
 
   // Redirect if already signed in
   if (session?.user) {
-    redirect(searchParams.callbackUrl || '/');
+    redirect(params.callbackUrl || '/');
   }
 
   return (
@@ -35,7 +36,7 @@ export default async function SignUpPage({
           </p>
         </div>
 
-        <SignUpForm callbackUrl={searchParams.callbackUrl} />
+        <SignUpForm callbackUrl={params.callbackUrl} />
       </div>
     </div>
   );

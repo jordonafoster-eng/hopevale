@@ -76,13 +76,14 @@ async function getEvents(filters?: {
 export default async function EventsPage({
   searchParams,
 }: {
-  searchParams: { search?: string; view?: string; filter?: string };
+  searchParams: Promise<{ search?: string; view?: string; filter?: string }>;
 }) {
+  const params = await searchParams;
   const adminUser = await isAdmin();
   const filters = {
-    search: searchParams.search,
-    upcoming: searchParams.filter === 'upcoming',
-    potluck: searchParams.filter === 'potluck',
+    search: params.search,
+    upcoming: params.filter === 'upcoming',
+    potluck: params.filter === 'potluck',
   };
 
   const events = await getEvents(filters);
@@ -116,7 +117,7 @@ export default async function EventsPage({
         <Link
           href="/events?view=list"
           className={`btn-secondary ${
-            searchParams.view !== 'calendar' ? 'bg-brand-50 dark:bg-brand-950' : ''
+            params.view !== 'calendar' ? 'bg-brand-50 dark:bg-brand-950' : ''
           }`}
         >
           List View
@@ -124,7 +125,7 @@ export default async function EventsPage({
         <Link
           href="/events?view=calendar"
           className={`btn-secondary ${
-            searchParams.view === 'calendar' ? 'bg-brand-50 dark:bg-brand-950' : ''
+            params.view === 'calendar' ? 'bg-brand-50 dark:bg-brand-950' : ''
           }`}
         >
           <CalendarIcon className="mr-2 h-5 w-5" />
@@ -133,7 +134,7 @@ export default async function EventsPage({
       </div>
 
       {/* Events List */}
-      {searchParams.view === 'calendar' ? (
+      {params.view === 'calendar' ? (
         <div className="card mt-6">
           <p className="text-center text-gray-600 dark:text-gray-400">
             Calendar view coming soon! For now, view events in list format below.

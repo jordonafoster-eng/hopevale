@@ -18,10 +18,11 @@ import {
 export async function generateMetadata({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }): Promise<Metadata> {
+  const { id } = await params;
   const event = await prisma.event.findUnique({
-    where: { id: params.id },
+    where: { id },
     select: { title: true, description: true },
   });
 
@@ -80,10 +81,11 @@ async function getEvent(id: string) {
 export default async function EventDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
   const [event, session] = await Promise.all([
-    getEvent(params.id),
+    getEvent(id),
     auth(),
   ]);
 

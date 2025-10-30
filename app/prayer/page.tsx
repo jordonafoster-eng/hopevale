@@ -68,15 +68,16 @@ async function getUserReactions(userId?: string) {
 export default async function PrayerPage({
   searchParams,
 }: {
-  searchParams: { type?: 'REQUEST' | 'PRAISE'; search?: string };
+  searchParams: Promise<{ type?: 'REQUEST' | 'PRAISE'; search?: string }>;
 }) {
+  const params = await searchParams;
   const session = await auth();
   const adminUser = await isAdmin();
 
   const [prayers, userReactions] = await Promise.all([
     getPrayers({
-      type: searchParams.type,
-      search: searchParams.search,
+      type: params.type,
+      search: params.search,
     }),
     session?.user ? getUserReactions(session.user.id) : [],
   ]);
@@ -135,7 +136,7 @@ export default async function PrayerPage({
                 No prayers found
               </h3>
               <p className="mt-2 text-gray-600 dark:text-gray-400">
-                {searchParams.search
+                {params.search
                   ? 'Try adjusting your search or filters'
                   : 'Be the first to share a prayer request or praise report!'}
               </p>

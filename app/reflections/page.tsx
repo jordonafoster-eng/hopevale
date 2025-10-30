@@ -73,14 +73,15 @@ async function getAllTags() {
 export default async function ReflectionsPage({
   searchParams,
 }: {
-  searchParams: { search?: string; tag?: string };
+  searchParams: Promise<{ search?: string; tag?: string }>;
 }) {
+  const params = await searchParams;
   const session = await auth();
 
   const [reflections, allTags] = await Promise.all([
     getReflections({
-      search: searchParams.search,
-      tag: searchParams.tag,
+      search: params.search,
+      tag: params.tag,
     }),
     getAllTags(),
   ]);
@@ -135,7 +136,7 @@ export default async function ReflectionsPage({
                 No reflections found
               </h3>
               <p className="mt-2 text-gray-600 dark:text-gray-400">
-                {searchParams.search || searchParams.tag
+                {params.search || params.tag
                   ? 'Try adjusting your search or filters'
                   : 'Be the first to share what God is teaching you!'}
               </p>
