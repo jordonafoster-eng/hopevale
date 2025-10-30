@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { EventCard } from '@/components/events/event-card';
 import { EventFilters } from '@/components/events/event-filters';
+import { EventCalendar } from '@/components/events/event-calendar';
 import { CalendarIcon, PlusIcon } from '@heroicons/react/24/outline';
 import { isAdmin } from '@/lib/auth-utils';
 
@@ -135,11 +136,7 @@ export default async function EventsPage({
 
       {/* Events List */}
       {params.view === 'calendar' ? (
-        <div className="card mt-6">
-          <p className="text-center text-gray-600 dark:text-gray-400">
-            Calendar view coming soon! For now, view events in list format below.
-          </p>
-        </div>
+        <EventCalendar events={events} />
       ) : (
         <>
           {/* Upcoming Events */}
