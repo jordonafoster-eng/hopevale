@@ -80,10 +80,10 @@ export default async function HomePage() {
               worship, prayer, and meaningful connections.
             </p>
             <div className="mt-10 flex flex-wrap justify-center gap-4">
-              <Link href="/events" className="btn-primary bg-white text-brand-600 hover:bg-gray-100">
+              <Link href="/events" className="btn inline-flex items-center justify-center rounded-lg bg-white px-6 py-3 text-base font-semibold text-gray-900 shadow-lg transition-all hover:bg-gray-50 hover:shadow-xl">
                 View Events
               </Link>
-              <Link href="/prayer" className="btn-secondary border-white text-white hover:bg-white/10">
+              <Link href="/prayer" className="btn inline-flex items-center justify-center rounded-lg border-2 border-white bg-white/10 px-6 py-3 text-base font-semibold text-white shadow-lg backdrop-blur-sm transition-all hover:bg-white/20 hover:shadow-xl">
                 Prayer Wall
               </Link>
             </div>
