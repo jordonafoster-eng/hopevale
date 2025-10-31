@@ -7,13 +7,13 @@ import { formatDateTime } from '@/lib/utils';
 import { RSVPForm } from '@/components/events/rsvp-form';
 import { RSVPList } from '@/components/events/rsvp-list';
 import { EventAdminActions } from '@/components/admin/event-admin-actions';
+import { ShareEventButton } from '@/components/events/share-event-button';
 import {
   CalendarIcon,
   MapPinIcon,
   ClockIcon,
   UserGroupIcon,
   ArrowLeftIcon,
-  ShareIcon,
 } from '@heroicons/react/24/outline';
 
 export async function generateMetadata({
@@ -127,9 +127,11 @@ export default async function EventDetailPage({
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h1 className="heading-2">{event.title}</h1>
-                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                  Organized by {event.createdBy.name}
-                </p>
+                {event.createdBy?.name && (
+                  <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                    Organized by {event.createdBy.name}
+                  </p>
+                )}
               </div>
               {event.isPotluck && (
                 <span className="badge-primary flex-shrink-0">Potluck</span>
@@ -262,16 +264,7 @@ export default async function EventDetailPage({
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
               Share Event
             </h3>
-            <button
-              onClick={() => {
-                navigator.clipboard.writeText(window.location.href);
-                alert('Link copied to clipboard!');
-              }}
-              className="btn-secondary mt-4 w-full"
-            >
-              <ShareIcon className="mr-2 h-5 w-5" />
-              Copy Link
-            </button>
+            <ShareEventButton />
           </div>
         </div>
       </div>
