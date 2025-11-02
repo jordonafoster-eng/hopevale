@@ -7,6 +7,7 @@ import { formatDateTime } from '@/lib/utils';
 import { RSVPForm } from '@/components/events/rsvp-form';
 import { RSVPList } from '@/components/events/rsvp-list';
 import { EventAdminActions } from '@/components/admin/event-admin-actions';
+import { EventActions } from '@/components/events/event-actions';
 import { ShareEventButton } from '@/components/events/share-event-button';
 import {
   CalendarIcon,
@@ -138,10 +139,14 @@ export default async function EventDetailPage({
               )}
             </div>
 
-            {/* Admin Actions */}
-            {session?.user?.role === 'ADMIN' && (
+            {/* Event Actions */}
+            {session?.user && (session.user.role === 'ADMIN' || event.createdById === session.user.id) && (
               <div className="mt-4 border-t border-gray-200 pt-4 dark:border-gray-700">
-                <EventAdminActions eventId={event.id} />
+                {session.user.role === 'ADMIN' ? (
+                  <EventAdminActions eventId={event.id} />
+                ) : (
+                  <EventActions eventId={event.id} />
+                )}
               </div>
             )}
 

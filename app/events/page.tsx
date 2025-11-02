@@ -5,7 +5,7 @@ import { EventCard } from '@/components/events/event-card';
 import { EventFilters } from '@/components/events/event-filters';
 import { EventCalendar } from '@/components/events/event-calendar';
 import { CalendarIcon, PlusIcon } from '@heroicons/react/24/outline';
-import { isAdmin } from '@/lib/auth-utils';
+import { auth } from '@/lib/auth';
 
 export const metadata: Metadata = {
   title: 'Events - Community Hub',
@@ -80,7 +80,7 @@ export default async function EventsPage({
   searchParams: Promise<{ search?: string; view?: string; filter?: string }>;
 }) {
   const params = await searchParams;
-  const adminUser = await isAdmin();
+  const session = await auth();
   const filters = {
     search: params.search,
     upcoming: params.filter === 'upcoming',
@@ -101,8 +101,8 @@ export default async function EventsPage({
             Join us for worship, fellowship, and community gatherings
           </p>
         </div>
-        {adminUser && (
-          <Link href="/admin/events/new" className="btn-primary">
+        {session?.user && (
+          <Link href="/events/new" className="btn-primary">
             <PlusIcon className="mr-2 h-5 w-5" />
             Create Event
           </Link>

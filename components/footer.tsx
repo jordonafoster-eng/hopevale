@@ -2,8 +2,6 @@ import Link from 'next/link';
 
 const footerLinks = {
   about: [
-    { name: 'About Us', href: '/about' },
-    { name: 'Contact', href: '/contact' },
     { name: 'Feedback', href: '/feedback' },
   ],
   community: [
