@@ -17,7 +17,7 @@ const eventSchema = z.object({
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -26,8 +26,9 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { id } = await params;
     const event = await prisma.event.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!event) {
@@ -43,7 +44,7 @@ export async function PATCH(
     const data = eventSchema.parse(body);
 
     const updatedEvent = await prisma.event.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         title: data.title,
         description: data.description || null,
@@ -76,7 +77,7 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -85,8 +86,9 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { id } = await params;
     const event = await prisma.event.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!event) {
@@ -99,7 +101,7 @@ export async function DELETE(
     }
 
     await prisma.event.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ success: true });
