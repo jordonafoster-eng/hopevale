@@ -2,8 +2,8 @@ import { Metadata } from 'next';
 import { prisma } from '@/lib/prisma';
 import { KidsAssetCard } from '@/components/kids/kids-asset-card';
 import { KidsFilters } from '@/components/kids/kids-filters';
-import { VerseMatchingGame } from '@/components/kids/verse-matching-game';
-import { SparklesIcon } from '@heroicons/react/24/outline';
+import { SparklesIcon, PuzzlePieceIcon } from '@heroicons/react/24/outline';
+import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'Kids Corner - Community Hub',
@@ -60,43 +60,72 @@ export default async function KidsPage({
           </p>
         </div>
 
-        {/* Bible Verse Matching Game */}
-        <div className="mt-8">
-          <VerseMatchingGame />
-        </div>
-
-        {/* Divider */}
-        <div className="my-12 border-t border-gray-200 dark:border-gray-700"></div>
-
-        {/* Resources Section */}
-        <div className="text-center">
-          <h2 className="heading-3">Downloadable Resources</h2>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">
-            Printable materials for learning and fun
-          </p>
-        </div>
-
         {/* Filters */}
         <div className="mt-8">
           <KidsFilters />
         </div>
 
-        {/* Assets Grid */}
+        {/* Resources Grid */}
         <div className="mt-6">
-          {assets.length === 0 ? (
+          {assets.length === 0 && (params.search || params.type) ? (
             <div className="card text-center">
               <SparklesIcon className="mx-auto h-12 w-12 text-gray-400" />
               <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-white">
                 No resources found
               </h3>
               <p className="mt-2 text-gray-600 dark:text-gray-400">
-                {params.search || params.type
-                  ? 'Try adjusting your search or filters'
-                  : 'Check back soon for new resources!'}
+                Try adjusting your search or filters
               </p>
             </div>
           ) : (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {/* Bible Verse Matching Game Card */}
+              <Link href="/kids/verse-game" className="card-hover group">
+                {/* Game Icon/Thumbnail */}
+                <div className="aspect-[4/3] w-full overflow-hidden rounded-lg bg-gradient-to-br from-purple-400 to-blue-500">
+                  <div className="flex h-full items-center justify-center">
+                    <PuzzlePieceIcon className="h-20 w-20 text-white group-hover:scale-110 transition-transform duration-300" />
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div className="mt-4">
+                  <div className="flex items-start justify-between gap-2">
+                    <span className="badge flex-shrink-0 bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200">
+                      Bible Game
+                    </span>
+                  </div>
+
+                  <h3 className="mt-3 font-semibold text-gray-900 dark:text-white">
+                    Bible Verse Matching Game
+                  </h3>
+
+                  <p className="mt-2 line-clamp-2 text-sm text-gray-600 dark:text-gray-400">
+                    Match Bible verses with their references in this fun and interactive game! Perfect for kids ages 3-12.
+                  </p>
+
+                  {/* Tags */}
+                  <div className="mt-3 flex flex-wrap gap-1">
+                    <span className="badge-secondary text-xs">
+                      Interactive
+                    </span>
+                    <span className="badge-secondary text-xs">
+                      Ages 3-12
+                    </span>
+                    <span className="badge-secondary text-xs">
+                      Bible Learning
+                    </span>
+                  </div>
+
+                  {/* Play Button */}
+                  <button className="btn-primary mt-4 w-full bg-purple-600 hover:bg-purple-700">
+                    <PuzzlePieceIcon className="mr-2 h-5 w-5" />
+                    Play Game
+                  </button>
+                </div>
+              </Link>
+
+              {/* Downloadable Assets */}
               {assets.map((asset) => (
                 <KidsAssetCard key={asset.id} asset={asset} />
               ))}
