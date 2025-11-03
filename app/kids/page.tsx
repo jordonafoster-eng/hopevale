@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { prisma } from '@/lib/prisma';
 import { KidsAssetCard } from '@/components/kids/kids-asset-card';
 import { KidsFilters } from '@/components/kids/kids-filters';
+import { VerseMemoryGame } from '@/components/kids/verse-memory-game';
 import { SparklesIcon } from '@heroicons/react/24/outline';
 
 export const metadata: Metadata = {
@@ -56,6 +57,22 @@ export default async function KidsPage({
           <h1 className="mt-4 heading-2">Kids Corner</h1>
           <p className="mt-2 text-gray-600 dark:text-gray-400">
             Memory verses, fun activities, and coloring pages for children
+          </p>
+        </div>
+
+        {/* Bible Verse Memory Game */}
+        <div className="mt-8">
+          <VerseMemoryGame />
+        </div>
+
+        {/* Divider */}
+        <div className="my-12 border-t border-gray-200 dark:border-gray-700"></div>
+
+        {/* Resources Section */}
+        <div className="text-center">
+          <h2 className="heading-3">Downloadable Resources</h2>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">
+            Printable materials for learning and fun
           </p>
         </div>
 

@@ -2,11 +2,13 @@ import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { auth } from '@/lib/auth';
+import { ChangePasswordForm } from '@/components/settings/change-password-form';
 import {
   BellIcon,
   ShieldCheckIcon,
   PaintBrushIcon,
   UserGroupIcon,
+  KeyIcon,
 } from '@heroicons/react/24/outline';
 
 export const metadata: Metadata = {
@@ -130,6 +132,26 @@ export default async function SettingsPage() {
                 {session.user.role?.toLowerCase() || 'Member'}
               </span>
             </div>
+          </div>
+        </div>
+
+        {/* Change Password */}
+        <div className="card mt-6">
+          <div className="flex items-center gap-3 border-b border-gray-200 pb-4 dark:border-gray-700">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-100 dark:bg-brand-900/20">
+              <KeyIcon className="h-5 w-5 text-brand-600 dark:text-brand-400" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Change Password
+              </h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Update your account password
+              </p>
+            </div>
+          </div>
+          <div className="mt-6">
+            <ChangePasswordForm />
           </div>
         </div>
       </div>

@@ -36,6 +36,7 @@ model User {
   recipeRatings RecipeRating[]
   reactions     Reaction[]
   feedback      Feedback[]
+  verseGameProgress VerseGameProgress[]
 
   @@index([email])
   @@index([role])
@@ -310,6 +311,45 @@ model Reaction {
   @@unique([userId, targetType, targetId, reactionType])
   @@index([targetType, targetId])
   @@index([userId])
+}
+
+// ==================== BIBLE VERSES GAME ====================
+
+model BibleVerse {
+  id          String   @id @default(cuid())
+  reference   String   @unique // e.g., "John 3:16"
+  text        String   @db.Text
+  category    String?  // e.g., "Love", "Faith", "Hope"
+  popularity  Int      @default(0) // Higher = more popular
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  gameProgress VerseGameProgress[]
+
+  @@index([popularity])
+  @@index([category])
+}
+
+model VerseGameProgress {
+  id            String   @id @default(cuid())
+  userId        String
+  verseId       String
+  attempts      Int      @default(0)
+  successes     Int      @default(0)
+  bestTime      Int?     // in milliseconds
+  lastPlayedAt  DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  user  User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  verse BibleVerse @relation(fields: [verseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, verseId])
+  @@index([userId])
+  @@index([verseId])
+  @@index([lastPlayedAt])
 }
 
 // ==================== SITE SETTINGS ====================
