@@ -198,7 +198,7 @@ export function VerseMatchingGame() {
               🌈 Bible Verse Matching Game
             </h2>
             <p className="mt-2 text-lg text-purple-700 dark:text-purple-300">
-              Match the Bible verse with where it's found! 📖
+              Match the Bible verse with where it&apos;s found! 📖
             </p>
           </div>
           <button onClick={loadGame} className="btn-primary bg-purple-600 hover:bg-purple-700">
@@ -221,7 +221,7 @@ export function VerseMatchingGame() {
       {!gameComplete && matchedPairs.length === 0 && (
         <div className="card bg-yellow-50 dark:bg-yellow-950 border-2 border-yellow-400">
           <p className="text-center text-lg font-medium text-yellow-900 dark:text-yellow-100">
-            👆 Click two cards to find matching pairs! One card shows WHERE the verse is (like "John 3:16"),
+            👆 Click two cards to find matching pairs! One card shows WHERE the verse is (like &quot;John 3:16&quot;),
             and the other shows WHAT the verse says! 🌟
           </p>
         </div>
@@ -282,7 +282,7 @@ export function VerseMatchingGame() {
               🎉 You Did It! 🎉
             </h3>
             <p className="mt-2 text-xl text-green-700 dark:text-green-300">
-              You matched all the Bible verses! You're amazing!
+              You matched all the Bible verses! You&apos;re amazing!
             </p>
             <div className="mt-6 flex justify-center gap-4">
               <button onClick={loadGame} className="btn-primary bg-purple-600 hover:bg-purple-700 text-lg">
