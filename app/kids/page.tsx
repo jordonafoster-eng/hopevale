@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { prisma } from '@/lib/prisma';
 import { KidsAssetCard } from '@/components/kids/kids-asset-card';
 import { KidsFilters } from '@/components/kids/kids-filters';
-import { VerseMemoryGame } from '@/components/kids/verse-memory-game';
+import { VerseMatchingGame } from '@/components/kids/verse-matching-game';
 import { SparklesIcon } from '@heroicons/react/24/outline';
 
 export const metadata: Metadata = {
@@ -60,9 +60,9 @@ export default async function KidsPage({
           </p>
         </div>
 
-        {/* Bible Verse Memory Game */}
+        {/* Bible Verse Matching Game */}
         <div className="mt-8">
-          <VerseMemoryGame />
+          <VerseMatchingGame />
         </div>
 
         {/* Divider */}
