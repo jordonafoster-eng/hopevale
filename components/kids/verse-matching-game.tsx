@@ -30,24 +30,15 @@ const encouragements = [
   "Fantastic! 🎊",
 ];
 
-const colors = [
-  'bg-pink-400 hover:bg-pink-500 border-pink-500',
-  'bg-purple-400 hover:bg-purple-500 border-purple-500',
-  'bg-blue-400 hover:bg-blue-500 border-blue-500',
-  'bg-green-400 hover:bg-green-500 border-green-500',
-  'bg-yellow-400 hover:bg-yellow-500 border-yellow-500',
-  'bg-orange-400 hover:bg-orange-500 border-orange-500',
-];
-
 export function VerseMatchingGame() {
   const [verses, setVerses] = useState<Verse[]>([]);
-  const [cards, setCards] = useState<Card[]>([]);
+  const [referenceCards, setReferenceCards] = useState<Card[]>([]);
+  const [textCards, setTextCards] = useState<Card[]>([]);
   const [selectedCards, setSelectedCards] = useState<string[]>([]);
   const [matchedPairs, setMatchedPairs] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [gameComplete, setGameComplete] = useState(false);
-  const [colorMap, setColorMap] = useState<Record<string, string>>({});
 
   useEffect(() => {
     loadGame();
@@ -71,21 +62,18 @@ export function VerseMatchingGame() {
   };
 
   const initializeCards = (verses: Verse[]) => {
-    const newCards: Card[] = [];
-    const newColorMap: Record<string, string> = {};
+    const references: Card[] = [];
+    const texts: Card[] = [];
 
-    verses.forEach((verse, index) => {
-      const color = colors[index % colors.length];
-      newColorMap[verse.id] = color;
-
-      newCards.push({
+    verses.forEach((verse) => {
+      references.push({
         id: `ref-${verse.id}`,
         verseId: verse.id,
         content: verse.reference,
         type: 'reference',
         isMatched: false,
       });
-      newCards.push({
+      texts.push({
         id: `text-${verse.id}`,
         verseId: verse.id,
         content: verse.text,
@@ -94,17 +82,21 @@ export function VerseMatchingGame() {
       });
     });
 
-    // Shuffle cards
-    const shuffled = newCards.sort(() => Math.random() - 0.5);
-    setCards(shuffled);
-    setColorMap(newColorMap);
+    // Shuffle each column independently
+    const shuffledRefs = references.sort(() => Math.random() - 0.5);
+    const shuffledTexts = texts.sort(() => Math.random() - 0.5);
+
+    setReferenceCards(shuffledRefs);
+    setTextCards(shuffledTexts);
     setSelectedCards([]);
     setMatchedPairs([]);
     setGameComplete(false);
   };
 
   const handleCardClick = (cardId: string) => {
-    const card = cards.find((c) => c.id === cardId);
+    const allCards = [...referenceCards, ...textCards];
+    const card = allCards.find((c) => c.id === cardId);
+
     if (!card || card.isMatched || selectedCards.includes(cardId)) {
       return;
     }
@@ -115,8 +107,17 @@ export function VerseMatchingGame() {
     // Check for match when two cards are selected
     if (newSelected.length === 2) {
       const [firstId, secondId] = newSelected;
-      const firstCard = cards.find((c) => c.id === firstId);
-      const secondCard = cards.find((c) => c.id === secondId);
+      const firstCard = allCards.find((c) => c.id === firstId);
+      const secondCard = allCards.find((c) => c.id === secondId);
+
+      // Must select one from each column
+      if (firstCard && secondCard && firstCard.type === secondCard.type) {
+        // Same column selected - not allowed
+        setTimeout(() => {
+          setSelectedCards([]);
+        }, 500);
+        return;
+      }
 
       if (firstCard && secondCard && firstCard.verseId === secondCard.verseId) {
         // Match found!
@@ -128,7 +129,12 @@ export function VerseMatchingGame() {
           });
 
           setMatchedPairs([...matchedPairs, firstCard.verseId]);
-          setCards((prev) =>
+          setReferenceCards((prev) =>
+            prev.map((c) =>
+              c.verseId === firstCard.verseId ? { ...c, isMatched: true } : c
+            )
+          );
+          setTextCards((prev) =>
             prev.map((c) =>
               c.verseId === firstCard.verseId ? { ...c, isMatched: true } : c
             )
@@ -221,56 +227,91 @@ export function VerseMatchingGame() {
       {!gameComplete && matchedPairs.length === 0 && (
         <div className="card bg-yellow-50 dark:bg-yellow-950 border-2 border-yellow-400">
           <p className="text-center text-lg font-medium text-yellow-900 dark:text-yellow-100">
-            👆 Click two cards to find matching pairs! One card shows WHERE the verse is (like &quot;John 3:16&quot;),
-            and the other shows WHAT the verse says! 🌟
+            👆 Click one card from the LEFT column and one from the RIGHT column to find matching pairs!
+            Match the Bible reference with its verse! 🌟
           </p>
         </div>
       )}
 
-      {/* Game Board */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-        {cards.map((card) => {
-          const isSelected = selectedCards.includes(card.id);
-          const baseColor = colorMap[card.verseId];
+      {/* Game Board - Two Columns */}
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+        {/* Left Column - References */}
+        <div className="space-y-3">
+          <h3 className="text-center text-xl font-bold text-purple-900 dark:text-purple-100">
+            📖 Bible References
+          </h3>
+          <div className="space-y-3">
+            {referenceCards.map((card) => {
+              const isSelected = selectedCards.includes(card.id);
 
-          return (
-            <button
-              key={card.id}
-              onClick={() => handleCardClick(card.id)}
-              disabled={card.isMatched}
-              className={`
-                group relative min-h-32 rounded-xl p-4 text-white shadow-lg transition-all duration-300 border-4
-                ${
-                  card.isMatched
-                    ? 'opacity-40 scale-95 bg-gray-300 border-gray-400 cursor-not-allowed'
-                    : isSelected
-                    ? `${baseColor} scale-105 ring-4 ring-yellow-400 shadow-2xl`
-                    : `${baseColor} hover:scale-105 hover:shadow-xl`
-                }
-              `}
-            >
-              <div className="flex h-full flex-col items-center justify-center">
-                {card.isMatched && (
-                  <StarIcon className="absolute top-2 right-2 h-8 w-8 text-yellow-400 animate-pulse" />
-                )}
-
-                <p
-                  className={`text-center font-bold leading-tight ${
-                    card.type === 'reference'
-                      ? 'text-xl'
-                      : 'text-sm'
-                  }`}
+              return (
+                <button
+                  key={card.id}
+                  onClick={() => handleCardClick(card.id)}
+                  disabled={card.isMatched}
+                  className={`
+                    relative w-full rounded-xl p-5 text-white shadow-lg transition-all duration-300 border-4
+                    ${
+                      card.isMatched
+                        ? 'opacity-40 scale-95 bg-gray-300 border-gray-400 cursor-not-allowed'
+                        : isSelected
+                        ? 'bg-purple-500 border-purple-600 scale-105 ring-4 ring-yellow-400 shadow-2xl'
+                        : 'bg-purple-500 hover:bg-purple-600 border-purple-600 hover:scale-105 hover:shadow-xl'
+                    }
+                  `}
                 >
-                  {card.content}
-                </p>
+                  <div className="flex items-center justify-center">
+                    {card.isMatched && (
+                      <StarIcon className="absolute top-2 right-2 h-6 w-6 text-yellow-400 animate-pulse" />
+                    )}
+                    <p className="text-2xl font-bold text-center">
+                      {card.content}
+                    </p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
 
-                {card.type === 'reference' && (
-                  <span className="mt-2 text-xs opacity-90">📖 Bible Reference</span>
-                )}
-              </div>
-            </button>
-          );
-        })}
+        {/* Right Column - Verses */}
+        <div className="space-y-3">
+          <h3 className="text-center text-xl font-bold text-blue-900 dark:text-blue-100">
+            ✨ Bible Verses
+          </h3>
+          <div className="space-y-3">
+            {textCards.map((card) => {
+              const isSelected = selectedCards.includes(card.id);
+
+              return (
+                <button
+                  key={card.id}
+                  onClick={() => handleCardClick(card.id)}
+                  disabled={card.isMatched}
+                  className={`
+                    relative w-full rounded-xl p-5 text-white shadow-lg transition-all duration-300 border-4
+                    ${
+                      card.isMatched
+                        ? 'opacity-40 scale-95 bg-gray-300 border-gray-400 cursor-not-allowed'
+                        : isSelected
+                        ? 'bg-blue-500 border-blue-600 scale-105 ring-4 ring-yellow-400 shadow-2xl'
+                        : 'bg-blue-500 hover:bg-blue-600 border-blue-600 hover:scale-105 hover:shadow-xl'
+                    }
+                  `}
+                >
+                  <div className="flex items-center justify-center min-h-[60px]">
+                    {card.isMatched && (
+                      <StarIcon className="absolute top-2 right-2 h-6 w-6 text-yellow-400 animate-pulse" />
+                    )}
+                    <p className="text-base font-semibold text-center leading-relaxed">
+                      {card.content}
+                    </p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       {/* Completion Message */}
