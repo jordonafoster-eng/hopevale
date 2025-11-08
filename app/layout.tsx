@@ -21,6 +21,9 @@ export const metadata: Metadata = {
     statusBarStyle: 'default',
     title: 'Hope Vale',
   },
+  icons: {
+    apple: '/apple-touch-icon.png',
+  },
 };
 
 export const viewport = {
