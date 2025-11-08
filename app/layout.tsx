@@ -15,6 +15,20 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: 'Community Hub - Building Faith Together',
   description: 'A community platform for events, prayer, reflections, and fellowship',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Hope Vale',
+  },
+};
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: '#4f46e5',
 };
 
 export default function RootLayout({
