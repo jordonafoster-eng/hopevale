@@ -37,6 +37,8 @@ model User {
   reactions     Reaction[]
   feedback      Feedback[]
   verseGameProgress VerseGameProgress[]
+  notificationPreferences NotificationPreference?
+  notifications Notification[]
 
   @@index([email])
   @@index([role])
@@ -350,6 +352,66 @@ model VerseGameProgress {
   @@index([userId])
   @@index([verseId])
   @@index([lastPlayedAt])
+}
+
+// ==================== NOTIFICATIONS ====================
+
+model NotificationPreference {
+  id                    String   @id @default(cuid())
+  userId                String   @unique
+
+  // Email notifications
+  emailEnabled          Boolean  @default(true)
+  emailNewEvent         Boolean  @default(true)
+  emailEventReminder    Boolean  @default(true)
+  emailRsvpConfirmation Boolean  @default(true)
+  emailPrayerReaction   Boolean  @default(true)
+  emailNewReflection    Boolean  @default(true)
+  emailWeeklyDigest     Boolean  @default(false)
+
+  // Push notifications (for future PWA)
+  pushEnabled           Boolean  @default(false)
+  pushNewEvent          Boolean  @default(false)
+  pushEventReminder     Boolean  @default(false)
+  pushPrayerReaction    Boolean  @default(false)
+
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Notification {
+  id          String           @id @default(cuid())
+  userId      String
+  type        NotificationType
+  title       String
+  message     String           @db.Text
+  link        String?          // URL to related content
+  read        Boolean          @default(false)
+  emailSent   Boolean          @default(false)
+  emailSentAt DateTime?
+  createdAt   DateTime         @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([read])
+  @@index([createdAt])
+}
+
+enum NotificationType {
+  NEW_EVENT
+  EVENT_REMINDER
+  RSVP_CONFIRMATION
+  PRAYER_REACTION
+  NEW_REFLECTION
+  WEEKLY_DIGEST
+  SYSTEM
 }
 
 // ==================== SITE SETTINGS ====================

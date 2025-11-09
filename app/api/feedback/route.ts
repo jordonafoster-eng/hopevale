@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { sendAdminEmail } from '@/lib/email';
 
 const feedbackSchema = z.object({
   category: z.string().min(1),
@@ -21,9 +22,30 @@ export async function POST(request: NextRequest) {
         userId: session?.user?.id || null,
         status: 'NEW',
       },
+      include: {
+        user: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+      },
     });
 
-    // TODO: Send email notification to admin (requires Resend setup)
+    // Send email notification to admin
+    const userName = feedback.user?.name || 'Anonymous';
+    const userEmail = feedback.user?.email || 'Not provided';
+
+    await sendAdminEmail(
+      'New Feedback Received',
+      `
+        <p><strong>Category:</strong> ${feedback.category}</p>
+        <p><strong>From:</strong> ${userName} (${userEmail})</p>
+        <p><strong>Message:</strong></p>
+        <p>${feedback.message.replace(/\n/g, '<br>')}</p>
+        <p><a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://hopevale-tsvsq.ondigitalocean.app'}/admin">View in Admin Panel</a></p>
+      `
+    );
 
     return NextResponse.json(feedback, { status: 201 });
   } catch (error) {

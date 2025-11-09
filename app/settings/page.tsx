@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { auth } from '@/lib/auth';
 import { ChangePasswordForm } from '@/components/settings/change-password-form';
+import { NotificationPreferences } from '@/components/settings/notification-preferences';
 import {
   BellIcon,
   ShieldCheckIcon,
@@ -53,25 +54,6 @@ export default async function SettingsPage() {
             </Link>
           )}
 
-          {/* Notifications */}
-          <div className="card opacity-60">
-            <div className="flex items-start">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/20">
-                <BellIcon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div className="ml-4 flex-1">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Notifications
-                </h3>
-                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                  Email and push notification preferences
-                </p>
-                <p className="mt-2 text-xs text-gray-500 dark:text-gray-500">
-                  Coming soon
-                </p>
-              </div>
-            </div>
-          </div>
 
           {/* Appearance */}
           <div className="card opacity-60">
@@ -132,6 +114,26 @@ export default async function SettingsPage() {
                 {session.user.role?.toLowerCase() || 'Member'}
               </span>
             </div>
+          </div>
+        </div>
+
+        {/* Notification Preferences */}
+        <div className="card mt-6">
+          <div className="flex items-center gap-3 border-b border-gray-200 pb-4 dark:border-gray-700">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/20">
+              <BellIcon className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Notification Preferences
+              </h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Manage email and push notification settings
+              </p>
+            </div>
+          </div>
+          <div className="mt-6">
+            <NotificationPreferences />
           </div>
         </div>
 

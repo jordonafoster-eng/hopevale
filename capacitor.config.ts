@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.hopevale.community',
-  appName: 'Hopevale Group',
+  appName: 'Group Life',
   webDir: 'out',
   server: {
     url: 'https://hopevale-tsvsq.ondigitalocean.app',

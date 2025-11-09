@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { createNotification } from '@/lib/email';
+import { formatDateTime } from '@/lib/utils';
 
 const rsvpSchema = z.object({
   adults: z.number().min(0).max(20),
@@ -84,7 +86,28 @@ export async function POST(
             email: true,
           },
         },
+        event: {
+          select: {
+            title: true,
+            startAt: true,
+            location: true,
+          },
+        },
       },
+    });
+
+    // Send RSVP confirmation notification
+    const totalAttendees = rsvp.adults + rsvp.kids;
+    const attendeeText = totalAttendees === 1
+      ? '1 person'
+      : `${rsvp.adults} ${rsvp.adults === 1 ? 'adult' : 'adults'}${rsvp.kids > 0 ? ` and ${rsvp.kids} ${rsvp.kids === 1 ? 'kid' : 'kids'}` : ''}`;
+
+    await createNotification({
+      userId: session.user.id,
+      type: 'RSVP_CONFIRMATION',
+      title: `RSVP Confirmed: ${rsvp.event.title}`,
+      message: `You're registered for ${attendeeText}. ${rsvp.event.location ? `Location: ${rsvp.event.location}.` : ''} See you ${formatDateTime(rsvp.event.startAt)}!`,
+      link: `/events/${params.id}`,
     });
 
     return NextResponse.json(rsvp, { status: 201 });

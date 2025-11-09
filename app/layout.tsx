@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Hope Vale',
+    title: 'Group Life',
   },
   icons: {
     apple: '/apple-touch-icon.png',
