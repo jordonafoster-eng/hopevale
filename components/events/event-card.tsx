@@ -11,7 +11,7 @@ type Event = {
   id: string;
   title: string;
   description: string | null;
-  startAt: Date;
+  startAt: Date | null;
   endAt: Date | null;
   location: string | null;
   isPotluck: boolean;

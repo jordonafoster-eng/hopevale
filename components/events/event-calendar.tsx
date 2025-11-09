@@ -7,7 +7,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 type Event = {
   id: string;
   title: string;
-  startAt: Date;
+  startAt: Date | null;
   endAt: Date | null;
   location: string | null;
   isPotluck: boolean;
