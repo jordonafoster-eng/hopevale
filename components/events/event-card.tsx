@@ -29,7 +29,7 @@ export function EventCard({
   event: Event;
   isPast?: boolean;
 }) {
-  const startDate = new Date(event.startAt);
+  const startDate = event.startAt ? new Date(event.startAt) : null;
   const spotsLeft = event.capacity
     ? event.capacity - event.totalAttendees
     : null;
@@ -43,10 +43,16 @@ export function EventCard({
       <div className="flex gap-4">
         <div className="flex-shrink-0">
           <div className="flex h-16 w-16 flex-col items-center justify-center rounded-lg bg-brand-100 text-brand-600 dark:bg-brand-900 dark:text-brand-400">
-            <span className="text-xs font-semibold uppercase">
-              {startDate.toLocaleDateString('en-US', { month: 'short' })}
-            </span>
-            <span className="text-2xl font-bold">{startDate.getDate()}</span>
+            {startDate ? (
+              <>
+                <span className="text-xs font-semibold uppercase">
+                  {startDate.toLocaleDateString('en-US', { month: 'short' })}
+                </span>
+                <span className="text-2xl font-bold">{startDate.getDate()}</span>
+              </>
+            ) : (
+              <span className="text-xs font-semibold text-center px-1">TBD</span>
+            )}
           </div>
         </div>
 
@@ -70,7 +76,7 @@ export function EventCard({
           <div className="mt-4 space-y-2 text-sm text-gray-600 dark:text-gray-400">
             <div className="flex items-center gap-2">
               <ClockIcon className="h-4 w-4 flex-shrink-0" />
-              <span className="truncate">{formatDateTime(event.startAt)}</span>
+              <span className="truncate">{event.startAt ? formatDateTime(event.startAt) : 'Date and time TBD'}</span>
             </div>
 
             {event.location && (

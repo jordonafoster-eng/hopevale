@@ -89,8 +89,8 @@ export default async function EventsPage({
 
   const events = await getEvents(filters);
   const now = new Date();
-  const upcomingEvents = events.filter((e) => new Date(e.startAt) >= now);
-  const pastEvents = events.filter((e) => new Date(e.startAt) < now);
+  const upcomingEvents = events.filter((e) => !e.startAt || new Date(e.startAt) >= now);
+  const pastEvents = events.filter((e) => e.startAt && new Date(e.startAt) < now);
 
   return (
     <div className="section">

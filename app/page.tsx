@@ -175,14 +175,20 @@ export default async function HomePage() {
                 >
                   <div className="flex-shrink-0">
                     <div className="flex h-16 w-16 flex-col items-center justify-center rounded-lg bg-brand-100 text-brand-600 dark:bg-brand-900 dark:text-brand-400">
-                      <span className="text-xs font-semibold uppercase">
-                        {new Date(event.startAt).toLocaleDateString('en-US', {
-                          month: 'short',
-                        })}
-                      </span>
-                      <span className="text-2xl font-bold">
-                        {new Date(event.startAt).getDate()}
-                      </span>
+                      {event.startAt ? (
+                        <>
+                          <span className="text-xs font-semibold uppercase">
+                            {new Date(event.startAt).toLocaleDateString('en-US', {
+                              month: 'short',
+                            })}
+                          </span>
+                          <span className="text-2xl font-bold">
+                            {new Date(event.startAt).getDate()}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="text-xs font-semibold text-center px-1">TBD</span>
+                      )}
                     </div>
                   </div>
                   <div className="flex-1">
@@ -190,7 +196,7 @@ export default async function HomePage() {
                       {event.title}
                     </h3>
                     <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                      {formatDateTime(event.startAt)}
+                      {event.startAt ? formatDateTime(event.startAt) : 'Date and time TBD'}
                     </p>
                     {event.location && (
                       <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">

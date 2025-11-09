@@ -55,6 +55,7 @@ export function EventCalendar({ events }: { events: Event[] }) {
   const getEventsForDay = (day: number, monthOffset: number = 0) => {
     const targetDate = new Date(year, month + monthOffset, day);
     return events.filter((event) => {
+      if (!event.startAt) return false; // Skip events without a date
       const eventDate = new Date(event.startAt);
       return (
         eventDate.getDate() === targetDate.getDate() &&
@@ -191,7 +192,7 @@ export function EventCalendar({ events }: { events: Event[] }) {
                       }`}
                       title={event.title}
                     >
-                      {new Date(event.startAt).toLocaleTimeString('en-US', {
+                      {event.startAt && new Date(event.startAt).toLocaleTimeString('en-US', {
                         hour: 'numeric',
                         minute: '2-digit',
                         hour12: true,
