@@ -41,7 +41,7 @@ export async function sendEmail({ to, subject, html, text }: EmailOptions) {
 
   try {
     const { data, error } = await resend.emails.send({
-      from: FROM_EMAIL,
+      from: `Group Life <${FROM_EMAIL}>`,
       to,
       subject,
       html,
@@ -177,6 +177,13 @@ function generateEmailHtml(
   message: string,
   link?: string
 ): string {
+  // Convert relative links to absolute URLs
+  const absoluteLink = link?.startsWith('http')
+    ? link
+    : link
+      ? `${process.env.NEXT_PUBLIC_APP_URL || 'https://hopevale-tsvsq.ondigitalocean.app'}${link}`
+      : undefined;
+
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -249,7 +256,7 @@ function generateEmailHtml(
     <div class="content">
       <h2>${title}</h2>
       <p>${message}</p>
-      ${link ? `<a href="${link}" class="button">View Details</a>` : ''}
+      ${absoluteLink ? `<a href="${absoluteLink}" class="button">View Details</a>` : ''}
     </div>
     <div class="footer">
       <p>You received this email because you're a member of Group Life.</p>
