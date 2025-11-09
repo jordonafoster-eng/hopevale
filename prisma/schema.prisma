@@ -99,7 +99,7 @@ model Event {
   id          String    @id @default(cuid())
   title       String
   description String?   @db.Text
-  startAt     DateTime
+  startAt     DateTime?
   endAt       DateTime?
   location    String?
   isPotluck   Boolean   @default(false)

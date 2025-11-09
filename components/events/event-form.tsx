@@ -8,7 +8,7 @@ type Event = {
   id: string;
   title: string;
   description: string | null;
-  startAt: Date;
+  startAt: Date | null;
   endAt: Date | null;
   location: string | null;
   isPotluck: boolean;
@@ -49,7 +49,7 @@ export function EventForm({ event, mode }: EventFormProps) {
       const payload = {
         title: formData.title,
         description: formData.description || null,
-        startAt: new Date(formData.startAt).toISOString(),
+        startAt: formData.startAt ? new Date(formData.startAt).toISOString() : null,
         endAt: formData.endAt ? new Date(formData.endAt).toISOString() : null,
         location: formData.location || null,
         isPotluck: formData.isPotluck,
@@ -126,15 +126,18 @@ export function EventForm({ event, mode }: EventFormProps) {
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Start Date & Time *
+            Start Date & Time
           </label>
           <input
             type="datetime-local"
-            required
             value={formData.startAt}
             onChange={(e) => setFormData({ ...formData, startAt: e.target.value })}
             className="input mt-1"
+            placeholder="Optional"
           />
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            Leave blank for TBD events
+          </p>
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -145,7 +148,11 @@ export function EventForm({ event, mode }: EventFormProps) {
             value={formData.endAt}
             onChange={(e) => setFormData({ ...formData, endAt: e.target.value })}
             className="input mt-1"
+            placeholder="Optional"
           />
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            Leave blank if unknown
+          </p>
         </div>
       </div>
 
