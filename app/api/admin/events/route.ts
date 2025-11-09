@@ -6,7 +6,7 @@ import { auth } from '@/lib/auth';
 const eventSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().optional(),
-  startAt: z.string().datetime(),
+  startAt: z.string().datetime().optional().nullable(),
   endAt: z.string().datetime().optional().nullable(),
   location: z.string().optional(),
   isPotluck: z.boolean().default(false),
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
       data: {
         title: data.title,
         description: data.description || null,
-        startAt: new Date(data.startAt),
+        startAt: data.startAt ? new Date(data.startAt) : null,
         endAt: data.endAt ? new Date(data.endAt) : null,
         location: data.location || null,
         isPotluck: data.isPotluck,

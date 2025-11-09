@@ -6,7 +6,7 @@ import { auth } from '@/lib/auth';
 const updateEventSchema = z.object({
   title: z.string().min(1).optional(),
   description: z.string().optional().nullable(),
-  startAt: z.string().datetime().optional(),
+  startAt: z.string().datetime().optional().nullable(),
   endAt: z.string().datetime().optional().nullable(),
   location: z.string().optional().nullable(),
   isPotluck: z.boolean().optional(),
