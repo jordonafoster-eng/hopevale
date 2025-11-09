@@ -44,8 +44,8 @@ export async function POST(
       return NextResponse.json({ error: 'Event not found' }, { status: 404 });
     }
 
-    // Check if event is in the past
-    if (new Date(event.startAt) < new Date()) {
+    // Check if event is in the past (only if startAt is set)
+    if (event.startAt && new Date(event.startAt) < new Date()) {
       return NextResponse.json(
         { error: 'Cannot RSVP to past events' },
         { status: 400 }
@@ -106,7 +106,7 @@ export async function POST(
       userId: session.user.id,
       type: 'RSVP_CONFIRMATION',
       title: `RSVP Confirmed: ${rsvp.event.title}`,
-      message: `You're registered for ${attendeeText}. ${rsvp.event.location ? `Location: ${rsvp.event.location}.` : ''} See you ${formatDateTime(rsvp.event.startAt)}!`,
+      message: `You're registered for ${attendeeText}. ${rsvp.event.location ? `Location: ${rsvp.event.location}.` : ''}${rsvp.event.startAt ? ` See you ${formatDateTime(rsvp.event.startAt)}!` : ' Date and time TBD.'}`,
       link: `/events/${params.id}`,
     });
 
