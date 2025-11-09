@@ -11,7 +11,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 export const metadata: Metadata = {
-  title: 'Admin Dashboard - Community Hub',
+  title: 'Admin Dashboard - Group Life',
   description: 'Manage your community hub',
 };
 

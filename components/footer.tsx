@@ -25,10 +25,10 @@ export function Footer() {
           <div className="col-span-2 md:col-span-1">
             <Link href="/" className="flex items-center space-x-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600">
-                <span className="text-lg font-bold text-white">C</span>
+                <span className="text-lg font-bold text-white">G</span>
               </div>
               <span className="text-lg font-bold text-gray-900 dark:text-white">
-                Community Hub
+                Group Life
               </span>
             </Link>
             <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
@@ -94,7 +94,7 @@ export function Footer() {
 
         <div className="mt-8 border-t border-gray-200 pt-8 dark:border-gray-700">
           <p className="text-center text-sm text-gray-500 dark:text-gray-400">
-            &copy; {new Date().getFullYear()} Community Hub. All rights reserved.
+            &copy; {new Date().getFullYear()} Group Life. All rights reserved.
           </p>
         </div>
       </div>

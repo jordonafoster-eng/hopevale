@@ -1,4 +1,4 @@
-# Quick Start Guide - HopeVale Community Hub
+# Quick Start Guide - HopeVale Group Life
 
 ## 🚀 5-Minute Setup
 

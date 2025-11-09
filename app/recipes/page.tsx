@@ -7,7 +7,7 @@ import { RecipeFilters } from '@/components/recipes/recipe-filters';
 import { SparklesIcon } from '@heroicons/react/24/outline';
 
 export const metadata: Metadata = {
-  title: 'Recipes - Community Hub',
+  title: 'Recipes - Group Life',
   description: 'Share and discover recipes from our community',
 };
 

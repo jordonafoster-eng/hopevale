@@ -1,4 +1,4 @@
-# Community Hub
+# Group Life
 
 A full-featured community management platform built with Next.js 15, featuring events, prayer wall, reflections, recipes, music playlists, and kids resources.
 
@@ -96,7 +96,7 @@ UPSTASH_REDIS_REST_TOKEN="your-token"
 
 # App
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
-NEXT_PUBLIC_APP_NAME="Community Hub"
+NEXT_PUBLIC_APP_NAME="Group Life"
 ```
 
 ### 4. Database Migration

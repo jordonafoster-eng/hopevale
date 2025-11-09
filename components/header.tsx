@@ -25,10 +25,10 @@ export async function Header() {
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600">
-                <span className="text-lg font-bold text-white">C</span>
+                <span className="text-lg font-bold text-white">G</span>
               </div>
               <span className="text-xl font-bold text-gray-900 dark:text-white">
-                Community Hub
+                Group Life
               </span>
             </Link>
           </div>

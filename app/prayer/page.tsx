@@ -8,7 +8,7 @@ import { PrayerFilters } from '@/components/prayer/prayer-filters';
 import { HeartIcon } from '@heroicons/react/24/outline';
 
 export const metadata: Metadata = {
-  title: 'Prayer Wall - Community Hub',
+  title: 'Prayer Wall - Group Life',
   description: 'Share prayer requests and praise reports with the community',
 };
 

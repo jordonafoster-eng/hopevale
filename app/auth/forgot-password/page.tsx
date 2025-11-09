@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { ForgotPasswordForm } from '@/components/auth/forgot-password-form';
 
 export const metadata: Metadata = {
-  title: 'Forgot Password - Community Hub',
+  title: 'Forgot Password - Group Life',
   description: 'Reset your password',
 };
 

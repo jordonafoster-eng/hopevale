@@ -12,7 +12,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 export const metadata: Metadata = {
-  title: 'Settings - Community Hub',
+  title: 'Settings - Group Life',
   description: 'Manage your account settings',
 };
 

@@ -13,7 +13,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'Community Hub - Building Faith Together',
+  title: 'Group Life - Building Faith Together',
   description: 'A community platform for events, prayer, reflections, and fellowship',
   manifest: '/manifest.json',
   appleWebApp: {

@@ -7,7 +7,7 @@ import { ReflectionFilters } from '@/components/reflections/reflection-filters';
 import { BookOpenIcon } from '@heroicons/react/24/outline';
 
 export const metadata: Metadata = {
-  title: 'Reflections - Community Hub',
+  title: 'Reflections - Group Life',
   description: 'Share what God is teaching you',
 };
 
