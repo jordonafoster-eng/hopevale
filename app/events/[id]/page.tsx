@@ -156,7 +156,7 @@ export default async function EventDetailPage({
                 <CalendarIcon className="mt-0.5 h-5 w-5 flex-shrink-0 text-gray-400" />
                 <div>
                   <p className="font-medium text-gray-900 dark:text-white">
-                    {formatDateTime(event.startAt)}
+                    {event.startAt ? formatDateTime(event.startAt) : 'Date and time TBD'}
                   </p>
                   {event.endAt && (
                     <p className="text-sm text-gray-600 dark:text-gray-400">
