@@ -2,10 +2,26 @@ import { Resend } from 'resend';
 import { prisma } from '@/lib/prisma';
 import { NotificationType } from '@prisma/client';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy initialize Resend to ensure env vars are loaded
+function getResendClient() {
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error('RESEND_API_KEY is not configured');
+  }
+  return new Resend(process.env.RESEND_API_KEY);
+}
 
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'noreply@grouplife.com';
-const ADMIN_EMAIL = process.env.RESEND_ADMIN_EMAIL || '';
+function getFromEmail() {
+  return process.env.RESEND_FROM_EMAIL || 'noreply@grouplife.com';
+}
+
+function getAdminEmail() {
+  return process.env.RESEND_ADMIN_EMAIL || '';
+}
+
+// Initialize constants
+const resend = process.env.RESEND_API_KEY ? getResendClient() : null;
+const FROM_EMAIL = getFromEmail();
+const ADMIN_EMAIL = getAdminEmail();
 
 interface EmailOptions {
   to: string;
@@ -18,7 +34,7 @@ interface EmailOptions {
  * Send an email using Resend
  */
 export async function sendEmail({ to, subject, html, text }: EmailOptions) {
-  if (!process.env.RESEND_API_KEY) {
+  if (!process.env.RESEND_API_KEY || !resend) {
     console.warn('RESEND_API_KEY not configured. Email not sent:', subject);
     return { success: false, error: 'Email service not configured' };
   }
