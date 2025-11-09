@@ -103,7 +103,7 @@ export default async function EventDetailPage({
     ? event.capacity - event.totalAttendees
     : null;
 
-  const isPast = new Date(event.startAt) < new Date();
+  const isPast = event.startAt ? new Date(event.startAt) < new Date() : false;
 
   return (
     <div className="section">
