@@ -67,7 +67,7 @@ interface NotificationOptions {
   title: string;
   message: string;
   link?: string;
-  sendEmail?: boolean;
+  shouldSendEmail?: boolean;
 }
 
 /**
@@ -79,7 +79,7 @@ export async function createNotification({
   title,
   message,
   link,
-  sendEmail = true,
+  shouldSendEmail = true,
 }: NotificationOptions) {
   try {
     // Get user and their preferences
@@ -107,12 +107,12 @@ export async function createNotification({
     });
 
     // Check if email should be sent based on preferences
-    const shouldSendEmail =
-      sendEmail &&
+    const shouldSend =
+      shouldSendEmail &&
       user.notificationPreferences &&
       shouldSendEmailForType(type, user.notificationPreferences);
 
-    if (shouldSendEmail && user.email) {
+    if (shouldSend && user.email) {
       const emailHtml = generateEmailHtml(title, message, link);
       const emailResult = await sendEmail({
         to: user.email,

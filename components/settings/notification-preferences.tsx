@@ -155,7 +155,7 @@ export function NotificationPreferences() {
                 <div>
                   <p className="font-medium text-gray-900 dark:text-white">Event Reminders</p>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Reminders for events you're attending
+                    Reminders for events you&apos;re attending
                   </p>
                 </div>
                 <button
