@@ -2,6 +2,39 @@ import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 
+export async function GET() {
+  try {
+    const session = await auth()
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    // Get all device tokens for this user
+    const tokens = await prisma.deviceToken.findMany({
+      where: { userId: session.user.id },
+      select: {
+        id: true,
+        platform: true,
+        createdAt: true,
+      },
+    })
+
+    return NextResponse.json({
+      userId: session.user.id,
+      email: session.user.email,
+      tokens,
+      count: tokens.length,
+    })
+  } catch (error) {
+    console.error("Error fetching device tokens:", error)
+    return NextResponse.json(
+      { error: "Failed to fetch device tokens" },
+      { status: 500 }
+    )
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const session = await auth()
