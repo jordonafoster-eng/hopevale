@@ -39,6 +39,7 @@ interface PushNotificationOptions {
   title: string;
   body: string;
   data?: Record<string, string>;
+  badge?: number;
 }
 
 /**
@@ -49,6 +50,7 @@ export async function sendPushNotification({
   title,
   body,
   data = {},
+  badge = 1,
 }: PushNotificationOptions) {
   const app = getFirebaseApp();
 
@@ -71,7 +73,7 @@ export async function sendPushNotification({
         payload: {
           aps: {
             sound: 'default',
-            badge: 1,
+            badge: badge,
           },
         },
       },
@@ -102,11 +104,13 @@ export async function sendPushToUser({
   title,
   body,
   link,
+  badge,
 }: {
   userId: string;
   title: string;
   body: string;
   link?: string;
+  badge?: number;
 }) {
   try {
     // Get all device tokens for the user
@@ -133,6 +137,7 @@ export async function sendPushToUser({
           title,
           body,
           data,
+          badge,
         })
       )
     );
