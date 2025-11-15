@@ -30,7 +30,7 @@ export function NotificationsList() {
       const response = await fetch('/api/notifications');
       if (!response.ok) throw new Error('Failed to fetch notifications');
       const data = await response.json();
-      setNotifications(data);
+      setNotifications(data.notifications || []);
     } catch (error) {
       console.error('Error fetching notifications:', error);
       toast.error('Failed to load notifications');
@@ -44,7 +44,7 @@ export function NotificationsList() {
       const response = await fetch('/api/notifications', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ notificationId }),
+        body: JSON.stringify({ notificationIds: [notificationId] }),
       });
 
       if (!response.ok) throw new Error('Failed to mark as read');
@@ -67,15 +67,11 @@ export function NotificationsList() {
         return;
       }
 
-      await Promise.all(
-        unreadIds.map(id =>
-          fetch('/api/notifications', {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ notificationId: id }),
-          })
-        )
-      );
+      await fetch('/api/notifications', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ markAllAsRead: true }),
+      });
 
       // Update local state
       setNotifications(prev => prev.map(n => ({ ...n, read: true })));
