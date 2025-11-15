@@ -8,7 +8,7 @@ import { CalendarIcon, PlusIcon } from '@heroicons/react/24/outline';
 import { auth } from '@/lib/auth';
 
 export const metadata: Metadata = {
-  title: 'Events - Group Life',
+  title: 'Events - Church Friends',
   description: 'Browse and RSVP to community events',
 };
 

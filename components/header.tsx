@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth';
 import { UserMenu } from './user-menu';
 import { ThemeToggle } from './theme-toggle';
 import { MobileMenu } from './mobile-menu';
+import { NotificationBell } from './notification-bell';
 
 const navigation = [
   { name: 'Home', href: '/' },
@@ -28,7 +29,7 @@ export async function Header() {
                 <span className="text-lg font-bold text-white">G</span>
               </div>
               <span className="text-xl font-bold text-gray-900 dark:text-white">
-                Group Life
+                Church Friends
               </span>
             </Link>
           </div>
@@ -61,6 +62,7 @@ export async function Header() {
                     Admin
                   </Link>
                 )}
+                <NotificationBell />
                 <UserMenu user={session.user} />
               </>
             ) : (

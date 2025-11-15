@@ -73,7 +73,7 @@ export default async function HomePage() {
         <div className="section">
           <div className="mx-auto max-w-3xl text-center">
             <h1 className="heading-1 text-white">
-              Welcome to Group Life
+              Welcome to Church Friends
             </h1>
             <p className="mt-6 text-xl text-brand-50">
               Building faith, fellowship, and community together. Join us for

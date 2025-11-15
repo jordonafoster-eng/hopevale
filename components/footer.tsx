@@ -28,7 +28,7 @@ export function Footer() {
                 <span className="text-lg font-bold text-white">G</span>
               </div>
               <span className="text-lg font-bold text-gray-900 dark:text-white">
-                Group Life
+                Church Friends
               </span>
             </Link>
             <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
@@ -94,7 +94,7 @@ export function Footer() {
 
         <div className="mt-8 border-t border-gray-200 pt-8 dark:border-gray-700">
           <p className="text-center text-sm text-gray-500 dark:text-gray-400">
-            &copy; {new Date().getFullYear()} Group Life. All rights reserved.
+            &copy; {new Date().getFullYear()} Church Friends. All rights reserved.
           </p>
         </div>
       </div>

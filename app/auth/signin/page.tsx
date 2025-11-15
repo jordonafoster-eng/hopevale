@@ -4,7 +4,7 @@ import { auth } from '@/lib/auth';
 import { SignInForm } from '@/components/auth/signin-form';
 
 export const metadata: Metadata = {
-  title: 'Sign In - Group Life',
+  title: 'Sign In - Church Friends',
   description: 'Sign in to your account',
 };
 

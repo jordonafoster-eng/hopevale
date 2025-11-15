@@ -39,6 +39,7 @@ model User {
   verseGameProgress VerseGameProgress[]
   notificationPreferences NotificationPreference?
   notifications Notification[]
+  deviceTokens  DeviceToken[]
 
   @@index([email])
   @@index([role])
@@ -375,6 +376,14 @@ model NotificationPreference {
   pushEventReminder     Boolean  @default(false)
   pushPrayerReaction    Boolean  @default(false)
 
+  // In-app notifications
+  inAppEnabled          Boolean  @default(true)
+  inAppNewEvent         Boolean  @default(true)
+  inAppEventReminder    Boolean  @default(true)
+  inAppRsvpConfirmation Boolean  @default(true)
+  inAppPrayerReaction   Boolean  @default(true)
+  inAppNewReflection    Boolean  @default(true)
+
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
 
@@ -394,6 +403,8 @@ model Notification {
   read        Boolean          @default(false)
   emailSent   Boolean          @default(false)
   emailSentAt DateTime?
+  pushSent    Boolean          @default(false)
+  pushSentAt  DateTime?
   createdAt   DateTime         @default(now())
 
   // Relations
@@ -414,11 +425,26 @@ enum NotificationType {
   SYSTEM
 }
 
+model DeviceToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique // FCM token
+  platform  String   // "ios", "android", "web"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+}
+
 // ==================== SITE SETTINGS ====================
 
 model SiteSettings {
   id                    String   @id @default("default")
-  siteName              String   @default("Group Life")
+  siteName              String   @default("Church Friends")
   logoUrl               String?
   primaryColor          String   @default("#0ea5e9")
   allowAnonymousPrayer  Boolean  @default(true)

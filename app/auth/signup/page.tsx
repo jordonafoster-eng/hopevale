@@ -4,7 +4,7 @@ import { auth } from '@/lib/auth';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Sign Up - Group Life',
+  title: 'Sign Up - Church Friends',
   description: 'Invite-only registration',
 };
 

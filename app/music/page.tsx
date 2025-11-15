@@ -4,7 +4,7 @@ import { PlaylistEmbed } from '@/components/music/playlist-embed';
 import { MusicalNoteIcon } from '@heroicons/react/24/outline';
 
 export const metadata: Metadata = {
-  title: 'Music - Group Life',
+  title: 'Music - Church Friends',
   description: 'Worship songs, playlists, and podcasts',
 };
 

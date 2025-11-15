@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
+import { usePushNotifications } from '@/lib/use-push-notifications';
 
 interface NotificationPreferences {
   id: string;
@@ -17,12 +18,19 @@ interface NotificationPreferences {
   pushNewEvent: boolean;
   pushEventReminder: boolean;
   pushPrayerReaction: boolean;
+  inAppEnabled: boolean;
+  inAppNewEvent: boolean;
+  inAppEventReminder: boolean;
+  inAppRsvpConfirmation: boolean;
+  inAppPrayerReaction: boolean;
+  inAppNewReflection: boolean;
 }
 
 export function NotificationPreferences() {
   const [preferences, setPreferences] = useState<NotificationPreferences | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const { isSupported, requestPermission } = usePushNotifications();
 
   useEffect(() => {
     fetchPreferences();
@@ -70,6 +78,22 @@ export function NotificationPreferences() {
       setPreferences({ ...preferences, [field]: previousValue });
       toast.error('Failed to update preference');
     }
+  };
+
+  const handlePushToggle = async (enabled: boolean) => {
+    if (!preferences) return;
+
+    // If enabling, request permission first
+    if (enabled) {
+      const granted = await requestPermission();
+      if (!granted) {
+        toast.error('Push notification permission denied');
+        return;
+      }
+    }
+
+    // Update the preference
+    await updatePreference('pushEnabled', enabled);
   };
 
   if (loading) {
@@ -277,13 +301,12 @@ export function NotificationPreferences() {
 
       {/* Push Notifications */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
           Push Notifications
         </h3>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-          Coming soon - Get notifications on your device
-        </p>
-        <div className="opacity-50 pointer-events-none">
+
+        <div className="space-y-4">
+          {/* Master Push Toggle */}
           <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
             <div>
               <p className="font-medium text-gray-900 dark:text-white">
@@ -295,12 +318,263 @@ export function NotificationPreferences() {
             </div>
             <button
               type="button"
-              disabled
-              className="relative inline-flex h-6 w-11 items-center rounded-full bg-gray-300 dark:bg-gray-600"
+              role="switch"
+              aria-checked={preferences.pushEnabled}
+              onClick={() => handlePushToggle(!preferences.pushEnabled)}
+              disabled={!isSupported}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                !isSupported
+                  ? 'opacity-50 cursor-not-allowed bg-gray-300 dark:bg-gray-600'
+                  : preferences.pushEnabled
+                  ? 'bg-brand-600'
+                  : 'bg-gray-300 dark:bg-gray-600'
+              }`}
             >
-              <span className="inline-block h-4 w-4 transform rounded-full bg-white translate-x-1" />
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  preferences.pushEnabled ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
             </button>
           </div>
+
+          {/* Individual Push Preferences */}
+          {preferences.pushEnabled && (
+            <>
+              <div className="flex items-center justify-between py-3">
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-white">New Events</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    When a new event is created
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={preferences.pushNewEvent}
+                  onClick={() => updatePreference('pushNewEvent', !preferences.pushNewEvent)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    preferences.pushNewEvent ? 'bg-brand-600' : 'bg-gray-300 dark:bg-gray-600'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      preferences.pushNewEvent ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between py-3">
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-white">Event Reminders</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Reminders for events you&apos;re attending
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={preferences.pushEventReminder}
+                  onClick={() => updatePreference('pushEventReminder', !preferences.pushEventReminder)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    preferences.pushEventReminder ? 'bg-brand-600' : 'bg-gray-300 dark:bg-gray-600'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      preferences.pushEventReminder ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between py-3">
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-white">Prayer Reactions</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    When someone prays for your prayer request
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={preferences.pushPrayerReaction}
+                  onClick={() => updatePreference('pushPrayerReaction', !preferences.pushPrayerReaction)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    preferences.pushPrayerReaction ? 'bg-brand-600' : 'bg-gray-300 dark:bg-gray-600'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      preferences.pushPrayerReaction ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* In-App Notifications */}
+      <div>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          In-App Notifications
+        </h3>
+
+        <div className="space-y-4">
+          {/* Master In-App Toggle */}
+          <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
+            <div>
+              <p className="font-medium text-gray-900 dark:text-white">
+                Enable In-App Notifications
+              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                See notifications in the app notification center
+              </p>
+            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={preferences.inAppEnabled}
+              onClick={() => updatePreference('inAppEnabled', !preferences.inAppEnabled)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                preferences.inAppEnabled ? 'bg-brand-600' : 'bg-gray-300 dark:bg-gray-600'
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  preferences.inAppEnabled ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
+          </div>
+
+          {/* Individual In-App Preferences */}
+          {preferences.inAppEnabled && (
+            <>
+              <div className="flex items-center justify-between py-3">
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-white">New Events</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    When a new event is created
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={preferences.inAppNewEvent}
+                  onClick={() => updatePreference('inAppNewEvent', !preferences.inAppNewEvent)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    preferences.inAppNewEvent ? 'bg-brand-600' : 'bg-gray-300 dark:bg-gray-600'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      preferences.inAppNewEvent ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between py-3">
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-white">Event Reminders</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Reminders for events you&apos;re attending
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={preferences.inAppEventReminder}
+                  onClick={() => updatePreference('inAppEventReminder', !preferences.inAppEventReminder)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    preferences.inAppEventReminder ? 'bg-brand-600' : 'bg-gray-300 dark:bg-gray-600'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      preferences.inAppEventReminder ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between py-3">
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-white">RSVP Confirmations</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Confirmation when you RSVP to an event
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={preferences.inAppRsvpConfirmation}
+                  onClick={() => updatePreference('inAppRsvpConfirmation', !preferences.inAppRsvpConfirmation)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    preferences.inAppRsvpConfirmation ? 'bg-brand-600' : 'bg-gray-300 dark:bg-gray-600'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      preferences.inAppRsvpConfirmation ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between py-3">
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-white">Prayer Reactions</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    When someone prays for your prayer request
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={preferences.inAppPrayerReaction}
+                  onClick={() => updatePreference('inAppPrayerReaction', !preferences.inAppPrayerReaction)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    preferences.inAppPrayerReaction ? 'bg-brand-600' : 'bg-gray-300 dark:bg-gray-600'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      preferences.inAppPrayerReaction ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between py-3">
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-white">New Reflections</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    When a new reflection is published
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={preferences.inAppNewReflection}
+                  onClick={() => updatePreference('inAppNewReflection', !preferences.inAppNewReflection)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    preferences.inAppNewReflection ? 'bg-brand-600' : 'bg-gray-300 dark:bg-gray-600'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      preferences.inAppNewReflection ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

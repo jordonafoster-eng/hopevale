@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🎉 HopeVale Group Life - Setup Script"
+echo "🎉 HopeVale Church Friends - Setup Script"
 echo "=========================================="
 echo ""
 

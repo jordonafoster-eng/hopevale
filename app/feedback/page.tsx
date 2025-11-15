@@ -4,7 +4,7 @@ import { FeedbackForm } from '@/components/feedback/feedback-form';
 import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
 
 export const metadata: Metadata = {
-  title: 'Feedback - Group Life',
+  title: 'Feedback - Church Friends',
   description: 'Share your feedback and suggestions',
 };
 

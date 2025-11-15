@@ -5,7 +5,7 @@ import { UserCircleIcon } from '@heroicons/react/24/outline';
 import { getInitials, getAvatarColor } from '@/lib/utils';
 
 export const metadata: Metadata = {
-  title: 'Profile - Group Life',
+  title: 'Profile - Church Friends',
   description: 'Your profile information',
 };
 

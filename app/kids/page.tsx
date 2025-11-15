@@ -6,7 +6,7 @@ import { SparklesIcon, PuzzlePieceIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Kids Corner - Group Life',
+  title: 'Kids Corner - Church Friends',
   description: 'Memory verses, activities, and coloring pages for kids',
 };
 

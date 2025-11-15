@@ -35,7 +35,7 @@ export async function generateMetadata({
   }
 
   return {
-    title: `${event.title} - Group Life`,
+    title: `${event.title} - Church Friends`,
     description: event.description || `Join us for ${event.title}`,
   };
 }

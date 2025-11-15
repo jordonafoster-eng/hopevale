@@ -1,4 +1,4 @@
-# Quick Start Guide - HopeVale Group Life
+# Quick Start Guide - HopeVale Church Friends
 
 ## 🚀 5-Minute Setup
 

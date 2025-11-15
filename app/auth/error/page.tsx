@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
 export const metadata: Metadata = {
-  title: 'Authentication Error - Group Life',
+  title: 'Authentication Error - Church Friends',
   description: 'An error occurred during authentication',
 };
 

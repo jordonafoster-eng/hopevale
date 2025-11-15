@@ -1,6 +1,7 @@
 import { Resend } from 'resend';
 import { prisma } from '@/lib/prisma';
 import { NotificationType } from '@prisma/client';
+import { sendPushToUser, shouldSendPushForType } from '@/lib/push';
 
 // Lazy initialize Resend to ensure env vars are loaded
 function getResendClient() {
@@ -41,7 +42,7 @@ export async function sendEmail({ to, subject, html, text }: EmailOptions) {
 
   try {
     const { data, error } = await resend.emails.send({
-      from: `Group Life <${FROM_EMAIL}>`,
+      from: `Church Friends <${FROM_EMAIL}>`,
       to,
       subject,
       html,
@@ -95,24 +96,38 @@ export async function createNotification({
       return { success: false, error: 'User not found' };
     }
 
-    // Create the notification in the database
-    const notification = await prisma.notification.create({
-      data: {
-        userId,
-        type,
-        title,
-        message,
-        link,
-      },
-    });
+    // Check if in-app notification should be created based on preferences
+    const shouldCreateInApp =
+      user.notificationPreferences &&
+      shouldCreateInAppForType(type, user.notificationPreferences);
+
+    // Only create the notification record if in-app notifications are enabled
+    let notification = null;
+    if (shouldCreateInApp) {
+      notification = await prisma.notification.create({
+        data: {
+          userId,
+          type,
+          title,
+          message,
+          link,
+        },
+      });
+    }
 
     // Check if email should be sent based on preferences
-    const shouldSend =
+    const shouldSendEmailNow =
       shouldSendEmail &&
       user.notificationPreferences &&
       shouldSendEmailForType(type, user.notificationPreferences);
 
-    if (shouldSend && user.email) {
+    // Check if push notification should be sent based on preferences
+    const shouldSendPushNow =
+      user.notificationPreferences &&
+      shouldSendPushForType(type, user.notificationPreferences);
+
+    // Send email if enabled
+    if (shouldSendEmailNow && user.email) {
       const emailHtml = generateEmailHtml(title, message, link);
       const emailResult = await sendEmail({
         to: user.email,
@@ -121,13 +136,34 @@ export async function createNotification({
         text: message,
       });
 
-      if (emailResult.success) {
+      if (emailResult.success && notification) {
         // Update notification to mark email as sent
         await prisma.notification.update({
           where: { id: notification.id },
           data: {
             emailSent: true,
             emailSentAt: new Date(),
+          },
+        });
+      }
+    }
+
+    // Send push notification if enabled
+    if (shouldSendPushNow) {
+      const pushResult = await sendPushToUser({
+        userId,
+        title,
+        body: message,
+        link,
+      });
+
+      if (pushResult.success && pushResult.sent && pushResult.sent > 0 && notification) {
+        // Update notification to mark push as sent
+        await prisma.notification.update({
+          where: { id: notification.id },
+          data: {
+            pushSent: true,
+            pushSentAt: new Date(),
           },
         });
       }
@@ -164,6 +200,35 @@ function shouldSendEmailForType(
       return prefs.emailWeeklyDigest;
     case 'SYSTEM':
       return true; // Always send system notifications
+    default:
+      return false;
+  }
+}
+
+/**
+ * Check if in-app notification should be created for a notification type based on user preferences
+ */
+function shouldCreateInAppForType(
+  type: NotificationType,
+  prefs: any
+): boolean {
+  if (!prefs || !prefs.inAppEnabled) return false;
+
+  switch (type) {
+    case 'NEW_EVENT':
+      return prefs.inAppNewEvent;
+    case 'EVENT_REMINDER':
+      return prefs.inAppEventReminder;
+    case 'RSVP_CONFIRMATION':
+      return prefs.inAppRsvpConfirmation;
+    case 'PRAYER_REACTION':
+      return prefs.inAppPrayerReaction;
+    case 'NEW_REFLECTION':
+      return prefs.inAppNewReflection;
+    case 'WEEKLY_DIGEST':
+      return false; // Not supported for in-app yet
+    case 'SYSTEM':
+      return true; // Always create system notifications
     default:
       return false;
   }
@@ -251,7 +316,7 @@ function generateEmailHtml(
 <body>
   <div class="container">
     <div class="header">
-      <h1>Group Life</h1>
+      <h1>Church Friends</h1>
     </div>
     <div class="content">
       <h2>${title}</h2>
@@ -259,7 +324,7 @@ function generateEmailHtml(
       ${absoluteLink ? `<a href="${absoluteLink}" class="button">View Details</a>` : ''}
     </div>
     <div class="footer">
-      <p>You received this email because you're a member of Group Life.</p>
+      <p>You received this email because you're a member of Church Friends.</p>
       <p>To manage your notification preferences, <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://hopevale-tsvsq.ondigitalocean.app'}/settings">visit your settings</a>.</p>
     </div>
   </div>
@@ -311,12 +376,12 @@ export async function sendAdminEmail(subject: string, content: string) {
 </head>
 <body>
   <div class="container">
-    <h2>Group Life Admin Notification</h2>
+    <h2>Church Friends Admin Notification</h2>
     <div class="content">
       ${content}
     </div>
     <p style="color: #6b7280; font-size: 14px; margin-top: 20px;">
-      This is an automated notification from Group Life.
+      This is an automated notification from Church Friends.
     </p>
   </div>
 </body>
@@ -325,7 +390,7 @@ export async function sendAdminEmail(subject: string, content: string) {
 
   return sendEmail({
     to: ADMIN_EMAIL,
-    subject: `[Group Life Admin] ${subject}`,
+    subject: `[Church Friends Admin] ${subject}`,
     html,
     text: content,
   });

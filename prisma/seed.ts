@@ -313,7 +313,7 @@ async function main() {
   await prisma.siteSettings.create({
     data: {
       id: 'default',
-      siteName: 'Group Life',
+      siteName: 'Church Friends',
       primaryColor: '#0ea5e9',
       allowAnonymousPrayer: true,
       requireModeration: false, // Set to false for easier dev

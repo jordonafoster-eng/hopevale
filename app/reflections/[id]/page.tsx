@@ -25,7 +25,7 @@ export async function generateMetadata({
   }
 
   return {
-    title: `${reflection.title} - Group Life`,
+    title: `${reflection.title} - Church Friends`,
     description: reflection.body.substring(0, 155),
   };
 }
