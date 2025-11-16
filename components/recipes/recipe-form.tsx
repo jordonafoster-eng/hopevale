@@ -12,7 +12,6 @@ const recipeSchema = z.object({
   title: z.string().min(3).max(100),
   ingredients: z.string().min(10).max(2000),
   steps: z.string().min(10).max(2000),
-  imageUrl: z.string().url().optional().or(z.literal('')),
   isPotluckHit: z.boolean(),
 });
 
@@ -76,7 +75,6 @@ export function RecipeForm({ userId }: { userId: string }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...data,
-          imageUrl: data.imageUrl || null,
           categories: selectedCategories,
         }),
       });
@@ -144,14 +142,6 @@ export function RecipeForm({ userId }: { userId: string }) {
           </label>
           <textarea {...register('steps')} id="steps" rows={6} className="input mt-1" placeholder="1. Preheat oven to 350°F&#10;2. Mix dry ingredients..." />
           {errors.steps && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.steps.message}</p>}
-        </div>
-
-        <div>
-          <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Image URL (optional)
-          </label>
-          <input {...register('imageUrl')} type="url" id="imageUrl" className="input mt-1" placeholder="https://..." />
-          {errors.imageUrl && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.imageUrl.message}</p>}
         </div>
 
         {/* Categories */}

@@ -58,10 +58,6 @@ export default async function RecipeDetailPage({ params }: { params: Promise<{ i
             </div>
           )}
 
-          {recipe.imageUrl && (
-            <img src={recipe.imageUrl} alt={recipe.title} className="mt-6 w-full rounded-lg object-cover" style={{maxHeight: '400px'}} />
-          )}
-
           <div className="mt-8 space-y-8">
             <div>
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Ingredients</h2>

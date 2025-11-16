@@ -21,23 +21,8 @@ export function RecipeCard({ recipe }: { recipe: Recipe }) {
 
   return (
     <Link href={`/recipes/${recipe.id}`} className="card-hover group">
-      {/* Image */}
-      <div className="aspect-video w-full overflow-hidden rounded-lg bg-gray-200 dark:bg-gray-700">
-        {recipe.imageUrl ? (
-          <img
-            src={recipe.imageUrl}
-            alt={recipe.title}
-            className="h-full w-full object-cover transition-transform group-hover:scale-105"
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center text-gray-400">
-            <SparklesIcon className="h-12 w-12" />
-          </div>
-        )}
-      </div>
-
       {/* Content */}
-      <div className="mt-4">
+      <div>
         <div className="flex items-start justify-between gap-2">
           <h3 className="flex-1 font-semibold text-gray-900 group-hover:text-brand-600 dark:text-white dark:group-hover:text-brand-400">
             {recipe.title}
@@ -111,23 +96,5 @@ export function RecipeCard({ recipe }: { recipe: Recipe }) {
         )}
       </div>
     </Link>
-  );
-}
-
-function SparklesIcon({ className }: { className: string }) {
-  return (
-    <svg
-      className={className}
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
-      />
-    </svg>
   );
 }
