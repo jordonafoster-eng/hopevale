@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { Capacitor } from '@capacitor/core';
-import { PushNotifications, Token, PushNotificationSchema } from '@capacitor/push-notifications';
 import { FirebaseMessaging } from '@capacitor-firebase/messaging';
 
 export function usePushNotifications() {
@@ -30,15 +29,26 @@ export function usePushNotifications() {
       const platform = Capacitor.getPlatform();
 
       if (platform === 'ios' || platform === 'android') {
-        // Native platform (Capacitor)
-        const permResult = await PushNotifications.requestPermissions();
+        // Native platform - use FirebaseMessaging directly
+        console.log('🔔 Requesting notification permissions...');
+        const permResult = await FirebaseMessaging.requestPermissions();
+        console.log('🔔 Permission result:', permResult);
 
         if (permResult.receive === 'granted') {
-          // Register with APNs/FCM
-          await PushNotifications.register();
-          return true;
+          console.log('✅ Permission granted, getting FCM token...');
+          // Get FCM token directly
+          const { token: fcmToken } = await FirebaseMessaging.getToken();
+          console.log('🔥 FCM Token received:', fcmToken);
+
+          if (fcmToken) {
+            await registerToken(fcmToken);
+            return true;
+          } else {
+            console.error('❌ No FCM token returned');
+            return false;
+          }
         } else {
-          console.log('Push notification permission denied');
+          console.log('❌ Push notification permission denied');
           return false;
         }
       } else if (platform === 'web') {
@@ -54,7 +64,7 @@ export function usePushNotifications() {
 
       return false;
     } catch (error) {
-      console.error('Error requesting push notification permission:', error);
+      console.error('❌ Error requesting push notification permission:', error);
       return false;
     }
   };
@@ -119,43 +129,36 @@ export function usePushNotifications() {
       const platform = Capacitor.getPlatform();
 
       if (platform === 'ios' || platform === 'android') {
-        // Set up listeners for native platforms
-        await PushNotifications.addListener('registration', async (token: Token) => {
-          console.log('Push registration success, token:', token.value);
+        console.log('🔔 Initializing Firebase Messaging listeners...');
 
-          // Get FCM token
+        // Listen for token refresh
+        await FirebaseMessaging.addListener('tokenReceived', async (event: { token: string }) => {
+          console.log('🔥 FCM token received:', event.token);
           try {
-            const { token: fcmToken } = await FirebaseMessaging.getToken();
-            await registerToken(fcmToken);
+            await registerToken(event.token);
           } catch (error) {
-            console.error('Error getting FCM token:', error);
+            console.error('❌ Error registering FCM token:', error);
           }
         });
 
-        await PushNotifications.addListener('registrationError', (error: any) => {
-          console.error('Push registration error:', error);
+        // Listen for incoming notifications (foreground)
+        await FirebaseMessaging.addListener('notificationReceived', (event: any) => {
+          console.log('🔔 Push notification received:', event.notification);
         });
 
-        await PushNotifications.addListener(
-          'pushNotificationReceived',
-          (notification: PushNotificationSchema) => {
-            console.log('Push notification received:', notification);
+        // Listen for notification taps
+        await FirebaseMessaging.addListener('notificationActionPerformed', (event: any) => {
+          console.log('🔔 Push notification action performed:', event);
+          // Handle navigation based on notification data
+          if (event.notification?.data?.link) {
+            window.location.href = event.notification.data.link;
           }
-        );
+        });
 
-        await PushNotifications.addListener(
-          'pushNotificationActionPerformed',
-          (notification: any) => {
-            console.log('Push notification action performed:', notification);
-            // Handle navigation based on notification data
-            if (notification.notification?.data?.link) {
-              window.location.href = notification.notification.data.link;
-            }
-          }
-        );
+        console.log('✅ Firebase Messaging listeners initialized');
       }
     } catch (error) {
-      console.error('Error initializing push notifications:', error);
+      console.error('❌ Error initializing push notifications:', error);
     }
   };
 

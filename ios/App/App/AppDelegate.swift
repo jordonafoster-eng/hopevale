@@ -13,6 +13,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // Initialize Firebase
         FirebaseApp.configure()
+        print("🔥 Firebase configured")
+
+        // Set Firebase Messaging delegate
+        Messaging.messaging().delegate = self
 
         // Request notification authorization
         UNUserNotificationCenter.current().delegate = self
@@ -20,10 +24,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
         UNUserNotificationCenter.current().requestAuthorization(
             options: authOptions,
-            completionHandler: { _, _ in }
+            completionHandler: { granted, error in
+                if let error = error {
+                    print("❌ Notification authorization error: \(error)")
+                } else {
+                    print("✅ Notification authorization granted: \(granted)")
+                }
+            }
         )
 
         application.registerForRemoteNotifications()
+        print("📱 Registering for remote notifications...")
 
         return true
     }
@@ -65,6 +76,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         Messaging.messaging().apnsToken = deviceToken
+        print("✅ APNs token registered successfully")
+    }
+
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        print("❌ Failed to register for remote notifications: \(error.localizedDescription)")
     }
 
 }
@@ -83,5 +99,17 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
                                 didReceive response: UNNotificationResponse,
                                 withCompletionHandler completionHandler: @escaping () -> Void) {
         completionHandler()
+    }
+}
+
+// MARK: - MessagingDelegate
+extension AppDelegate: MessagingDelegate {
+    func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
+        print("🔥 Firebase registration token: \(fcmToken ?? "nil")")
+
+        // Send FCM token to server or save it locally
+        if let token = fcmToken {
+            print("✅ FCM Token ready to send to backend")
+        }
     }
 }
