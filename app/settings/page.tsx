@@ -4,12 +4,12 @@ import Link from 'next/link';
 import { auth } from '@/lib/auth';
 import { ChangePasswordForm } from '@/components/settings/change-password-form';
 import { NotificationPreferences } from '@/components/settings/notification-preferences';
+import { ProfileEditForm } from '@/components/settings/profile-edit-form';
 import {
   BellIcon,
   ShieldCheckIcon,
-  PaintBrushIcon,
-  UserGroupIcon,
   KeyIcon,
+  UserIcon,
 } from '@heroicons/react/24/outline';
 
 export const metadata: Metadata = {
@@ -34,9 +34,9 @@ export default async function SettingsPage() {
           Manage your account preferences and settings
         </p>
 
-        <div className="mt-6 grid gap-6 md:grid-cols-2">
-          {/* Admin Panel - Only visible to admins */}
-          {isAdmin && (
+        {/* Admin Panel - Only visible to admins */}
+        {isAdmin && (
+          <div className="mt-6">
             <Link href="/admin" className="card hover:border-brand-500">
               <div className="flex items-start">
                 <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-100 dark:bg-brand-900/20">
@@ -52,68 +52,34 @@ export default async function SettingsPage() {
                 </div>
               </div>
             </Link>
-          )}
-
-
-          {/* Appearance */}
-          <div className="card opacity-60">
-            <div className="flex items-start">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900/20">
-                <PaintBrushIcon className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-              </div>
-              <div className="ml-4 flex-1">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Appearance
-                </h3>
-                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                  Theme and display preferences
-                </p>
-                <p className="mt-2 text-xs text-gray-500 dark:text-gray-500">
-                  Coming soon
-                </p>
-              </div>
-            </div>
           </div>
+        )}
 
-          {/* Privacy & Security */}
-          <div className="card opacity-60">
-            <div className="flex items-start">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900/20">
-                <UserGroupIcon className="h-6 w-6 text-green-600 dark:text-green-400" />
-              </div>
-              <div className="ml-4 flex-1">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Privacy & Security
-                </h3>
-                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                  Control your privacy and security settings
-                </p>
-                <p className="mt-2 text-xs text-gray-500 dark:text-gray-500">
-                  Coming soon
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Account Information */}
+        {/* Profile Information */}
         <div className="card mt-6">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Account Information
-          </h2>
-          <div className="mt-4 space-y-3 text-sm">
-            <div className="flex justify-between">
-              <span className="text-gray-600 dark:text-gray-400">Email</span>
-              <span className="font-medium text-gray-900 dark:text-white">
-                {session.user.email}
-              </span>
+          <div className="flex items-center gap-3 border-b border-gray-200 pb-4 dark:border-gray-700">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900/20">
+              <UserIcon className="h-5 w-5 text-purple-600 dark:text-purple-400" />
             </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600 dark:text-gray-400">Role</span>
-              <span className="font-medium capitalize text-gray-900 dark:text-white">
-                {session.user.role?.toLowerCase() || 'Member'}
-              </span>
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Profile Information
+              </h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Update your personal information
+              </p>
             </div>
+          </div>
+          <div className="mt-6">
+            <ProfileEditForm
+              user={{
+                id: session.user.id,
+                name: session.user.name,
+                email: session.user.email,
+                image: session.user.image,
+              }}
+              isAdmin={isAdmin}
+            />
           </div>
         </div>
 
