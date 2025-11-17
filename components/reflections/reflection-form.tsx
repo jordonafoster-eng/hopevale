@@ -11,7 +11,6 @@ import { XMarkIcon } from '@heroicons/react/24/outline';
 const reflectionSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters').max(100),
   body: z.string().min(50, 'Please share more details (at least 50 characters)').max(2000),
-  tags: z.string(),
 });
 
 type ReflectionFormData = z.infer<typeof reflectionSchema>;
