@@ -81,7 +81,8 @@ export function ReflectionForm({ userId }: { userId: string }) {
         return;
       }
 
-      toast.success('Reflection submitted successfully!');
+      const result = await response.json();
+      toast.success(result.message || 'Reflection submitted successfully!');
       reset();
       setSelectedTags([]);
       setIsOpen(false);

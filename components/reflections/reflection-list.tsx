@@ -1,5 +1,18 @@
 import Link from 'next/link';
 import { formatDate, getInitials, getAvatarColor } from '@/lib/utils';
+import { ChatBubbleLeftIcon } from '@heroicons/react/24/outline';
+
+type Comment = {
+  id: string;
+  body: string;
+  createdAt: Date;
+  author: {
+    id: string;
+    name: string | null;
+    email: string;
+    image: string | null;
+  };
+};
 
 type Reflection = {
   id: string;
@@ -13,6 +26,7 @@ type Reflection = {
     email: string;
     image: string | null;
   };
+  comments: Comment[];
 };
 
 export function ReflectionList({
@@ -83,6 +97,17 @@ export function ReflectionList({
                         {tag}
                       </span>
                     ))}
+                  </div>
+                )}
+
+                {/* Comment Count */}
+                {reflection.comments.length > 0 && (
+                  <div className="mt-3 flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
+                    <ChatBubbleLeftIcon className="h-4 w-4" />
+                    <span>
+                      {reflection.comments.length}{' '}
+                      {reflection.comments.length === 1 ? 'comment' : 'comments'}
+                    </span>
                   </div>
                 )}
               </div>

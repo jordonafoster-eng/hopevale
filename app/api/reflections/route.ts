@@ -46,7 +46,13 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json(reflection, { status: 201 });
+    return NextResponse.json({
+      reflection,
+      requiresModeration,
+      message: requiresModeration
+        ? 'Your reflection has been submitted and is awaiting approval.'
+        : 'Your reflection has been published!'
+    }, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(

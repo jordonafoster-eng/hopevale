@@ -50,7 +50,8 @@ export function PrayerForm({ userId }: { userId: string }) {
         return;
       }
 
-      toast.success('Prayer submitted successfully!');
+      const result = await response.json();
+      toast.success(result.message || 'Prayer submitted successfully!');
       reset();
       setIsOpen(false);
       router.refresh();

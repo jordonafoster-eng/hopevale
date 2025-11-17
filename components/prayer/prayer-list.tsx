@@ -2,6 +2,18 @@
 
 import { PrayerCard } from './prayer-card';
 
+type Comment = {
+  id: string;
+  body: string;
+  createdAt: Date;
+  author: {
+    id: string;
+    name: string | null;
+    email: string;
+    image: string | null;
+  };
+};
+
 type Prayer = {
   id: string;
   title: string;
@@ -16,6 +28,7 @@ type Prayer = {
     email: string;
     image: string | null;
   } | null;
+  comments: Comment[];
 };
 
 export function PrayerList({

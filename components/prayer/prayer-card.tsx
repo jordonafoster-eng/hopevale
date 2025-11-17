@@ -3,9 +3,23 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { formatDate, getInitials, getAvatarColor } from '@/lib/utils';
-import { HeartIcon, HandRaisedIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { HeartIcon, HandRaisedIcon, TrashIcon, ChatBubbleLeftIcon } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
 import toast from 'react-hot-toast';
+import { CommentList } from '@/components/comments/comment-list';
+import { CommentForm } from '@/components/comments/comment-form';
+
+type Comment = {
+  id: string;
+  body: string;
+  createdAt: Date;
+  author: {
+    id: string;
+    name: string | null;
+    email: string;
+    image: string | null;
+  };
+};
 
 type Prayer = {
   id: string;
@@ -21,6 +35,7 @@ type Prayer = {
     email: string;
     image: string | null;
   } | null;
+  comments: Comment[];
 };
 
 export function PrayerCard({
@@ -37,6 +52,7 @@ export function PrayerCard({
   const router = useRouter();
   const [isReacting, setIsReacting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showComments, setShowComments] = useState(false);
 
   const authorName = prayer.isAnonymous
     ? 'Anonymous'
@@ -186,7 +202,51 @@ export function PrayerCard({
                 {hasReacted ? 'Prayed (including you)' : 'Prayed'}
               </span>
             </button>
+
+            <button
+              onClick={() => setShowComments(!showComments)}
+              className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 transition-colors"
+            >
+              <ChatBubbleLeftIcon className="h-4 w-4" />
+              <span>
+                {prayer.comments.length}{' '}
+                {prayer.comments.length === 1 ? 'Comment' : 'Comments'}
+              </span>
+            </button>
           </div>
+
+          {/* Comments Section */}
+          {showComments && (
+            <div className="mt-4 border-t border-gray-200 dark:border-gray-700 pt-4">
+              <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-4">
+                Comments
+              </h4>
+
+              <CommentList comments={prayer.comments} />
+
+              {currentUserId && (
+                <div className="mt-4">
+                  <CommentForm
+                    targetType="prayer"
+                    targetId={prayer.id}
+                    onCommentAdded={() => setShowComments(true)}
+                  />
+                </div>
+              )}
+
+              {!currentUserId && (
+                <div className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
+                  <a
+                    href="/auth/signin?callbackUrl=/prayer"
+                    className="font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400"
+                  >
+                    Sign in
+                  </a>{' '}
+                  to leave a comment
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

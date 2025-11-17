@@ -9,6 +9,8 @@ import { RSVPList } from '@/components/events/rsvp-list';
 import { EventAdminActions } from '@/components/admin/event-admin-actions';
 import { EventActions } from '@/components/events/event-actions';
 import { ShareEventButton } from '@/components/events/share-event-button';
+import { CommentList } from '@/components/comments/comment-list';
+import { CommentForm } from '@/components/comments/comment-form';
 import {
   CalendarIcon,
   MapPinIcon,
@@ -62,6 +64,21 @@ async function getEvent(id: string) {
         },
         orderBy: {
           createdAt: 'desc',
+        },
+      },
+      comments: {
+        include: {
+          author: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              image: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: 'asc',
         },
       },
     },
@@ -219,6 +236,38 @@ export default async function EventDetailPage({
                 <RSVPList rsvps={event.rsvps} />
               </div>
             )}
+
+            {/* Comments */}
+            <div className="mt-6 border-t border-gray-200 pt-6 dark:border-gray-700">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Comments ({event.comments.length})
+              </h2>
+
+              <div className="mt-4">
+                <CommentList comments={event.comments} />
+              </div>
+
+              {session?.user && (
+                <div className="mt-6">
+                  <CommentForm
+                    targetType="event"
+                    targetId={event.id}
+                  />
+                </div>
+              )}
+
+              {!session?.user && (
+                <div className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
+                  <a
+                    href={`/auth/signin?callbackUrl=/events/${event.id}`}
+                    className="font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400"
+                  >
+                    Sign in
+                  </a>{' '}
+                  to leave a comment
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

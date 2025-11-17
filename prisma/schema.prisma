@@ -40,6 +40,7 @@ model User {
   notificationPreferences NotificationPreference?
   notifications Notification[]
   deviceTokens  DeviceToken[]
+  comments      Comment[]
 
   @@index([email])
   @@index([role])
@@ -112,8 +113,9 @@ model Event {
   updatedAt   DateTime  @updatedAt
 
   // Relations
-  createdBy User   @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  createdBy User      @relation(fields: [createdById], references: [id], onDelete: Cascade)
   rsvps     RSVP[]
+  comments  Comment[]
 
   @@index([startAt])
   @@index([createdById])
@@ -155,7 +157,8 @@ model Prayer {
   deletedAt      DateTime?   // soft delete
 
   // Relations
-  author User? @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  author   User?     @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  comments Comment[]
 
   @@index([createdAt])
   @@index([isApproved])
@@ -182,7 +185,8 @@ model Reflection {
   deletedAt  DateTime?   // soft delete
 
   // Relations
-  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  author   User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments Comment[]
 
   @@index([authorId])
   @@index([createdAt])
@@ -438,6 +442,32 @@ model DeviceToken {
 
   @@index([userId])
   @@index([token])
+}
+
+// ==================== COMMENTS ====================
+
+model Comment {
+  id        String   @id @default(cuid())
+  body      String   @db.Text
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  // Polymorphic relations - one of these will be set
+  prayerId      String?
+  prayer        Prayer?     @relation(fields: [prayerId], references: [id], onDelete: Cascade)
+  reflectionId  String?
+  reflection    Reflection? @relation(fields: [reflectionId], references: [id], onDelete: Cascade)
+  eventId       String?
+  event         Event?      @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([authorId])
+  @@index([prayerId])
+  @@index([reflectionId])
+  @@index([eventId])
+  @@index([createdAt])
 }
 
 // ==================== SITE SETTINGS ====================
