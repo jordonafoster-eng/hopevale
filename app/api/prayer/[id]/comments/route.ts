@@ -9,7 +9,7 @@ const commentSchema = z.object({
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -18,7 +18,7 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { id: prayerId } = params;
+    const { id: prayerId } = await params;
 
     // Verify prayer exists
     const prayer = await prisma.prayer.findUnique({
@@ -70,10 +70,10 @@ export async function POST(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: prayerId } = params;
+    const { id: prayerId } = await params;
 
     const comments = await prisma.comment.findMany({
       where: { prayerId },
