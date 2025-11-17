@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { StarIcon } from '@heroicons/react/24/solid';
 import { StarIcon as StarOutlineIcon } from '@heroicons/react/24/outline';
+import { getInitials, getAvatarColor } from '@/lib/utils';
 
 type Recipe = {
   id: string;
@@ -12,12 +13,17 @@ type Recipe = {
   ratingCount: number;
   author: {
     name: string | null;
+    email: string;
+    image: string | null;
   };
 };
 
 export function RecipeCard({ recipe }: { recipe: Recipe }) {
   const fullStars = Math.floor(recipe.ratingAvg);
   const hasHalfStar = recipe.ratingAvg % 1 >= 0.5;
+  const authorName = recipe.author.name || 'Anonymous';
+  const initials = getInitials(authorName);
+  const avatarColor = getAvatarColor(recipe.author.email);
 
   return (
     <Link href={`/recipes/${recipe.id}`} className="card-hover group">
@@ -34,9 +40,24 @@ export function RecipeCard({ recipe }: { recipe: Recipe }) {
           )}
         </div>
 
-        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-          By {recipe.author.name || 'Anonymous'}
-        </p>
+        <div className="mt-2 flex items-center gap-2">
+          {recipe.author.image ? (
+            <img
+              src={recipe.author.image}
+              alt={authorName}
+              className="h-6 w-6 rounded-full object-cover"
+            />
+          ) : (
+            <div
+              className={`flex h-6 w-6 items-center justify-center rounded-full ${avatarColor} text-xs font-medium text-white`}
+            >
+              {initials}
+            </div>
+          )}
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            {authorName}
+          </p>
+        </div>
 
         {/* Rating */}
         {recipe.ratingCount > 0 && (

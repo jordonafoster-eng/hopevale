@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 import { getInitials, getAvatarColor } from '@/lib/utils';
 import { ProfileEditForm } from '@/components/settings/profile-edit-form';
 
@@ -12,11 +13,27 @@ export const metadata: Metadata = {
 export default async function ProfilePage() {
   const session = await auth();
 
-  if (!session?.user) {
+  if (!session?.user?.id) {
     redirect('/auth/signin?callbackUrl=/profile');
   }
 
-  const { user } = session;
+  // Fetch fresh user data from database instead of using cached session
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      image: true,
+      role: true,
+      createdAt: true,
+    },
+  });
+
+  if (!user) {
+    redirect('/auth/signin?callbackUrl=/profile');
+  }
+
   const isAdmin = user.role === 'ADMIN';
   const initials = getInitials(user.name || user.email || 'U');
   const avatarColor = getAvatarColor(user.email || '');
@@ -79,7 +96,7 @@ export default async function ProfilePage() {
                 Member Since
               </label>
               <p className="mt-1 text-gray-900 dark:text-white">
-                {new Date(session.user.id).toLocaleDateString('en-US', {
+                {new Date(user.createdAt).toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric',

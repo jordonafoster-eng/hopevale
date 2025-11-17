@@ -43,6 +43,7 @@ async function getPrayers(filters?: {
           id: true,
           name: true,
           email: true,
+          image: true,
         },
       },
     },

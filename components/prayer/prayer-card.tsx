@@ -19,6 +19,7 @@ type Prayer = {
     id: string;
     name: string | null;
     email: string;
+    image: string | null;
   } | null;
 };
 
@@ -107,11 +108,19 @@ export function PrayerCard({
     <div className="card">
       <div className="flex gap-4">
         {/* Avatar */}
-        <div
-          className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full ${avatarColor} text-sm font-medium text-white`}
-        >
-          {initials}
-        </div>
+        {!prayer.isAnonymous && prayer.author?.image ? (
+          <img
+            src={prayer.author.image}
+            alt={authorName}
+            className="h-10 w-10 flex-shrink-0 rounded-full object-cover"
+          />
+        ) : (
+          <div
+            className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full ${avatarColor} text-sm font-medium text-white`}
+          >
+            {initials}
+          </div>
+        )}
 
         {/* Content */}
         <div className="flex-1 min-w-0">
