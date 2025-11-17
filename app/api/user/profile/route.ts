@@ -33,6 +33,13 @@ export async function PATCH(req: NextRequest) {
     const email = formData.get('email') as string;
     const imageFile = formData.get('image') as File | null;
 
+    console.log('Profile update request:', {
+      name,
+      email,
+      hasImage: !!imageFile,
+      imageSize: imageFile?.size,
+    });
+
     // Check if user is admin
     const currentUser = await prisma.user.findUnique({
       where: { id: session.user.id },
@@ -78,6 +85,7 @@ export async function PATCH(req: NextRequest) {
           .getPublicUrl(filePath);
 
         imageUrl = urlData.publicUrl;
+        console.log('Image uploaded successfully:', imageUrl);
       } catch (error) {
         console.error('Image upload error:', error);
         return NextResponse.json(
@@ -138,6 +146,8 @@ export async function PATCH(req: NextRequest) {
         image: true,
       },
     });
+
+    console.log('User profile updated:', updatedUser);
 
     return NextResponse.json({
       success: true,
