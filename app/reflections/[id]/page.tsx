@@ -142,7 +142,10 @@ export default async function ReflectionDetailPage({
 
                 {/* Delete Button */}
                 {canDelete && (
-                  <DeleteReflectionButton reflectionId={reflection.id} />
+                  <DeleteReflectionButton
+                    reflectionId={reflection.id}
+                    isAuthor={reflection.authorId === session?.user?.id}
+                  />
                 )}
               </div>
 
