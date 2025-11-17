@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { getInitials, getAvatarColor } from '@/lib/utils';
 import { RatingStars } from '@/components/recipes/rating-stars';
 import { RatingForm } from '@/components/recipes/rating-form';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
@@ -20,9 +21,9 @@ async function getRecipe(id: string) {
   return prisma.recipe.findUnique({
     where: { id },
     include: {
-      author: { select: { id: true, name: true, email: true } },
+      author: { select: { id: true, name: true, email: true, image: true } },
       ratings: {
-        include: { user: { select: { name: true, email: true } } },
+        include: { user: { select: { name: true, email: true, image: true } } },
         orderBy: { createdAt: 'desc' },
       },
     },
@@ -95,17 +96,39 @@ export default async function RecipeDetailPage({ params }: { params: Promise<{ i
           <div className="mt-6">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Reviews ({recipe.ratings.length})</h3>
             <div className="mt-4 space-y-4">
-              {recipe.ratings.map((rating) => (
-                <div key={rating.id} className="card">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="font-medium text-gray-900 dark:text-white">{rating.user.name || 'Anonymous'}</p>
-                      <RatingStars rating={rating.rating} size="sm" />
+              {recipe.ratings.map((rating) => {
+                const userName = rating.user.name || 'Anonymous';
+                const initials = getInitials(userName);
+                const avatarColor = getAvatarColor(rating.user.email);
+
+                return (
+                  <div key={rating.id} className="card">
+                    <div className="flex gap-3">
+                      {/* Avatar */}
+                      {rating.user.image ? (
+                        <img
+                          src={rating.user.image}
+                          alt={userName}
+                          className="h-10 w-10 flex-shrink-0 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div
+                          className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full ${avatarColor} text-sm font-medium text-white`}
+                        >
+                          {initials}
+                        </div>
+                      )}
+
+                      {/* Content */}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-gray-900 dark:text-white">{userName}</p>
+                        <RatingStars rating={rating.rating} size="sm" />
+                        {rating.comment && <p className="mt-2 text-gray-700 dark:text-gray-300">{rating.comment}</p>}
+                      </div>
                     </div>
                   </div>
-                  {rating.comment && <p className="mt-2 text-gray-700 dark:text-gray-300">{rating.comment}</p>}
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
