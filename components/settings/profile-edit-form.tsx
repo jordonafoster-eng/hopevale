@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
+import { PhotoIcon } from '@heroicons/react/24/outline';
 
 interface ProfileEditFormProps {
   user: {
@@ -18,23 +19,41 @@ export function ProfileEditForm({ user, isAdmin }: ProfileEditFormProps) {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(user.image || null);
   const [formData, setFormData] = useState({
     name: user.name || '',
     email: user.email || '',
-    image: user.image || '',
   });
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
+      const formDataToSend = new FormData();
+      formDataToSend.append('name', formData.name);
+      formDataToSend.append('email', formData.email);
+      if (imageFile) {
+        formDataToSend.append('image', imageFile);
+      }
+
       const response = await fetch('/api/user/profile', {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+        body: formDataToSend,
       });
 
       if (!response.ok) {
@@ -57,8 +76,9 @@ export function ProfileEditForm({ user, isAdmin }: ProfileEditFormProps) {
     setFormData({
       name: user.name || '',
       email: user.email || '',
-      image: user.image || '',
     });
+    setImageFile(null);
+    setImagePreview(user.image || null);
     setIsEditing(false);
   };
 
@@ -132,17 +152,41 @@ export function ProfileEditForm({ user, isAdmin }: ProfileEditFormProps) {
       </div>
 
       <div>
-        <label htmlFor="image" className="label">
-          Profile Image URL
+        <label className="label">
+          Profile Image
         </label>
-        <input
-          type="url"
-          id="image"
-          value={formData.image}
-          onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-          className="input"
-          placeholder="https://example.com/image.jpg"
-        />
+        <div className="mt-2 flex items-center gap-4">
+          {imagePreview ? (
+            <img
+              src={imagePreview}
+              alt="Profile preview"
+              className="h-20 w-20 rounded-full object-cover"
+            />
+          ) : (
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700">
+              <PhotoIcon className="h-10 w-10 text-gray-400" />
+            </div>
+          )}
+          <div className="flex-1">
+            <input
+              type="file"
+              id="image"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="hidden"
+            />
+            <label
+              htmlFor="image"
+              className="btn-secondary inline-flex cursor-pointer items-center gap-2"
+            >
+              <PhotoIcon className="h-5 w-5" />
+              Choose Image
+            </label>
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              PNG, JPG, GIF up to 5MB
+            </p>
+          </div>
+        </div>
       </div>
 
       <div className="flex gap-3">

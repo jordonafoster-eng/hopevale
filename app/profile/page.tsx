@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
-import { UserCircleIcon } from '@heroicons/react/24/outline';
 import { getInitials, getAvatarColor } from '@/lib/utils';
+import { ProfileEditForm } from '@/components/settings/profile-edit-form';
 
 export const metadata: Metadata = {
   title: 'Profile - Church Friends',
@@ -17,6 +17,7 @@ export default async function ProfilePage() {
   }
 
   const { user } = session;
+  const isAdmin = user.role === 'ADMIN';
   const initials = getInitials(user.name || user.email || 'U');
   const avatarColor = getAvatarColor(user.email || '');
 
@@ -88,18 +89,21 @@ export default async function ProfilePage() {
           </div>
         </div>
 
-        {/* Coming Soon Notice */}
-        <div className="card mt-6 bg-blue-50 dark:bg-blue-900/20">
-          <div className="flex">
-            <UserCircleIcon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-blue-800 dark:text-blue-300">
-                Profile Editing Coming Soon
-              </h3>
-              <p className="mt-1 text-sm text-blue-700 dark:text-blue-400">
-                The ability to edit your profile information will be available in a future update.
-              </p>
-            </div>
+        {/* Edit Profile */}
+        <div className="card mt-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+            Edit Profile
+          </h3>
+          <div className="mt-4">
+            <ProfileEditForm
+              user={{
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                image: user.image,
+              }}
+              isAdmin={isAdmin}
+            />
           </div>
         </div>
       </div>
