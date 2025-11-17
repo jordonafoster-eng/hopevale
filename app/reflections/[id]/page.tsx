@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
+import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 import { isAdmin } from '@/lib/auth-utils';
@@ -102,12 +103,12 @@ export default async function ReflectionDetailPage({
     <div className="section">
       <div className="mx-auto max-w-4xl">
         {/* Back Link */}
-        <a
+        <Link
           href="/reflections"
           className="inline-flex items-center text-sm font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400"
         >
           ← Back to Reflections
-        </a>
+        </Link>
 
         {/* Reflection Card */}
         <div className="card mt-4">
@@ -200,12 +201,12 @@ export default async function ReflectionDetailPage({
 
           {!session?.user && (
             <div className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-              <a
+              <Link
                 href={`/auth/signin?callbackUrl=/reflections/${reflection.id}`}
                 className="font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400"
               >
                 Sign in
-              </a>{' '}
+              </Link>{' '}
               to leave a comment
             </div>
           )}
