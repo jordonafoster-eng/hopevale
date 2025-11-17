@@ -142,20 +142,9 @@ export function PrayerCard({
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
             <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <p className="font-medium text-gray-900 dark:text-white">
-                  {authorName}
-                </p>
-                <span
-                  className={`badge ${
-                    prayer.type === 'PRAISE'
-                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                      : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                  }`}
-                >
-                  {prayer.type === 'PRAISE' ? 'Praise' : 'Request'}
-                </span>
-              </div>
+              <p className="font-medium text-gray-900 dark:text-white">
+                {authorName}
+              </p>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 {formatDate(prayer.createdAt)}
               </p>

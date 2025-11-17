@@ -14,17 +14,38 @@ export const metadata: Metadata = {
 async function getReflections(filters?: {
   search?: string;
   tag?: string;
+  userId?: string;
 }) {
   const where: any = {
-    isApproved: true,
     deletedAt: null,
   };
 
-  if (filters?.search) {
+  // Show approved reflections OR user's own reflections (even if pending)
+  if (filters?.userId) {
     where.OR = [
+      { isApproved: true },
+      { authorId: filters.userId },
+    ];
+  } else {
+    where.isApproved = true;
+  }
+
+  if (filters?.search) {
+    const searchConditions = [
       { title: { contains: filters.search, mode: 'insensitive' } },
       { body: { contains: filters.search, mode: 'insensitive' } },
     ];
+
+    if (where.OR) {
+      // Combine with existing OR conditions
+      where.AND = [
+        { OR: where.OR },
+        { OR: searchConditions },
+      ];
+      delete where.OR;
+    } else {
+      where.OR = searchConditions;
+    }
   }
 
   if (filters?.tag) {
@@ -98,6 +119,7 @@ export default async function ReflectionsPage({
     getReflections({
       search: params.search,
       tag: params.tag,
+      userId: session?.user?.id,
     }),
     getAllTags(),
   ]);

@@ -24,21 +24,6 @@ export function PrayerFilters() {
     router.push(`/prayer?${params.toString()}`);
   };
 
-  const handleTypeFilter = (type: 'REQUEST' | 'PRAISE') => {
-    const params = new URLSearchParams(searchParams);
-    const currentType = params.get('type');
-
-    if (currentType === type) {
-      params.delete('type');
-    } else {
-      params.set('type', type);
-    }
-
-    router.push(`/prayer?${params.toString()}`);
-  };
-
-  const activeType = searchParams.get('type');
-
   return (
     <div className="space-y-4">
       {/* Search */}
@@ -55,37 +40,17 @@ export function PrayerFilters() {
         />
       </form>
 
-      {/* Type Filters */}
-      <div className="flex flex-wrap gap-2">
-        <button
-          onClick={() => handleTypeFilter('REQUEST')}
-          className={`btn-secondary ${
-            activeType === 'REQUEST'
-              ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
-              : ''
-          }`}
-        >
-          Prayer Requests
-        </button>
-        <button
-          onClick={() => handleTypeFilter('PRAISE')}
-          className={`btn-secondary ${
-            activeType === 'PRAISE'
-              ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
-              : ''
-          }`}
-        >
-          Praise Reports
-        </button>
-        {(searchParams.get('search') || searchParams.get('type')) && (
+      {/* Clear Search */}
+      {searchParams.get('search') && (
+        <div className="flex justify-end">
           <button
             onClick={() => router.push('/prayer')}
             className="text-sm font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400"
           >
-            Clear all
+            Clear search
           </button>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

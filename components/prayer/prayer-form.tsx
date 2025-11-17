@@ -8,7 +8,7 @@ import { z } from 'zod';
 import toast from 'react-hot-toast';
 
 const prayerSchema = z.object({
-  type: z.enum(['REQUEST', 'PRAISE']),
+  type: z.literal('REQUEST'),
   title: z.string().min(3, 'Title must be at least 3 characters').max(100),
   body: z.string().min(10, 'Please provide more details').max(1000),
   isAnonymous: z.boolean(),
@@ -65,7 +65,7 @@ export function PrayerForm({ userId }: { userId: string }) {
   if (!isOpen) {
     return (
       <button onClick={() => setIsOpen(true)} className="btn-primary w-full">
-        Share a Prayer or Praise
+        Share a Prayer Request
       </button>
     );
   }
@@ -74,7 +74,7 @@ export function PrayerForm({ userId }: { userId: string }) {
     <div className="card">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-          Share with Community
+          Share Prayer Request
         </h3>
         <button
           onClick={() => setIsOpen(false)}
@@ -85,41 +85,7 @@ export function PrayerForm({ userId }: { userId: string }) {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="mt-4 space-y-4">
-        {/* Type Selection */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Type
-          </label>
-          <div className="mt-2 flex gap-4">
-            <label className="flex items-center">
-              <input
-                {...register('type')}
-                type="radio"
-                value="REQUEST"
-                className="h-4 w-4 border-gray-300 text-brand-600 focus:ring-brand-500"
-              />
-              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                Prayer Request
-              </span>
-            </label>
-            <label className="flex items-center">
-              <input
-                {...register('type')}
-                type="radio"
-                value="PRAISE"
-                className="h-4 w-4 border-gray-300 text-brand-600 focus:ring-brand-500"
-              />
-              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                Praise Report
-              </span>
-            </label>
-          </div>
-          {errors.type && (
-            <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-              {errors.type.message}
-            </p>
-          )}
-        </div>
+        <input type="hidden" {...register('type')} value="REQUEST" />
 
         {/* Title */}
         <div>

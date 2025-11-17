@@ -9,7 +9,7 @@ import { HeartIcon } from '@heroicons/react/24/outline';
 
 export const metadata: Metadata = {
   title: 'Prayer Wall - Church Friends',
-  description: 'Share prayer requests and praise reports with the community',
+  description: 'Share prayer requests with the community',
 };
 
 async function getPrayers(filters?: {
@@ -112,7 +112,7 @@ export default async function PrayerPage({
           </div>
           <h1 className="mt-4 heading-2">Prayer Wall</h1>
           <p className="mt-2 text-gray-600 dark:text-gray-400">
-            Share your prayer requests and praise reports with our community
+            Share your prayer requests with our community
           </p>
         </div>
 
@@ -133,7 +133,7 @@ export default async function PrayerPage({
               >
                 sign in
               </a>{' '}
-              to share prayer requests or praise reports
+              to share prayer requests
             </p>
           </div>
         )}
@@ -154,7 +154,7 @@ export default async function PrayerPage({
               <p className="mt-2 text-gray-600 dark:text-gray-400">
                 {params.search
                   ? 'Try adjusting your search or filters'
-                  : 'Be the first to share a prayer request or praise report!'}
+                  : 'Be the first to share a prayer request!'}
               </p>
             </div>
           ) : (
