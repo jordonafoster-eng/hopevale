@@ -17,7 +17,7 @@ export default function PrivacyPolicyPage() {
         <div className="prose prose-gray dark:prose-invert mt-8 max-w-none">
           <h2>Introduction</h2>
           <p>
-            HopeVale Community ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your information when you use our mobile application.
+            HopeVale Community (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your information when you use our mobile application.
           </p>
 
           <h2>Information We Collect</h2>
@@ -81,7 +81,7 @@ export default function PrivacyPolicyPage() {
             <li>Control the visibility of your content (e.g., posting anonymously)</li>
           </ul>
 
-          <h2>Children's Privacy</h2>
+          <h2>Children&apos;s Privacy</h2>
           <p>
             Our app is designed for use by families and church communities. We do not knowingly collect personal information from children under 13 without parental consent. The Kids Corner section contains educational content and does not require children to create accounts or provide personal information.
           </p>
@@ -109,7 +109,7 @@ export default function PrivacyPolicyPage() {
 
           <h2>Changes to This Policy</h2>
           <p>
-            We may update this Privacy Policy from time to time. We will notify you of any significant changes by posting the new policy in the app and updating the "Last updated" date.
+            We may update this Privacy Policy from time to time. We will notify you of any significant changes by posting the new policy in the app and updating the &quot;Last updated&quot; date.
           </p>
 
           <h2>Contact Us</h2>
