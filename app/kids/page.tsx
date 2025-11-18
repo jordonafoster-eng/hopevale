@@ -79,16 +79,14 @@ export default async function KidsPage({
             </div>
           ) : (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {/* Bible Verse Matching Game Card */}
-              <Link href="/kids/verse-game" className="card-hover group">
-                {/* Game Icon/Thumbnail */}
+              {/* Bible Verse Matching Game Card - HIDDEN FOR NOW */}
+              {/* <Link href="/kids/verse-game" className="card-hover group">
                 <div className="aspect-[4/3] w-full overflow-hidden rounded-lg bg-gradient-to-br from-purple-400 to-blue-500">
                   <div className="flex h-full items-center justify-center">
                     <PuzzlePieceIcon className="h-20 w-20 text-white group-hover:scale-110 transition-transform duration-300" />
                   </div>
                 </div>
 
-                {/* Content */}
                 <div className="mt-4">
                   <div className="flex items-start justify-between gap-2">
                     <span className="badge flex-shrink-0 bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200">
@@ -104,7 +102,6 @@ export default async function KidsPage({
                     Match Bible verses with their references in this fun and interactive game! Perfect for kids ages 3-12.
                   </p>
 
-                  {/* Tags */}
                   <div className="mt-3 flex flex-wrap gap-1">
                     <span className="badge-secondary text-xs">
                       Interactive
@@ -117,13 +114,12 @@ export default async function KidsPage({
                     </span>
                   </div>
 
-                  {/* Play Button */}
                   <button className="btn-primary mt-4 w-full bg-purple-600 hover:bg-purple-700">
                     <PuzzlePieceIcon className="mr-2 h-5 w-5" />
                     Play Game
                   </button>
                 </div>
-              </Link>
+              </Link> */}
 
               {/* Downloadable Assets */}
               {assets.map((asset) => (
