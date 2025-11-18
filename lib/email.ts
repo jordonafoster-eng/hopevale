@@ -1,7 +1,7 @@
 import { Resend } from 'resend';
 import { prisma } from '@/lib/prisma';
 import { NotificationType } from '@prisma/client';
-import { sendPushToUser, shouldSendPushForType } from '@/lib/push';
+import { sendPushToUser, shouldSendPushForType, updateBadgeCount } from '@/lib/push';
 
 // Lazy initialize Resend to ensure env vars are loaded
 function getResendClient() {
@@ -148,16 +148,16 @@ export async function createNotification({
       }
     }
 
+    // Calculate unread notification count for badge
+    const unreadCount = await prisma.notification.count({
+      where: {
+        userId,
+        read: false,
+      },
+    });
+
     // Send push notification if enabled
     if (shouldSendPushNow) {
-      // Calculate unread notification count for badge
-      const unreadCount = await prisma.notification.count({
-        where: {
-          userId,
-          read: false,
-        },
-      });
-
       const pushResult = await sendPushToUser({
         userId,
         title,
@@ -176,6 +176,10 @@ export async function createNotification({
           },
         });
       }
+    } else if (notification) {
+      // If push notifications are disabled but in-app notification was created,
+      // send a silent badge update so the iOS badge count stays accurate
+      await updateBadgeCount(userId, unreadCount);
     }
 
     return { success: true, notification };
