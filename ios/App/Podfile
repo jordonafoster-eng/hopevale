@@ -16,7 +16,7 @@ def capacitor_pods
   pod 'CapacitorStatusBar', :path => '../../node_modules/@capacitor/status-bar'
 
   # Fix nanopb version mismatch
-  pod 'nanopb', '~> 2.30910.0', :modular_headers => true
+  pod 'nanopb', '= 3.30910.0', :modular_headers => true
 end
 
 target 'App' do
