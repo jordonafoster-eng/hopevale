@@ -37,6 +37,6 @@ post_install do |installer|
     end
   end
 
-  # Fix double-quoted includes in nanopb headers
-  `find Pods/nanopb -name '*.h' -exec sed -i '' -e 's/"pb\\.h"/<pb.h>/g' -e 's/"pb_common\\.h"/<pb_common.h>/g' -e 's/"pb_encode\\.h"/<pb_encode.h>/g' -e 's/"pb_decode\\.h"/<pb_decode.h>/g' {} +`
+  # Fix double-quoted includes in nanopb headers (in nanopb pod and all Firebase/Google pods)
+  `find Pods/nanopb Pods/GoogleDataTransport Pods/GoogleUtilities Pods/FirebaseCore Pods/FirebaseMessaging Pods/FirebaseInstallations -name '*.h' -type f -exec sed -i '' -e 's/"pb\\.h"/<pb.h>/g' -e 's/"pb_common\\.h"/<pb_common.h>/g' -e 's/"pb_encode\\.h"/<pb_encode.h>/g' -e 's/"pb_decode\\.h"/<pb_decode.h>/g' {} + 2>/dev/null || true`
 end
