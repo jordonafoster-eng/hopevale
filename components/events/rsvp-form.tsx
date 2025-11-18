@@ -68,7 +68,7 @@ export function RSVPForm({
         existingRSVP ? 'RSVP updated successfully!' : 'RSVP submitted successfully!'
       );
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error('Something went wrong. Please try again.');
     } finally {
       setIsSubmitting(false);
@@ -95,7 +95,7 @@ export function RSVPForm({
 
       toast.success('RSVP cancelled successfully');
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error('Something went wrong. Please try again.');
     } finally {
       setIsDeleting(false);

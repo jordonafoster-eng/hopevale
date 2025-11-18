@@ -56,7 +56,7 @@ export function MusicPlaylistList({ playlists }: { playlists: Playlist[] }) {
       toast.success('Playlist updated');
       setEditingPlaylist(null);
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to update playlist');
     } finally {
       setIsUpdating(false);
@@ -81,7 +81,7 @@ export function MusicPlaylistList({ playlists }: { playlists: Playlist[] }) {
 
       toast.success('Playlist deleted');
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to delete playlist');
     } finally {
       setDeletingId(null);

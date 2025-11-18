@@ -39,7 +39,7 @@ export function UserRoleToggle({
 
       toast.success(`User role updated to ${newRole}`);
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to update user role');
     } finally {
       setIsUpdating(false);

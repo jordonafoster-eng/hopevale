@@ -21,7 +21,7 @@ export function NotificationBell() {
       if (!response.ok) return;
       const data = await response.json();
       setUnreadCount(data.total || 0);
-    } catch (error) {
+    } catch (_error) {
       console.error('Error fetching unread count:', error);
     }
   };

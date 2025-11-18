@@ -36,7 +36,7 @@ export function RatingForm({ recipeId, existingRating }: { recipeId: string; exi
 
       toast.success(existingRating ? 'Rating updated!' : 'Rating submitted!');
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error('Something went wrong');
     } finally {
       setIsSubmitting(false);

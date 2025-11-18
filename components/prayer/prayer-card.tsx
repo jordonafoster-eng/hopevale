@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { formatDate, getInitials, getAvatarColor } from '@/lib/utils';
-import { HeartIcon, HandRaisedIcon, TrashIcon, ChatBubbleLeftIcon } from '@heroicons/react/24/outline';
+import { HandRaisedIcon, TrashIcon, ChatBubbleLeftIcon } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
 import toast from 'react-hot-toast';
 import { CommentList } from '@/components/comments/comment-list';
@@ -86,7 +86,7 @@ export function PrayerCard({
 
       toast.success(hasReacted ? 'Reaction removed' : 'Prayed!');
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error('Something went wrong');
     } finally {
       setIsReacting(false);
@@ -113,7 +113,7 @@ export function PrayerCard({
 
       toast.success('Prayer deleted successfully');
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error('Something went wrong');
     } finally {
       setIsDeleting(false);

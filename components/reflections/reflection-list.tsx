@@ -31,7 +31,7 @@ type Reflection = {
 
 export function ReflectionList({
   reflections,
-  currentUserId,
+  currentUserId: _currentUserId,
 }: {
   reflections: Reflection[];
   currentUserId?: string;

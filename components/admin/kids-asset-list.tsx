@@ -55,7 +55,7 @@ export function KidsAssetList({ assets }: { assets: KidsAsset[] }) {
       toast.success('Asset updated');
       setEditingAsset(null);
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to update asset');
     } finally {
       setIsUpdating(false);
@@ -80,7 +80,7 @@ export function KidsAssetList({ assets }: { assets: KidsAsset[] }) {
 
       toast.success('Asset deleted');
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to delete asset');
     } finally {
       setDeletingId(null);

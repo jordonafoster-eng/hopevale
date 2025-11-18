@@ -52,7 +52,7 @@ export function SignInForm({
       toast.success('Welcome back!');
       router.push(callbackUrl || '/');
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error('Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);

@@ -40,7 +40,7 @@ export function UserManagementActions({
 
       toast.success('User deleted successfully');
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to delete user');
     } finally {
       setIsDeleting(false);
@@ -70,7 +70,7 @@ export function UserManagementActions({
 
       toast.success(`User ${action}ed successfully`);
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error(`Failed to ${action} user`);
     } finally {
       setIsTogglingStatus(false);

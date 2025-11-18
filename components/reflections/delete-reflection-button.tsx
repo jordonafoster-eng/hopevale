@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 
 export function DeleteReflectionButton({
   reflectionId,
-  isAuthor,
+  isAuthor: _isAuthor,
 }: {
   reflectionId: string;
   isAuthor: boolean;
@@ -36,7 +36,7 @@ export function DeleteReflectionButton({
       toast.success('Reflection deleted successfully');
       router.push('/reflections');
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error('Something went wrong');
     } finally {
       setIsDeleting(false);

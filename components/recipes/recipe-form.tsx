@@ -35,7 +35,7 @@ const COMMON_CATEGORIES = [
   'gluten-free',
 ];
 
-export function RecipeForm({ userId }: { userId: string }) {
+export function RecipeForm({ userId: _userId }: { userId: string }) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -90,7 +90,7 @@ export function RecipeForm({ userId }: { userId: string }) {
       setSelectedCategories([]);
       setIsOpen(false);
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error('Something went wrong. Please try again.');
     } finally {
       setIsSubmitting(false);

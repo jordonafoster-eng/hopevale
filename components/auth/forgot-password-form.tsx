@@ -43,7 +43,7 @@ export function ForgotPasswordForm() {
 
       setEmailSent(true);
       toast.success('Password reset email sent!');
-    } catch (error) {
+    } catch (_error) {
       toast.error('Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);

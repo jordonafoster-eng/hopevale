@@ -32,7 +32,7 @@ const COMMON_TAGS = [
   'testimony',
 ];
 
-export function ReflectionForm({ userId }: { userId: string }) {
+export function ReflectionForm({ userId: _userId }: { userId: string }) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -86,7 +86,7 @@ export function ReflectionForm({ userId }: { userId: string }) {
       setSelectedTags([]);
       setIsOpen(false);
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error('Something went wrong. Please try again.');
     } finally {
       setIsSubmitting(false);

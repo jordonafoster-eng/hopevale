@@ -16,7 +16,7 @@ const prayerSchema = z.object({
 
 type PrayerFormData = z.infer<typeof prayerSchema>;
 
-export function PrayerForm({ userId }: { userId: string }) {
+export function PrayerForm({ userId: _userId }: { userId: string }) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -55,7 +55,7 @@ export function PrayerForm({ userId }: { userId: string }) {
       reset();
       setIsOpen(false);
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error('Something went wrong. Please try again.');
     } finally {
       setIsSubmitting(false);

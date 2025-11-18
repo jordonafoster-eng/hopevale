@@ -42,6 +42,7 @@ export function VerseMatchingGame() {
 
   useEffect(() => {
     loadGame();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadGame = async () => {
@@ -54,7 +55,7 @@ export function VerseMatchingGame() {
       setVerses(data);
       initializeCards(data);
       setStartTime(Date.now());
-    } catch (error) {
+    } catch (_error) {
       toast.error('Oops! Try again!');
     } finally {
       setIsLoading(false);
@@ -178,7 +179,7 @@ export function VerseMatchingGame() {
           })
         )
       );
-    } catch (error) {
+    } catch (_error) {
       console.error('Failed to save progress:', error);
     }
   };

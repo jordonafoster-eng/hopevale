@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { auth } from '@/lib/auth';
 import { UserMenu } from './user-menu';
 import { ThemeToggle } from './theme-toggle';
@@ -25,9 +26,13 @@ export async function Header() {
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600">
-                <span className="text-lg font-bold text-white">G</span>
-              </div>
+              <Image
+                src="/icon-192.png"
+                alt="HopeVale Community Logo"
+                width={32}
+                height={32}
+                className="h-8 w-8 rounded-lg"
+              />
               <span className="text-xl font-bold text-gray-900 dark:text-white">
                 Church Friends
               </span>

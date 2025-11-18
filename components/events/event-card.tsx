@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { formatDateTime } from '@/lib/utils';
 import {
-  CalendarIcon,
   MapPinIcon,
   UserGroupIcon,
   ClockIcon,

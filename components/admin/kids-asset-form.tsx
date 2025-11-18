@@ -55,7 +55,7 @@ export function KidsAssetForm() {
       const fileInput = document.getElementById('file-upload') as HTMLInputElement;
       if (fileInput) fileInput.value = '';
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error(error instanceof Error ? error.message : 'Failed to upload asset');
     } finally {
       setIsSubmitting(false);

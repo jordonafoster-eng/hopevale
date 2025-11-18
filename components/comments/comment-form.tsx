@@ -59,7 +59,7 @@ export function CommentForm({ targetType, targetId, onCommentAdded }: CommentFor
       }
 
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error('Something went wrong. Please try again.');
     } finally {
       setIsSubmitting(false);

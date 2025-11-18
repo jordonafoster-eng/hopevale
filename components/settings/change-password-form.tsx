@@ -34,7 +34,7 @@ export function ChangePasswordForm() {
         newPassword: '',
         confirmPassword: '',
       });
-    } catch (error) {
+    } catch (_error) {
       toast.error(error instanceof Error ? error.message : 'Failed to change password');
     } finally {
       setIsSubmitting(false);

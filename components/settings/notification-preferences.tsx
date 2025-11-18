@@ -29,7 +29,7 @@ interface NotificationPreferences {
 export function NotificationPreferences() {
   const [preferences, setPreferences] = useState<NotificationPreferences | null>(null);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [_saving, _setSaving] = useState(false);
   const { isSupported, requestPermission } = usePushNotifications();
 
   useEffect(() => {
@@ -42,7 +42,7 @@ export function NotificationPreferences() {
       if (!response.ok) throw new Error('Failed to fetch preferences');
       const data = await response.json();
       setPreferences(data);
-    } catch (error) {
+    } catch (_error) {
       console.error('Error fetching preferences:', error);
       toast.error('Failed to load notification preferences');
     } finally {
@@ -72,7 +72,7 @@ export function NotificationPreferences() {
       const updated = await response.json();
       setPreferences(updated);
       toast.success('Preferences updated');
-    } catch (error) {
+    } catch (_error) {
       console.error('Error updating preference:', error);
       // Revert on error
       setPreferences({ ...preferences, [field]: previousValue });

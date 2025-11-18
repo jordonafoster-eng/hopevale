@@ -1,7 +1,6 @@
 'use client';
 
 import { formatDistanceToNow } from 'date-fns';
-import { PhotoIcon } from '@heroicons/react/24/outline';
 
 type Comment = {
   id: string;

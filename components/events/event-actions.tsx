@@ -29,7 +29,7 @@ export function EventActions({ eventId }: { eventId: string }) {
       toast.success('Event deleted successfully');
       router.push('/events');
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to delete event');
       setIsDeleting(false);
     }

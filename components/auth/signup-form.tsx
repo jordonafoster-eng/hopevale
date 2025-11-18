@@ -71,7 +71,7 @@ export function SignUpForm({ callbackUrl }: { callbackUrl?: string }) {
       toast.success('Account created successfully!');
       router.push(callbackUrl || '/');
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error('Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
@@ -84,7 +84,7 @@ export function SignUpForm({ callbackUrl }: { callbackUrl?: string }) {
       await signIn('google', {
         callbackUrl: callbackUrl || '/',
       });
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to sign up with Google');
       setIsGoogleLoading(false);
     }

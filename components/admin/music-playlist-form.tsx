@@ -32,7 +32,7 @@ export function MusicPlaylistForm() {
       toast.success('Playlist added successfully!');
       setFormData({ title: '', youtubeUrl: '', spotifyUrl: '', description: '' });
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to add playlist');
     } finally {
       setIsSubmitting(false);

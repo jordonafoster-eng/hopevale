@@ -25,7 +25,7 @@ const categories = [
 ];
 
 export function FeedbackForm({ userId }: { userId?: string }) {
-  const router = useRouter();
+  const _router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
@@ -55,7 +55,7 @@ export function FeedbackForm({ userId }: { userId?: string }) {
 
       setSubmitted(true);
       toast.success('Feedback submitted successfully!');
-    } catch (error) {
+    } catch (_error) {
       toast.error('Something went wrong. Please try again.');
     } finally {
       setIsSubmitting(false);

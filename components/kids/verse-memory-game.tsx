@@ -34,6 +34,7 @@ export function VerseMemoryGame() {
   // Load verses and initialize game
   useEffect(() => {
     loadGame();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Timer
@@ -57,7 +58,7 @@ export function VerseMemoryGame() {
       setVerses(data);
       initializeCards(data);
       setStartTime(Date.now());
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to load game');
     } finally {
       setIsLoading(false);
@@ -168,7 +169,7 @@ export function VerseMemoryGame() {
           })
         )
       );
-    } catch (error) {
+    } catch (_error) {
       console.error('Failed to save progress:', error);
     }
   };
