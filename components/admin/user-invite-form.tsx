@@ -33,7 +33,7 @@ export function UserInviteForm() {
       toast.success('User created successfully!');
       setFormData({ name: '', email: '', password: '', role: 'MEMBER' });
       router.refresh();
-    } catch (_error) {
+    } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to create user');
     } finally {
       setIsSubmitting(false);

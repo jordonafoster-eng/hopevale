@@ -64,7 +64,7 @@ export function ProfileEditForm({ user, isAdmin }: ProfileEditFormProps) {
       toast.success('Profile updated successfully');
       setIsEditing(false);
       router.refresh();
-    } catch (_error) {
+    } catch (error) {
       console.error('Error updating profile:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to update profile');
     } finally {
