@@ -150,11 +150,20 @@ export async function createNotification({
 
     // Send push notification if enabled
     if (shouldSendPushNow) {
+      // Calculate unread notification count for badge
+      const unreadCount = await prisma.notification.count({
+        where: {
+          userId,
+          read: false,
+        },
+      });
+
       const pushResult = await sendPushToUser({
         userId,
         title,
         body: message,
         link,
+        badge: unreadCount,
       });
 
       if (pushResult.success && pushResult.sent && pushResult.sent > 0 && notification) {

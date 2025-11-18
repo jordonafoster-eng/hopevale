@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { updateBadgeCount } from '@/lib/push';
 
 /**
  * GET /api/notifications
@@ -79,6 +80,9 @@ export async function PATCH(request: Request) {
         },
       });
 
+      // Update badge count to 0 since all notifications are now read
+      await updateBadgeCount(session.user.id, 0);
+
       return NextResponse.json({ success: true, message: 'All notifications marked as read' });
     }
 
@@ -99,6 +103,16 @@ export async function PATCH(request: Request) {
         read: true,
       },
     });
+
+    // Calculate remaining unread count and update badge
+    const unreadCount = await prisma.notification.count({
+      where: {
+        userId: session.user.id,
+        read: false,
+      },
+    });
+
+    await updateBadgeCount(session.user.id, unreadCount);
 
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -128,6 +142,9 @@ export async function DELETE(request: Request) {
         userId: session.user.id,
       },
     });
+
+    // Clear badge count since all notifications are deleted
+    await updateBadgeCount(session.user.id, 0);
 
     return NextResponse.json({
       success: true,
