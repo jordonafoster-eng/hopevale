@@ -50,7 +50,7 @@ export default async function KidsPage({
     <div className="section">
       <div className="mx-auto max-w-6xl">
         {/* Header */}
-        <div className="text-center">
+        <div className="page-header text-center">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-yellow-100 dark:bg-yellow-900">
             <SparklesIcon className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
           </div>
