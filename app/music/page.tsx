@@ -26,7 +26,7 @@ export default async function MusicPage() {
     <div className="section">
       <div className="mx-auto max-w-5xl">
         {/* Header */}
-        <div className="text-center">
+        <div className="page-header text-center">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900">
             <MusicalNoteIcon className="h-6 w-6 text-purple-600 dark:text-purple-400" />
           </div>

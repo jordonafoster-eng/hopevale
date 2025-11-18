@@ -106,7 +106,7 @@ export default async function PrayerPage({
     <div className="section">
       <div className="mx-auto max-w-4xl">
         {/* Header */}
-        <div className="text-center">
+        <div className="page-header text-center">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-accent-100 dark:bg-accent-900">
             <HeartIcon className="h-6 w-6 text-accent-600 dark:text-accent-400" />
           </div>

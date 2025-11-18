@@ -128,7 +128,7 @@ export default async function ReflectionsPage({
     <div className="section">
       <div className="mx-auto max-w-4xl">
         {/* Header */}
-        <div className="text-center">
+        <div className="page-header text-center">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900">
             <BookOpenIcon className="h-6 w-6 text-green-600 dark:text-green-400" />
           </div>
