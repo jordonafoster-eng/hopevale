@@ -27,7 +27,7 @@ export async function Header() {
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
               <Image
-                src="/icon-192.png"
+                src="/logo.png"
                 alt="HopeVale Community Logo"
                 width={32}
                 height={32}
