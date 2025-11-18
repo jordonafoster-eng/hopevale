@@ -82,6 +82,27 @@ export function NotificationsList() {
     }
   };
 
+  const clearAllNotifications = async () => {
+    if (!confirm('Are you sure you want to clear all notifications? This cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/notifications', {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) throw new Error('Failed to clear notifications');
+
+      // Clear local state
+      setNotifications([]);
+      toast.success('All notifications cleared');
+    } catch (error) {
+      console.error('Error clearing notifications:', error);
+      toast.error('Failed to clear notifications');
+    }
+  };
+
   const handleNotificationClick = (notification: Notification) => {
     // Mark as read
     if (!notification.read) {
@@ -136,14 +157,24 @@ export function NotificationsList() {
           </button>
         </div>
 
-        {unreadCount > 0 && (
-          <button
-            onClick={markAllAsRead}
-            className="px-4 py-2 text-sm font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300"
-          >
-            Mark all as read
-          </button>
-        )}
+        <div className="flex gap-2">
+          {unreadCount > 0 && (
+            <button
+              onClick={markAllAsRead}
+              className="px-4 py-2 text-sm font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300"
+            >
+              Mark all as read
+            </button>
+          )}
+          {notifications.length > 0 && (
+            <button
+              onClick={clearAllNotifications}
+              className="px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+            >
+              Clear all
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Notifications list */}
