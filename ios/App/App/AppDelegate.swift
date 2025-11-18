@@ -83,6 +83,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         print("❌ Failed to register for remote notifications: \(error.localizedDescription)")
     }
 
+    // Handle background notifications for badge updates
+    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        print("📱 Received remote notification in background")
+
+        // Check if this is a badge update
+        if let type = userInfo["type"] as? String, type == "badge-update" {
+            print("🔔 Processing badge update notification")
+
+            // Extract badge count from notification
+            if let aps = userInfo["aps"] as? [String: Any],
+               let badgeCount = aps["badge"] as? Int {
+                print("🔢 Setting badge to: \(badgeCount)")
+                DispatchQueue.main.async {
+                    UIApplication.shared.applicationIconBadgeNumber = badgeCount
+                }
+            }
+        }
+
+        completionHandler(.newData)
+    }
+
 }
 
 // MARK: - UNUserNotificationCenterDelegate

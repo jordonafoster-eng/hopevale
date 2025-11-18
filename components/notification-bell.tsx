@@ -29,12 +29,16 @@ export function NotificationBell() {
   return (
     <Link
       href="/notifications"
-      className="relative rounded-lg p-2 text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+      className={`relative rounded-lg p-2 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 ${
+        unreadCount > 0
+          ? 'text-red-600 dark:text-red-400'
+          : 'text-gray-700 dark:text-gray-300'
+      }`}
       aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
     >
       <svg
         className="h-6 w-6"
-        fill="none"
+        fill={unreadCount > 0 ? 'currentColor' : 'none'}
         viewBox="0 0 24 24"
         stroke="currentColor"
       >

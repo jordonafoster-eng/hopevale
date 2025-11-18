@@ -183,17 +183,20 @@ export async function updateBadgeCount(userId: string, badgeCount: number) {
           const message = {
             token: deviceToken.token,
             apns: {
+              headers: {
+                'apns-priority': '5',
+                'apns-push-type': 'background',
+              },
               payload: {
                 aps: {
                   badge: badgeCount,
-                  // Silent notification - no alert or sound
                   'content-available': 1,
                 },
               },
             },
-            // Empty data payload for silent notification
             data: {
               type: 'badge-update',
+              badge: String(badgeCount),
             },
           };
 
