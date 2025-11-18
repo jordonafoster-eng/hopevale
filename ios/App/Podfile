@@ -29,7 +29,8 @@ post_install do |installer|
 
   # Fix nanopb headers for Xcode 15+
   installer.pods_project.targets.each do |target|
-    if target.name == 'nanopb'
+    # Apply to nanopb and all Firebase/Google pods that depend on it
+    if target.name == 'nanopb' || target.name.include?('Google') || target.name.include?('Firebase')
       target.build_configurations.each do |config|
         config.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'
       end
