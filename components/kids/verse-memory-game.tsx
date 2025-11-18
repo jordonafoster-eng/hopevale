@@ -58,7 +58,7 @@ export function VerseMemoryGame() {
       setVerses(data);
       initializeCards(data);
       setStartTime(Date.now());
-    } catch (_error) {
+    } catch (error) {
       toast.error('Failed to load game');
     } finally {
       setIsLoading(false);
@@ -169,7 +169,7 @@ export function VerseMemoryGame() {
           })
         )
       );
-    } catch (_error) {
+    } catch (error) {
       console.error('Failed to save progress:', error);
     }
   };

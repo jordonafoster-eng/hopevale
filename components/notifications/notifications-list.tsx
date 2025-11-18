@@ -31,7 +31,7 @@ export function NotificationsList() {
       if (!response.ok) throw new Error('Failed to fetch notifications');
       const data = await response.json();
       setNotifications(data.notifications || []);
-    } catch (_error) {
+    } catch (error) {
       console.error('Error fetching notifications:', error);
       toast.error('Failed to load notifications');
     } finally {
@@ -53,7 +53,7 @@ export function NotificationsList() {
       setNotifications(prev =>
         prev.map(n => (n.id === notificationId ? { ...n, read: true } : n))
       );
-    } catch (_error) {
+    } catch (error) {
       console.error('Error marking notification as read:', error);
     }
   };
@@ -76,7 +76,7 @@ export function NotificationsList() {
       // Update local state
       setNotifications(prev => prev.map(n => ({ ...n, read: true })));
       toast.success('All notifications marked as read');
-    } catch (_error) {
+    } catch (error) {
       console.error('Error marking all as read:', error);
       toast.error('Failed to mark all as read');
     }
@@ -97,7 +97,7 @@ export function NotificationsList() {
       // Clear local state
       setNotifications([]);
       toast.success('All notifications cleared');
-    } catch (_error) {
+    } catch (error) {
       console.error('Error clearing notifications:', error);
       toast.error('Failed to clear notifications');
     }

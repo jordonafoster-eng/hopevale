@@ -55,7 +55,7 @@ export function VerseMatchingGame() {
       setVerses(data);
       initializeCards(data);
       setStartTime(Date.now());
-    } catch (_error) {
+    } catch (error) {
       toast.error('Oops! Try again!');
     } finally {
       setIsLoading(false);
@@ -179,7 +179,7 @@ export function VerseMatchingGame() {
           })
         )
       );
-    } catch (_error) {
+    } catch (error) {
       console.error('Failed to save progress:', error);
     }
   };
