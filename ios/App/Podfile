@@ -23,4 +23,16 @@ end
 
 post_install do |installer|
   assertDeploymentTarget(installer)
+
+  # Fix nanopb headers for Xcode 15+
+  installer.pods_project.targets.each do |target|
+    if target.name == 'nanopb'
+      target.build_configurations.each do |config|
+        config.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'
+      end
+    end
+  end
+
+  # Fix double-quoted includes in nanopb headers
+  `find Pods/nanopb -name '*.h' -exec sed -i '' -e 's/"pb\\.h"/<pb.h>/g' -e 's/"pb_common\\.h"/<pb_common.h>/g' -e 's/"pb_encode\\.h"/<pb_encode.h>/g' -e 's/"pb_decode\\.h"/<pb_decode.h>/g' {} +`
 end
