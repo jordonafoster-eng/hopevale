@@ -54,3 +54,7 @@ prisma/*.db-journal
 *.swp
 *.swo
 *~
+
+# Firebase
+**/GoogleService-Info.plist
+google-services.json
