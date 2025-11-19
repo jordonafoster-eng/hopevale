@@ -14,9 +14,6 @@ def capacitor_pods
   pod 'CapacitorFirebaseMessaging', :path => '../../node_modules/@capacitor-firebase/messaging'
   pod 'CapacitorPushNotifications', :path => '../../node_modules/@capacitor/push-notifications'
   pod 'CapacitorStatusBar', :path => '../../node_modules/@capacitor/status-bar'
-
-  # Fix nanopb version mismatch
-  pod 'nanopb', '= 3.30910.0'
 end
 
 target 'App' do
