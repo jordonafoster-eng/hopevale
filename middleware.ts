@@ -10,7 +10,9 @@ export default auth((req) => {
     '/auth/signin',
     '/auth/signup',
     '/auth/error',
+    '/auth/forgot-password',
     '/api/auth',
+    '/privacy-policy',
   ];
 
   // Check if the current path is a public route
