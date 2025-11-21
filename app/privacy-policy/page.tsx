@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy - HopeVale Community',
-  description: 'Privacy policy for HopeVale Community app',
+  title: 'Privacy Policy - Church Friends',
+  description: 'Privacy policy for Church Friends app',
 };
 
 export default function PrivacyPolicyPage() {
@@ -14,10 +14,10 @@ export default function PrivacyPolicyPage() {
           Last updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
         </p>
 
-        <div className="prose prose-gray dark:prose-invert mt-8 max-w-none">
+        <div className="prose prose-gray dark:prose-invert mt-8 max-w-none prose-h2:text-xl prose-h2:font-bold prose-h2:text-gray-900 prose-h2:dark:text-white prose-h2:mt-8 prose-h2:mb-4 prose-h3:text-lg prose-h3:font-semibold prose-h3:text-gray-800 prose-h3:dark:text-gray-100">
           <h2>Introduction</h2>
           <p>
-            HopeVale Community (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your information when you use our mobile application.
+            Church Friends (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your information when you use our mobile application.
           </p>
 
           <h2>Information We Collect</h2>
