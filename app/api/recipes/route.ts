@@ -7,9 +7,9 @@ const recipeSchema = z.object({
   title: z.string().min(3).max(100),
   ingredients: z.string().min(10).max(2000),
   steps: z.string().min(10).max(2000),
-  imageUrl: z.string().url().nullable(),
-  categories: z.array(z.string()).max(10),
-  isPotluckHit: z.boolean(),
+  imageUrl: z.string().url().nullable().optional(),
+  categories: z.array(z.string()).max(10).optional().default([]),
+  isPotluckHit: z.boolean().optional().default(false),
 });
 
 export async function POST(request: NextRequest) {
