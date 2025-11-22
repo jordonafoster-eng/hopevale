@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'Church Friends',
   webDir: 'out',
   server: {
-    url: 'https://hopevale-tsvsq.ondigitalocean.app',
+    url: 'https://hopevale.vercel.app',
     cleartext: true,
   },
   ios: {
