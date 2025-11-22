@@ -6,6 +6,7 @@ import { auth } from '@/lib/auth';
 import { getInitials, getAvatarColor } from '@/lib/utils';
 import { RatingStars } from '@/components/recipes/rating-stars';
 import { RatingForm } from '@/components/recipes/rating-form';
+import { RecipeActions } from '@/components/recipes/recipe-actions';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -36,6 +37,7 @@ export default async function RecipeDetailPage({ params }: { params: Promise<{ i
   if (!recipe) notFound();
 
   const userRating = session?.user ? recipe.ratings.find((r) => r.userId === session.user.id) : null;
+  const canEdit = session?.user && (recipe.author.id === session.user.id || session.user.role === 'ADMIN');
 
   return (
     <div className="section">
@@ -56,6 +58,12 @@ export default async function RecipeDetailPage({ params }: { params: Promise<{ i
           {recipe.ratingCount > 0 && (
             <div className="mt-4">
               <RatingStars rating={recipe.ratingAvg} count={recipe.ratingCount} />
+            </div>
+          )}
+
+          {canEdit && (
+            <div className="mt-4 border-t border-gray-200 pt-4 dark:border-gray-700">
+              <RecipeActions recipe={recipe} />
             </div>
           )}
 
