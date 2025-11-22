@@ -49,8 +49,8 @@ export function EventForm({ event, mode }: EventFormProps) {
       const payload = {
         title: formData.title,
         description: formData.description || null,
-        startAt: formData.startAt ? new Date(formData.startAt).toISOString() : null,
-        endAt: formData.endAt ? new Date(formData.endAt).toISOString() : null,
+        startAt: formData.startAt ? formData.startAt + ':00.000Z' : null,
+        endAt: formData.endAt ? formData.endAt + ':00.000Z' : null,
         location: formData.location || null,
         isPotluck: formData.isPotluck,
         capacity: formData.capacity ? parseInt(formData.capacity) : null,
