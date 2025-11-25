@@ -11,6 +11,7 @@ import { EventActions } from '@/components/events/event-actions';
 import { ShareEventButton } from '@/components/events/share-event-button';
 import { CommentList } from '@/components/comments/comment-list';
 import { CommentForm } from '@/components/comments/comment-form';
+import { FormattedDate } from '@/components/ui/formatted-date';
 import {
   CalendarIcon,
   MapPinIcon,
@@ -173,11 +174,11 @@ export default async function EventDetailPage({
                 <CalendarIcon className="mt-0.5 h-5 w-5 flex-shrink-0 text-gray-400" />
                 <div>
                   <p className="font-medium text-gray-900 dark:text-white">
-                    {event.startAt ? formatDateTime(event.startAt) : 'Date and time TBD'}
+                    <FormattedDate date={event.startAt} fallback="Date and time TBD" />
                   </p>
                   {event.endAt && (
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Ends {formatDateTime(event.endAt)}
+                      Ends <FormattedDate date={event.endAt} />
                     </p>
                   )}
                 </div>

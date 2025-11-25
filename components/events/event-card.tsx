@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { formatDateTime } from '@/lib/utils';
+import { FormattedDate } from '@/components/ui/formatted-date';
 import {
   MapPinIcon,
   UserGroupIcon,
@@ -75,7 +75,9 @@ export function EventCard({
           <div className="mt-4 space-y-2 text-sm text-gray-600 dark:text-gray-400">
             <div className="flex items-center gap-2">
               <ClockIcon className="h-4 w-4 flex-shrink-0" />
-              <span className="truncate">{event.startAt ? formatDateTime(event.startAt) : 'Date and time TBD'}</span>
+              <span className="truncate">
+                <FormattedDate date={event.startAt} fallback="Date and time TBD" />
+              </span>
             </div>
 
             {event.location && (

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
-import { formatDateTime } from '@/lib/utils';
+import { FormattedDate } from '@/components/ui/formatted-date';
 import {
   CalendarIcon,
   HeartIcon,
@@ -196,7 +196,7 @@ export default async function HomePage() {
                       {event.title}
                     </h3>
                     <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                      {event.startAt ? formatDateTime(event.startAt) : 'Date and time TBD'}
+                      <FormattedDate date={event.startAt} fallback="Date and time TBD" />
                     </p>
                     {event.location && (
                       <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
