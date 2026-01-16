@@ -259,7 +259,7 @@ function generateEmailHtml(
   const absoluteLink = link?.startsWith('http')
     ? link
     : link
-      ? `${process.env.NEXT_PUBLIC_APP_URL || 'https://hopevale-tsvsq.ondigitalocean.app'}${link}`
+      ? `${process.env.NEXT_PUBLIC_APP_URL || 'https://hopevale.vercel.app'}${link}`
       : undefined;
 
   return `
@@ -338,7 +338,7 @@ function generateEmailHtml(
     </div>
     <div class="footer">
       <p>You received this email because you're a member of Church Friends.</p>
-      <p>To manage your notification preferences, <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://hopevale-tsvsq.ondigitalocean.app'}/settings">visit your settings</a>.</p>
+      <p>To manage your notification preferences, <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://hopevale.vercel.app'}/settings">visit your settings</a>.</p>
     </div>
   </div>
 </body>

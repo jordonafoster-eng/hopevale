@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
         <p><strong>From:</strong> ${userName} (${userEmail})</p>
         <p><strong>Message:</strong></p>
         <p>${feedback.message.replace(/\n/g, '<br>')}</p>
-        <p><a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://hopevale-tsvsq.ondigitalocean.app'}/admin">View in Admin Panel</a></p>
+        <p><a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://hopevale.vercel.app'}/admin">View in Admin Panel</a></p>
       `
     );
 
