@@ -12,17 +12,20 @@ interface NotificationPreferences {
   emailEventReminder: boolean;
   emailRsvpConfirmation: boolean;
   emailPrayerReaction: boolean;
+  emailNewPrayerRequest: boolean;
   emailNewReflection: boolean;
   emailWeeklyDigest: boolean;
   pushEnabled: boolean;
   pushNewEvent: boolean;
   pushEventReminder: boolean;
   pushPrayerReaction: boolean;
+  pushNewPrayerRequest: boolean;
   inAppEnabled: boolean;
   inAppNewEvent: boolean;
   inAppEventReminder: boolean;
   inAppRsvpConfirmation: boolean;
   inAppPrayerReaction: boolean;
+  inAppNewPrayerRequest: boolean;
   inAppNewReflection: boolean;
 }
 
@@ -249,6 +252,30 @@ export function NotificationPreferences() {
 
               <div className="flex items-center justify-between py-3">
                 <div>
+                  <p className="font-medium text-gray-900 dark:text-white">New Prayer Requests</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    When a new prayer request is posted
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={preferences.emailNewPrayerRequest}
+                  onClick={() => updatePreference('emailNewPrayerRequest', !preferences.emailNewPrayerRequest)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    preferences.emailNewPrayerRequest ? 'bg-brand-600' : 'bg-gray-300 dark:bg-gray-600'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      preferences.emailNewPrayerRequest ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between py-3">
+                <div>
                   <p className="font-medium text-gray-900 dark:text-white">New Reflections</p>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
                     When a new reflection is published
@@ -412,6 +439,30 @@ export function NotificationPreferences() {
                   />
                 </button>
               </div>
+
+              <div className="flex items-center justify-between py-3">
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-white">New Prayer Requests</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    When a new prayer request is posted
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={preferences.pushNewPrayerRequest}
+                  onClick={() => updatePreference('pushNewPrayerRequest', !preferences.pushNewPrayerRequest)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    preferences.pushNewPrayerRequest ? 'bg-brand-600' : 'bg-gray-300 dark:bg-gray-600'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      preferences.pushNewPrayerRequest ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
             </>
           )}
         </div>
@@ -545,6 +596,30 @@ export function NotificationPreferences() {
                   <span
                     className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
                       preferences.inAppPrayerReaction ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between py-3">
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-white">New Prayer Requests</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    When a new prayer request is posted
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={preferences.inAppNewPrayerRequest}
+                  onClick={() => updatePreference('inAppNewPrayerRequest', !preferences.inAppNewPrayerRequest)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    preferences.inAppNewPrayerRequest ? 'bg-brand-600' : 'bg-gray-300 dark:bg-gray-600'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      preferences.inAppNewPrayerRequest ? 'translate-x-6' : 'translate-x-1'
                     }`}
                   />
                 </button>

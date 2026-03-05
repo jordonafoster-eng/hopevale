@@ -244,6 +244,8 @@ export function shouldSendPushForType(
       return prefs.pushEventReminder;
     case 'PRAYER_REACTION':
       return prefs.pushPrayerReaction;
+    case 'NEW_PRAYER_REQUEST':
+      return prefs.pushNewPrayerRequest;
     case 'RSVP_CONFIRMATION':
     case 'NEW_REFLECTION':
     case 'WEEKLY_DIGEST':

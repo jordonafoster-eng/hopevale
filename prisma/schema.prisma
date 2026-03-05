@@ -371,6 +371,7 @@ model NotificationPreference {
   emailEventReminder    Boolean  @default(true)
   emailRsvpConfirmation Boolean  @default(true)
   emailPrayerReaction   Boolean  @default(true)
+  emailNewPrayerRequest Boolean  @default(true)
   emailNewReflection    Boolean  @default(true)
   emailWeeklyDigest     Boolean  @default(false)
 
@@ -379,6 +380,7 @@ model NotificationPreference {
   pushNewEvent          Boolean  @default(false)
   pushEventReminder     Boolean  @default(false)
   pushPrayerReaction    Boolean  @default(false)
+  pushNewPrayerRequest  Boolean  @default(false)
 
   // In-app notifications
   inAppEnabled          Boolean  @default(true)
@@ -386,6 +388,7 @@ model NotificationPreference {
   inAppEventReminder    Boolean  @default(true)
   inAppRsvpConfirmation Boolean  @default(true)
   inAppPrayerReaction   Boolean  @default(true)
+  inAppNewPrayerRequest Boolean  @default(true)
   inAppNewReflection    Boolean  @default(true)
 
   createdAt             DateTime @default(now())
@@ -424,6 +427,7 @@ enum NotificationType {
   EVENT_REMINDER
   RSVP_CONFIRMATION
   PRAYER_REACTION
+  NEW_PRAYER_REQUEST
   NEW_REFLECTION
   WEEKLY_DIGEST
   SYSTEM

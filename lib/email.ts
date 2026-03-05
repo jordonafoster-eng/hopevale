@@ -207,6 +207,8 @@ function shouldSendEmailForType(
       return prefs.emailRsvpConfirmation;
     case 'PRAYER_REACTION':
       return prefs.emailPrayerReaction;
+    case 'NEW_PRAYER_REQUEST':
+      return prefs.emailNewPrayerRequest;
     case 'NEW_REFLECTION':
       return prefs.emailNewReflection;
     case 'WEEKLY_DIGEST':
@@ -236,6 +238,8 @@ function shouldCreateInAppForType(
       return prefs.inAppRsvpConfirmation;
     case 'PRAYER_REACTION':
       return prefs.inAppPrayerReaction;
+    case 'NEW_PRAYER_REQUEST':
+      return prefs.inAppNewPrayerRequest;
     case 'NEW_REFLECTION':
       return prefs.inAppNewReflection;
     case 'WEEKLY_DIGEST':
