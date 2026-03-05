@@ -50,12 +50,21 @@ export async function PUT(request: Request) {
       'emailEventReminder',
       'emailRsvpConfirmation',
       'emailPrayerReaction',
+      'emailNewPrayerRequest',
       'emailNewReflection',
       'emailWeeklyDigest',
       'pushEnabled',
       'pushNewEvent',
       'pushEventReminder',
       'pushPrayerReaction',
+      'pushNewPrayerRequest',
+      'inAppEnabled',
+      'inAppNewEvent',
+      'inAppEventReminder',
+      'inAppRsvpConfirmation',
+      'inAppPrayerReaction',
+      'inAppNewPrayerRequest',
+      'inAppNewReflection',
     ];
 
     const updateData: any = {};
