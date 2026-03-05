@@ -22,10 +22,12 @@ model User {
   password      String?    // null for OAuth users
   role          Role       @default(MEMBER)
   status        UserStatus @default(ACTIVE)
+  groupId       String?    // null allowed during migration, required for most users
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
 
   // Relations
+  group         Group?     @relation(fields: [groupId], references: [id], onDelete: SetNull)
   accounts      Account[]
   sessions      Session[]
   eventsCreated Event[]
@@ -45,6 +47,7 @@ model User {
   @@index([email])
   @@index([role])
   @@index([status])
+  @@index([groupId])
 }
 
 model Account {
@@ -86,13 +89,55 @@ model VerificationToken {
 }
 
 enum Role {
-  ADMIN
   MEMBER
+  GROUP_ADMIN
+  SUPER_ADMIN
 }
 
 enum UserStatus {
   ACTIVE
   BLOCKED
+}
+
+// ==================== GROUPS ====================
+
+model Group {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique // URL-safe, case-insensitive unique identifier
+  description String?   @db.Text
+  deletedAt   DateTime? // soft delete for archiving
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  users       User[]
+  prayers     Prayer[]
+  reflections Reflection[]
+  events      Event[]
+  recipes     Recipe[]
+  invites     GroupInvite[]
+
+  @@index([slug])
+  @@index([deletedAt])
+}
+
+model GroupInvite {
+  id        String    @id @default(cuid())
+  groupId   String
+  email     String?   // optional - can be generic invite link
+  token     String    @unique
+  role      Role      @default(MEMBER)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  // Relations
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([email])
+  @@index([groupId])
 }
 
 // ==================== EVENTS ====================
@@ -109,17 +154,20 @@ model Event {
   tags        String[]  @default([])
   isPublished Boolean   @default(true)
   createdById String
+  groupId     String?   // null allowed during migration
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
   // Relations
   createdBy User      @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  group     Group?    @relation(fields: [groupId], references: [id], onDelete: Cascade)
   rsvps     RSVP[]
   comments  Comment[]
 
   @@index([startAt])
   @@index([createdById])
   @@index([isPublished])
+  @@index([groupId])
 }
 
 model RSVP {
@@ -152,18 +200,21 @@ model Prayer {
   isAnonymous    Boolean     @default(false)
   isApproved     Boolean     @default(false)
   reactionsCount Int         @default(0)
+  groupId        String?     // null allowed during migration
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
   deletedAt      DateTime?   // soft delete
 
   // Relations
   author   User?     @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  group    Group?    @relation(fields: [groupId], references: [id], onDelete: Cascade)
   comments Comment[]
 
   @@index([createdAt])
   @@index([isApproved])
   @@index([type])
   @@index([deletedAt])
+  @@index([groupId])
 }
 
 enum PrayerType {
@@ -180,18 +231,21 @@ model Reflection {
   body       String      @db.Text
   tags       String[]    @default([])
   isApproved Boolean     @default(false)
+  groupId    String?     // null allowed during migration
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
   deletedAt  DateTime?   // soft delete
 
   // Relations
   author   User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  group    Group?    @relation(fields: [groupId], references: [id], onDelete: Cascade)
   comments Comment[]
 
   @@index([authorId])
   @@index([createdAt])
   @@index([isApproved])
   @@index([deletedAt])
+  @@index([groupId])
 }
 
 // ==================== RECIPES ====================
@@ -207,16 +261,19 @@ model Recipe {
   isPotluckHit  Boolean  @default(false)
   ratingAvg     Float    @default(0)
   ratingCount   Int      @default(0)
+  groupId       String?  // null allowed during migration
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
   // Relations
   author  User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  group   Group?         @relation(fields: [groupId], references: [id], onDelete: Cascade)
   ratings RecipeRating[]
 
   @@index([authorId])
   @@index([createdAt])
   @@index([isPotluckHit])
+  @@index([groupId])
 }
 
 model RecipeRating {

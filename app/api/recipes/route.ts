@@ -19,6 +19,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // User must belong to a group to create content
+    if (!session.user.groupId) {
+      return NextResponse.json(
+        { error: 'You must belong to a group to create content' },
+        { status: 403 }
+      );
+    }
+
     const body = await request.json();
     const validatedData = recipeSchema.parse(body);
 
@@ -26,6 +34,7 @@ export async function POST(request: NextRequest) {
       data: {
         ...validatedData,
         authorId: session.user.id,
+        groupId: session.user.groupId,
       },
       include: {
         author: {

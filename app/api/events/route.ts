@@ -25,6 +25,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // User must belong to a group to create content
+    if (!session.user.groupId) {
+      return NextResponse.json(
+        { error: 'You must belong to a group to create content' },
+        { status: 403 }
+      );
+    }
+
     const body = await request.json();
     const data = eventSchema.parse(body);
 
@@ -40,13 +48,17 @@ export async function POST(request: NextRequest) {
         tags: data.tags,
         isPublished: data.isPublished,
         createdById: session.user.id,
+        groupId: session.user.groupId,
       },
     });
 
-    // Send notifications to all users about the new event (if published)
+    // Send notifications to users in the same group about the new event (if published)
     if (event.isPublished) {
       const users = await prisma.user.findMany({
-        where: { status: 'ACTIVE' },
+        where: {
+          status: 'ACTIVE',
+          groupId: session.user.groupId, // Only notify users in the same group
+        },
         select: { id: true },
       });
 

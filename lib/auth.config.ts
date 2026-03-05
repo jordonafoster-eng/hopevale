@@ -15,10 +15,16 @@ export const authConfig = {
       if (user) {
         token.id = user.id;
         token.role = user.role;
+        token.groupId = user.groupId;
+        token.groupSlug = user.groupSlug;
       }
 
-      // Update session on client-side updates
+      // Handle SUPER_ADMIN switching group view or other session updates
       if (trigger === 'update' && session) {
+        if (session.viewingGroupId !== undefined) {
+          token.viewingGroupId = session.viewingGroupId;
+        }
+        // Allow updating other fields as needed
         token = { ...token, ...session };
       }
 
@@ -27,7 +33,10 @@ export const authConfig = {
     async session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.id as string;
-        session.user.role = token.role as string;
+        session.user.role = token.role as 'MEMBER' | 'GROUP_ADMIN' | 'SUPER_ADMIN';
+        session.user.groupId = token.groupId as string | null;
+        session.user.groupSlug = token.groupSlug as string | null;
+        session.user.viewingGroupId = token.viewingGroupId as string | null | undefined;
       }
       return session;
     },

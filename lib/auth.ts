@@ -27,6 +27,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
           const user = await prisma.user.findUnique({
             where: { email },
+            include: {
+              group: {
+                select: {
+                  id: true,
+                  slug: true,
+                },
+              },
+            },
           });
 
           if (!user || !user.password) {
@@ -50,6 +58,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             name: user.name,
             image: user.image,
             role: user.role,
+            groupId: user.groupId,
+            groupSlug: user.group?.slug ?? null,
           };
         } catch (error) {
           if (error instanceof Error && error.message.includes('blocked')) {

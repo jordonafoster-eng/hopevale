@@ -18,6 +18,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // User must belong to a group to create content
+    if (!session.user.groupId) {
+      return NextResponse.json(
+        { error: 'You must belong to a group to create content' },
+        { status: 403 }
+      );
+    }
+
     const body = await request.json();
     const validatedData = prayerSchema.parse(body);
 
@@ -28,7 +36,7 @@ export async function POST(request: NextRequest) {
 
     const requiresModeration = settings?.requireModeration ?? false;
 
-    // Create prayer
+    // Create prayer with groupId
     const prayer = await prisma.prayer.create({
       data: {
         title: validatedData.title,
@@ -36,6 +44,7 @@ export async function POST(request: NextRequest) {
         type: validatedData.type,
         isAnonymous: validatedData.isAnonymous,
         authorId: validatedData.isAnonymous ? null : session.user.id,
+        groupId: session.user.groupId,
         isApproved: !requiresModeration, // Auto-approve if moderation not required
       },
       include: {
