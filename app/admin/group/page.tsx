@@ -52,6 +52,16 @@ export default async function GroupSettingsPage() {
     redirect('/');
   }
 
+  // Fetch all groups for SUPER_ADMIN to use in move dropdown
+  let allGroups: { id: string; name: string }[] = [];
+  if (session.user.role === 'SUPER_ADMIN') {
+    allGroups = await prisma.group.findMany({
+      where: { deletedAt: null },
+      select: { id: true, name: true },
+      orderBy: { name: 'asc' },
+    });
+  }
+
   return (
     <div className="section">
       <div className="mx-auto max-w-4xl">
@@ -73,6 +83,7 @@ export default async function GroupSettingsPage() {
           invites={group.invites}
           currentUserId={session.user.id}
           isSuperAdmin={session.user.role === 'SUPER_ADMIN'}
+          allGroups={allGroups}
         />
       </div>
     </div>

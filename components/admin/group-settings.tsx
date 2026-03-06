@@ -9,6 +9,8 @@ import {
   ClipboardDocumentIcon,
   UserCircleIcon,
   PencilIcon,
+  ArrowRightIcon,
+  UserMinusIcon,
 } from '@heroicons/react/24/outline';
 
 interface Member {
@@ -40,6 +42,7 @@ interface GroupSettingsProps {
   invites: Invite[];
   currentUserId: string;
   isSuperAdmin: boolean;
+  allGroups?: { id: string; name: string }[];
 }
 
 export function GroupSettings({
@@ -48,6 +51,7 @@ export function GroupSettings({
   invites,
   currentUserId,
   isSuperAdmin,
+  allGroups = [],
 }: GroupSettingsProps) {
   const router = useRouter();
   const [isCreatingInvite, setIsCreatingInvite] = useState(false);
@@ -57,6 +61,7 @@ export function GroupSettings({
   const [isEditingGroup, setIsEditingGroup] = useState(false);
   const [groupName, setGroupName] = useState(group.name);
   const [groupDescription, setGroupDescription] = useState(group.description || '');
+  const [movingUserId, setMovingUserId] = useState<string | null>(null);
 
   const handleCreateInvite = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -131,6 +136,56 @@ export function GroupSettings({
       router.refresh();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to update role');
+    }
+  };
+
+  const handleRemoveMember = async (userId: string, userName: string) => {
+    if (!confirm(`Are you sure you want to remove ${userName} from the group?`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/groups/${group.id}/members?userId=${userId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to remove member');
+      }
+
+      toast.success(`${userName} removed from group`);
+      router.refresh();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to remove member');
+    }
+  };
+
+  const handleMoveMember = async (userId: string, targetGroupId: string, userName: string) => {
+    const targetGroup = allGroups.find(g => g.id === targetGroupId);
+    if (!targetGroup) return;
+
+    if (!confirm(`Move ${userName} to ${targetGroup.name}?`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/groups/${group.id}/members`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, targetGroupId }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to move member');
+      }
+
+      toast.success(`${userName} moved to ${targetGroup.name}`);
+      setMovingUserId(null);
+      router.refresh();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to move member');
     }
   };
 
@@ -385,14 +440,69 @@ export function GroupSettings({
               </div>
               <div className="flex items-center gap-2">
                 {member.id !== currentUserId && member.role !== 'SUPER_ADMIN' ? (
-                  <select
-                    value={member.role}
-                    onChange={(e) => handleRoleChange(member.id, e.target.value as 'MEMBER' | 'GROUP_ADMIN')}
-                    className="rounded-lg border border-gray-300 bg-white px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-800"
-                  >
-                    <option value="MEMBER">Member</option>
-                    <option value="GROUP_ADMIN">Group Admin</option>
-                  </select>
+                  <>
+                    <select
+                      value={member.role}
+                      onChange={(e) => handleRoleChange(member.id, e.target.value as 'MEMBER' | 'GROUP_ADMIN')}
+                      className="rounded-lg border border-gray-300 bg-white px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-800"
+                    >
+                      <option value="MEMBER">Member</option>
+                      <option value="GROUP_ADMIN">Group Admin</option>
+                    </select>
+
+                    {/* Move button - SUPER_ADMIN only */}
+                    {isSuperAdmin && allGroups.length > 1 && (
+                      <>
+                        {movingUserId === member.id ? (
+                          <div className="flex items-center gap-1">
+                            <select
+                              className="rounded-lg border border-gray-300 bg-white px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-800"
+                              onChange={(e) => {
+                                if (e.target.value) {
+                                  handleMoveMember(member.id, e.target.value, member.name || member.email);
+                                }
+                              }}
+                              defaultValue=""
+                            >
+                              <option value="" disabled>Move to...</option>
+                              {allGroups
+                                .filter(g => g.id !== group.id)
+                                .map(g => (
+                                  <option key={g.id} value={g.id}>{g.name}</option>
+                                ))
+                              }
+                            </select>
+                            <button
+                              onClick={() => setMovingUserId(null)}
+                              className="rounded p-1 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
+                              title="Cancel"
+                            >
+                              &times;
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => setMovingUserId(member.id)}
+                            className="rounded p-1.5 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                            title="Move to another group"
+                          >
+                            <ArrowRightIcon className="h-4 w-4" />
+                          </button>
+                        )}
+                      </>
+                    )}
+
+                    {/* Remove button */}
+                    {(isSuperAdmin || member.role === 'MEMBER') && (
+                      <button
+                        onClick={() => handleRemoveMember(member.id, member.name || member.email)}
+                        className="rounded p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
+                        title="Remove from group"
+                      >
+                        <UserMinusIcon className="h-4 w-4" />
+                      </button>
+                    )}
+                  </>
                 ) : (
                   <span className={`rounded-full px-2 py-1 text-xs font-medium ${
                     member.role === 'SUPER_ADMIN'
