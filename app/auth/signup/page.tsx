@@ -1,17 +1,17 @@
 import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
-import Link from 'next/link';
+import { SignUpForm } from '@/components/auth/signup-form';
 
 export const metadata: Metadata = {
   title: 'Sign Up - Church Friends',
-  description: 'Invite-only registration',
+  description: 'Create an account or join a group',
 };
 
 export default async function SignUpPage({
   searchParams,
 }: {
-  searchParams: Promise<{ callbackUrl?: string }>;
+  searchParams: Promise<{ callbackUrl?: string; invite?: string }>;
 }) {
   const params = await searchParams;
   const session = await auth();
@@ -29,29 +29,19 @@ export default async function SignUpPage({
             <span className="text-2xl font-bold text-white">C</span>
           </div>
           <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-            Invite-Only Registration
+            {params.invite ? 'Join a Group' : 'Create Your Group'}
           </h2>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            This community uses invite-only registration
+            {params.invite
+              ? 'Complete your registration to join'
+              : 'Start your own community group'}
           </p>
         </div>
 
-        <div className="card">
-          <div className="text-center space-y-4">
-            <p className="text-gray-700 dark:text-gray-300">
-              Public registration has been disabled for this community. Accounts must be created by an administrator.
-            </p>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              If you would like to join, please contact an administrator to request an invitation.
-            </p>
-            <Link
-              href="/auth/signin"
-              className="btn-primary inline-block mt-4"
-            >
-              Back to Sign In
-            </Link>
-          </div>
-        </div>
+        <SignUpForm
+          callbackUrl={params.callbackUrl}
+          inviteToken={params.invite}
+        />
       </div>
     </div>
   );

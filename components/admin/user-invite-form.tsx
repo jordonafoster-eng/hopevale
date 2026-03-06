@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 
+type Role = 'MEMBER' | 'GROUP_ADMIN' | 'SUPER_ADMIN';
+
 export function UserInviteForm() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -11,7 +13,7 @@ export function UserInviteForm() {
     name: '',
     email: '',
     password: '',
-    role: 'MEMBER' as 'MEMBER' | 'ADMIN',
+    role: 'MEMBER' as Role,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -31,7 +33,7 @@ export function UserInviteForm() {
       }
 
       toast.success('User created successfully!');
-      setFormData({ name: '', email: '', password: '', role: 'MEMBER' });
+      setFormData({ name: '', email: '', password: '', role: 'MEMBER' as Role });
       router.refresh();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to create user');
@@ -92,11 +94,11 @@ export function UserInviteForm() {
         <select
           required
           value={formData.role}
-          onChange={(e) => setFormData({ ...formData, role: e.target.value as 'MEMBER' | 'ADMIN' })}
+          onChange={(e) => setFormData({ ...formData, role: e.target.value as Role })}
           className="input mt-1"
         >
           <option value="MEMBER">Member</option>
-          <option value="ADMIN">Admin</option>
+          <option value="GROUP_ADMIN">Group Admin</option>
         </select>
       </div>
 

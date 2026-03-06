@@ -158,9 +158,9 @@ export default async function EventDetailPage({
             </div>
 
             {/* Event Actions */}
-            {session?.user && (session.user.role === 'ADMIN' || event.createdById === session.user.id) && (
+            {session?.user && (session.user.role !== 'MEMBER' || event.createdById === session.user.id) && (
               <div className="mt-4 border-t border-gray-200 pt-4 dark:border-gray-700">
-                {session.user.role === 'ADMIN' ? (
+                {session.user.role !== 'MEMBER' ? (
                   <EventAdminActions eventId={event.id} />
                 ) : (
                   <EventActions eventId={event.id} />

@@ -37,7 +37,7 @@ export default async function RecipeDetailPage({ params }: { params: Promise<{ i
   if (!recipe) notFound();
 
   const userRating = session?.user ? recipe.ratings.find((r) => r.userId === session.user.id) : null;
-  const canEdit = session?.user && (recipe.author.id === session.user.id || session.user.role === 'ADMIN');
+  const canEdit = session?.user && (recipe.author.id === session.user.id || session.user.role !== 'MEMBER');
 
   return (
     <div className="section">

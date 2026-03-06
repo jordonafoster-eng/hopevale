@@ -22,7 +22,7 @@ async function createAdmin() {
         where: { email },
         data: {
           password: hashedPassword,
-          role: 'ADMIN',
+          role: 'SUPER_ADMIN',
           status: 'ACTIVE',
           name: existingUser.name || name,
         },
@@ -38,7 +38,7 @@ async function createAdmin() {
           email,
           name,
           password: hashedPassword,
-          role: 'ADMIN',
+          role: 'SUPER_ADMIN',
           status: 'ACTIVE',
         },
       });

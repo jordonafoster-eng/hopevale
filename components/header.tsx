@@ -1,10 +1,12 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 import { UserMenu } from './user-menu';
 import { ThemeToggle } from './theme-toggle';
 import { MobileMenu } from './mobile-menu';
 import { NotificationBell } from './notification-bell';
+import { GroupSwitcher } from './group-switcher';
 
 const navigation = [
   { name: 'Home', href: '/' },
@@ -18,6 +20,29 @@ const navigation = [
 
 export async function Header() {
   const session = await auth();
+
+  // Get group info for display
+  let groupName: string | null = null;
+  let allGroups: { id: string; name: string }[] = [];
+
+  if (session?.user?.groupId) {
+    const group = await prisma.group.findUnique({
+      where: { id: session.user.groupId },
+      select: { name: true },
+    });
+    groupName = group?.name ?? null;
+  }
+
+  // For SUPER_ADMIN, fetch all groups for the switcher
+  if (session?.user?.role === 'SUPER_ADMIN') {
+    allGroups = await prisma.group.findMany({
+      where: { deletedAt: null },
+      select: { id: true, name: true },
+      orderBy: { name: 'asc' },
+    });
+  }
+
+  const isAdmin = session?.user?.role === 'GROUP_ADMIN' || session?.user?.role === 'SUPER_ADMIN';
 
   return (
     <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/80 backdrop-blur-sm dark:border-gray-700 dark:bg-gray-900/80">
@@ -56,10 +81,26 @@ export async function Header() {
 
           {/* Right Side */}
           <div className="flex items-center space-x-2">
+            {/* Group Name Badge */}
+            {session?.user && groupName && (
+              <div className="hidden items-center md:flex">
+                {session.user.role === 'SUPER_ADMIN' ? (
+                  <GroupSwitcher
+                    groups={allGroups}
+                    currentGroupId={session.user.viewingGroupId ?? session.user.groupId}
+                    currentGroupName={groupName}
+                  />
+                ) : (
+                  <span className="rounded-full bg-brand-100 px-3 py-1 text-xs font-medium text-brand-700 dark:bg-brand-900 dark:text-brand-300">
+                    {groupName}
+                  </span>
+                )}
+              </div>
+            )}
             <ThemeToggle />
             {session?.user ? (
               <>
-                {session.user.role === 'ADMIN' && (
+                {isAdmin && (
                   <Link
                     href="/admin"
                     className="hidden rounded-lg px-3 py-2 text-sm font-medium text-brand-600 transition-colors hover:bg-brand-50 dark:text-brand-400 dark:hover:bg-brand-950 md:block"
@@ -78,7 +119,7 @@ export async function Header() {
                 Sign In
               </Link>
             )}
-            <MobileMenu navigation={navigation} session={session} />
+            <MobileMenu navigation={navigation} session={session} isAdmin={isAdmin} groupName={groupName} />
           </div>
         </div>
       </nav>

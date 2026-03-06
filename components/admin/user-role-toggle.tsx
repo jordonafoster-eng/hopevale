@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 
+type Role = 'MEMBER' | 'GROUP_ADMIN' | 'SUPER_ADMIN';
+
 export function UserRoleToggle({
   userId,
   currentRole,
@@ -16,13 +18,25 @@ export function UserRoleToggle({
   const router = useRouter();
   const [isUpdating, setIsUpdating] = useState(false);
 
+  // Determine the new role based on current role
+  const getNewRole = (): Role => {
+    if (currentRole === 'MEMBER') return 'GROUP_ADMIN';
+    if (currentRole === 'GROUP_ADMIN') return 'MEMBER';
+    return currentRole as Role; // SUPER_ADMIN stays as is
+  };
+
   const handleToggle = async () => {
     if (disabled) {
       toast.error('You cannot change your own role');
       return;
     }
 
-    const newRole = currentRole === 'ADMIN' ? 'MEMBER' : 'ADMIN';
+    if (currentRole === 'SUPER_ADMIN') {
+      toast.error('Cannot change SUPER_ADMIN role');
+      return;
+    }
+
+    const newRole = getNewRole();
 
     setIsUpdating(true);
 
@@ -34,27 +48,37 @@ export function UserRoleToggle({
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update role');
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to update role');
       }
 
-      toast.success(`User role updated to ${newRole}`);
+      const roleLabel = newRole === 'GROUP_ADMIN' ? 'Group Admin' : 'Member';
+      toast.success(`User role updated to ${roleLabel}`);
       router.refresh();
-    } catch (_error) {
-      toast.error('Failed to update user role');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to update user role');
     } finally {
       setIsUpdating(false);
     }
   };
 
+  const getButtonLabel = () => {
+    if (isUpdating) return 'Updating...';
+    if (disabled) return 'You';
+    if (currentRole === 'SUPER_ADMIN') return 'Super Admin';
+    if (currentRole === 'GROUP_ADMIN') return 'Make Member';
+    return 'Make Admin';
+  };
+
   return (
     <button
       onClick={handleToggle}
-      disabled={disabled || isUpdating}
+      disabled={disabled || isUpdating || currentRole === 'SUPER_ADMIN'}
       className={`btn-secondary text-xs ${
-        disabled ? 'cursor-not-allowed opacity-50' : ''
+        disabled || currentRole === 'SUPER_ADMIN' ? 'cursor-not-allowed opacity-50' : ''
       }`}
     >
-      {isUpdating ? 'Updating...' : disabled ? 'You' : `Make ${currentRole === 'ADMIN' ? 'Member' : 'Admin'}`}
+      {getButtonLabel()}
     </button>
   );
 }

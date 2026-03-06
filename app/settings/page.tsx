@@ -22,7 +22,7 @@ export default async function SettingsPage() {
     redirect('/auth/signin?callbackUrl=/settings');
   }
 
-  const isAdmin = session.user.role === 'ADMIN';
+  const isAdmin = session.user.role !== 'MEMBER';
 
   return (
     <div className="section">

@@ -31,7 +31,7 @@ export async function DELETE(
 
     // Check if user is author or admin
     const isAuthor = reflection.authorId === session.user.id;
-    const isAdmin = session.user.role === 'ADMIN';
+    const isAdmin = session.user.role !== 'MEMBER';
 
     if (!isAuthor && !isAdmin) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });

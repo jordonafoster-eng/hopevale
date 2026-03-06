@@ -20,20 +20,34 @@ async function main() {
   await prisma.event.deleteMany();
   await prisma.session.deleteMany();
   await prisma.account.deleteMany();
+  await prisma.groupInvite.deleteMany();
   await prisma.user.deleteMany();
+  await prisma.group.deleteMany();
   await prisma.siteSettings.deleteMany();
 
   console.log('✅ Cleaned existing data');
 
-  // Create admin user
+  // Create a default group
+  const defaultGroup = await prisma.group.create({
+    data: {
+      name: 'Hope Vale Community',
+      slug: 'hope-vale-community',
+      description: 'Our main community group',
+    },
+  });
+
+  console.log('✅ Created default group:', defaultGroup.name);
+
+  // Create admin user (SUPER_ADMIN)
   const adminPassword = await hash('admin123', 12);
   const admin = await prisma.user.create({
     data: {
       name: 'Admin User',
       email: 'admin@example.com',
       password: adminPassword,
-      role: Role.ADMIN,
+      role: Role.SUPER_ADMIN,
       emailVerified: new Date(),
+      groupId: defaultGroup.id,
     },
   });
 
@@ -49,6 +63,7 @@ async function main() {
         password: memberPassword,
         role: Role.MEMBER,
         emailVerified: new Date(),
+        groupId: defaultGroup.id,
       },
     }),
     prisma.user.create({
@@ -58,6 +73,7 @@ async function main() {
         password: memberPassword,
         role: Role.MEMBER,
         emailVerified: new Date(),
+        groupId: defaultGroup.id,
       },
     }),
     prisma.user.create({
@@ -67,6 +83,7 @@ async function main() {
         password: memberPassword,
         role: Role.MEMBER,
         emailVerified: new Date(),
+        groupId: defaultGroup.id,
       },
     }),
   ]);
@@ -87,6 +104,7 @@ async function main() {
         capacity: 200,
         tags: ['worship', 'service'],
         createdById: admin.id,
+        groupId: defaultGroup.id,
       },
     }),
     prisma.event.create({
@@ -100,6 +118,7 @@ async function main() {
         capacity: 100,
         tags: ['fellowship', 'potluck', 'community'],
         createdById: admin.id,
+        groupId: defaultGroup.id,
       },
     }),
     prisma.event.create({
@@ -112,6 +131,7 @@ async function main() {
         isPotluck: false,
         tags: ['bible-study', 'learning'],
         createdById: members[0].id,
+        groupId: defaultGroup.id,
       },
     }),
   ]);
@@ -159,6 +179,7 @@ async function main() {
         authorId: members[0].id,
         isApproved: true,
         reactionsCount: 5,
+        groupId: defaultGroup.id,
       },
     }),
     prisma.prayer.create({
@@ -169,6 +190,7 @@ async function main() {
         authorId: members[1].id,
         isApproved: true,
         reactionsCount: 12,
+        groupId: defaultGroup.id,
       },
     }),
     prisma.prayer.create({
@@ -179,6 +201,7 @@ async function main() {
         isAnonymous: true,
         isApproved: true,
         reactionsCount: 3,
+        groupId: defaultGroup.id,
       },
     }),
   ]);
@@ -194,6 +217,7 @@ async function main() {
         tags: ['grace', 'faith', 'perseverance'],
         authorId: members[0].id,
         isApproved: true,
+        groupId: defaultGroup.id,
       },
     }),
     prisma.reflection.create({
@@ -203,6 +227,7 @@ async function main() {
         tags: ['trust', 'faith', 'growth'],
         authorId: members[1].id,
         isApproved: true,
+        groupId: defaultGroup.id,
       },
     }),
   ]);
@@ -221,6 +246,7 @@ async function main() {
         authorId: members[1].id,
         ratingAvg: 4.8,
         ratingCount: 15,
+        groupId: defaultGroup.id,
       },
     }),
     prisma.recipe.create({
@@ -233,6 +259,7 @@ async function main() {
         authorId: members[0].id,
         ratingAvg: 4.9,
         ratingCount: 22,
+        groupId: defaultGroup.id,
       },
     }),
   ]);

@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
-import { isAdmin } from '@/lib/auth-utils';
+import { isAdmin, getGroupFilter } from '@/lib/auth-utils';
 import { PrayerList } from '@/components/prayer/prayer-list';
 import { PrayerForm } from '@/components/prayer/prayer-form';
 import { PrayerFilters } from '@/components/prayer/prayer-filters';
@@ -12,13 +12,17 @@ export const metadata: Metadata = {
   description: 'Share prayer requests with the community',
 };
 
-async function getPrayers(filters?: {
-  type?: 'REQUEST' | 'PRAISE';
-  search?: string;
-}) {
+async function getPrayers(
+  filters?: {
+    type?: 'REQUEST' | 'PRAISE';
+    search?: string;
+  },
+  groupFilter?: { groupId?: string }
+) {
   const where: any = {
     isApproved: true,
     deletedAt: null,
+    ...groupFilter,
   };
 
   if (filters?.type) {
@@ -89,12 +93,16 @@ export default async function PrayerPage({
   const params = await searchParams;
   const session = await auth();
   const adminUser = await isAdmin();
+  const groupFilter = await getGroupFilter();
 
   const [prayers, userReactions] = await Promise.all([
-    getPrayers({
-      type: params.type,
-      search: params.search,
-    }),
+    getPrayers(
+      {
+        type: params.type,
+        search: params.search,
+      },
+      groupFilter
+    ),
     session?.user ? getUserReactions(session.user.id) : [],
   ]);
 

@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
         where: { email },
         data: {
           password: hashedPassword,
-          role: 'ADMIN',
+          role: 'SUPER_ADMIN',
           status: 'ACTIVE',
           name: existingUser.name || name,
         },
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
           email,
           name,
           password: hashedPassword,
-          role: 'ADMIN',
+          role: 'SUPER_ADMIN',
           status: 'ACTIVE',
         },
         select: {

@@ -38,7 +38,7 @@ export default async function EditEventPage({
   }
 
   // Only allow editing if user is admin or the event creator
-  if (session.user.role !== 'ADMIN' && event.createdById !== session.user.id) {
+  if (session.user.role === 'MEMBER' && event.createdById !== session.user.id) {
     redirect('/events');
   }
 

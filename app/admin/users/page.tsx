@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { auth } from '@/lib/auth';
-import { isAdmin } from '@/lib/auth-utils';
+import { isAdmin, getGroupFilter } from '@/lib/auth-utils';
 import { prisma } from '@/lib/prisma';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { UserRoleToggle } from '@/components/admin/user-role-toggle';
@@ -14,8 +14,11 @@ export const metadata: Metadata = {
   description: 'Manage users and roles',
 };
 
-async function getUsers() {
+async function getUsers(groupFilter?: { groupId?: string }) {
   return prisma.user.findMany({
+    where: {
+      ...groupFilter,
+    },
     select: {
       id: true,
       name: true,
@@ -39,7 +42,8 @@ export default async function AdminUsersPage() {
     redirect('/');
   }
 
-  const users = await getUsers();
+  const groupFilter = await getGroupFilter();
+  const users = await getUsers(groupFilter);
 
   return (
     <div className="section">
@@ -125,12 +129,14 @@ export default async function AdminUsersPage() {
                     <td className="whitespace-nowrap px-6 py-4">
                       <span
                         className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${
-                          user.role === 'ADMIN'
+                          user.role === 'SUPER_ADMIN'
                             ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400'
+                            : user.role === 'GROUP_ADMIN'
+                            ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
                             : 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
                         }`}
                       >
-                        {user.role}
+                        {user.role === 'SUPER_ADMIN' ? 'Super Admin' : user.role === 'GROUP_ADMIN' ? 'Group Admin' : 'Member'}
                       </span>
                     </td>
                     <td className="whitespace-nowrap px-6 py-4">

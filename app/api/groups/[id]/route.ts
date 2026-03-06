@@ -7,6 +7,7 @@ import { canManageGroup } from '@/lib/auth-utils';
 const updateGroupSchema = z.object({
   name: z.string().min(2).max(100).optional(),
   description: z.string().max(500).optional().nullable(),
+  restore: z.boolean().optional(),
 });
 
 /**
@@ -84,9 +85,25 @@ export async function PATCH(
     const body = await request.json();
     const data = updateGroupSchema.parse(body);
 
+    // Handle restore (SUPER_ADMIN only)
+    if (data.restore) {
+      if (session.user.role !== 'SUPER_ADMIN') {
+        return NextResponse.json({ error: 'Only SUPER_ADMIN can restore groups' }, { status: 403 });
+      }
+
+      const group = await prisma.group.update({
+        where: { id },
+        data: { deletedAt: null },
+      });
+
+      return NextResponse.json({ group, message: 'Group restored successfully' });
+    }
+
+    // Regular update
+    const { restore, ...updateData } = data;
     const group = await prisma.group.update({
       where: { id },
-      data,
+      data: updateData,
     });
 
     return NextResponse.json({ group });

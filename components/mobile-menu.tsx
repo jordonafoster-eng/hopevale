@@ -13,9 +13,13 @@ type Navigation = Array<{ name: string; href: string }>;
 export function MobileMenu({
   navigation,
   session,
+  isAdmin,
+  groupName,
 }: {
   navigation: Navigation;
   session: Session | null;
+  isAdmin?: boolean;
+  groupName?: string | null;
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -78,7 +82,7 @@ export function MobileMenu({
                     </Link>
                   ))}
 
-                  {session?.user && session.user.role === 'ADMIN' && (
+                  {session?.user && isAdmin && (
                     <Link
                       href="/admin"
                       onClick={() => setIsOpen(false)}
@@ -99,6 +103,11 @@ export function MobileMenu({
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           {session.user.email}
                         </p>
+                        {groupName && (
+                          <span className="mt-1 inline-block rounded-full bg-brand-100 px-2 py-0.5 text-xs font-medium text-brand-700 dark:bg-brand-900 dark:text-brand-300">
+                            {groupName}
+                          </span>
+                        )}
                       </div>
                       <Link
                         href="/profile"

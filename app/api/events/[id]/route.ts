@@ -36,7 +36,7 @@ export async function PATCH(
     }
 
     // Only allow editing if user is admin or the event creator
-    if (session.user.role !== 'ADMIN' && event.createdById !== session.user.id) {
+    if (session.user.role === 'MEMBER' && event.createdById !== session.user.id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -96,7 +96,7 @@ export async function DELETE(
     }
 
     // Only allow deletion if user is admin or the event creator
-    if (session.user.role !== 'ADMIN' && event.createdById !== session.user.id) {
+    if (session.user.role === 'MEMBER' && event.createdById !== session.user.id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

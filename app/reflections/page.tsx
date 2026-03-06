@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { getGroupFilter } from '@/lib/auth-utils';
 import { ReflectionList } from '@/components/reflections/reflection-list';
 import { ReflectionForm } from '@/components/reflections/reflection-form';
 import { ReflectionFilters } from '@/components/reflections/reflection-filters';
@@ -11,13 +12,17 @@ export const metadata: Metadata = {
   description: 'Share what God is teaching you',
 };
 
-async function getReflections(filters?: {
-  search?: string;
-  tag?: string;
-  userId?: string;
-}) {
+async function getReflections(
+  filters?: {
+    search?: string;
+    tag?: string;
+    userId?: string;
+  },
+  groupFilter?: { groupId?: string }
+) {
   const where: any = {
     deletedAt: null,
+    ...groupFilter,
   };
 
   // Show approved reflections OR user's own reflections (even if pending)
@@ -88,11 +93,12 @@ async function getReflections(filters?: {
   });
 }
 
-async function getAllTags() {
+async function getAllTags(groupFilter?: { groupId?: string }) {
   const reflections = await prisma.reflection.findMany({
     where: {
       isApproved: true,
       deletedAt: null,
+      ...groupFilter,
     },
     select: {
       tags: true,
@@ -114,14 +120,18 @@ export default async function ReflectionsPage({
 }) {
   const params = await searchParams;
   const session = await auth();
+  const groupFilter = await getGroupFilter();
 
   const [reflections, allTags] = await Promise.all([
-    getReflections({
-      search: params.search,
-      tag: params.tag,
-      userId: session?.user?.id,
-    }),
-    getAllTags(),
+    getReflections(
+      {
+        search: params.search,
+        tag: params.tag,
+        userId: session?.user?.id,
+      },
+      groupFilter
+    ),
+    getAllTags(groupFilter),
   ]);
 
   return (

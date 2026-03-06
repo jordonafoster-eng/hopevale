@@ -34,7 +34,7 @@ export default async function ProfilePage() {
     redirect('/auth/signin?callbackUrl=/profile');
   }
 
-  const isAdmin = user.role === 'ADMIN';
+  const isAdmin = user.role !== 'MEMBER';
   const initials = getInitials(user.name || user.email || 'U');
   const avatarColor = getAvatarColor(user.email || '');
 

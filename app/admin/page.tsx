@@ -8,6 +8,8 @@ import {
   SparklesIcon,
   MusicalNoteIcon,
   ChartBarIcon,
+  BuildingOffice2Icon,
+  UserGroupIcon,
 } from '@heroicons/react/24/outline';
 
 export const metadata: Metadata = {
@@ -35,6 +37,48 @@ export default async function AdminDashboardPage() {
 
         {/* Admin Actions Grid */}
         <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {/* Group Settings - for GROUP_ADMIN */}
+          <Link
+            href="/admin/group"
+            className="card group hover:border-emerald-500 hover:shadow-lg"
+          >
+            <div className="flex items-start">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/20">
+                <UserGroupIcon className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+              </div>
+              <div className="ml-4 flex-1">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  Group Settings
+                </h3>
+                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                  Manage invites and group members
+                </p>
+              </div>
+            </div>
+          </Link>
+
+          {/* All Groups - SUPER_ADMIN only */}
+          {session?.user?.role === 'SUPER_ADMIN' && (
+            <Link
+              href="/admin/groups"
+              className="card group hover:border-indigo-500 hover:shadow-lg"
+            >
+              <div className="flex items-start">
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-indigo-100 dark:bg-indigo-900/20">
+                  <BuildingOffice2Icon className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+                </div>
+                <div className="ml-4 flex-1">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    All Groups
+                  </h3>
+                  <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                    Manage all groups across the platform
+                  </p>
+                </div>
+              </div>
+            </Link>
+          )}
+
           {/* User Management */}
           <Link
             href="/admin/users"
@@ -49,7 +93,7 @@ export default async function AdminDashboardPage() {
                   User Management
                 </h3>
                 <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                  Manage users, roles, and invite admins
+                  Manage users, roles, and permissions
                 </p>
               </div>
             </div>

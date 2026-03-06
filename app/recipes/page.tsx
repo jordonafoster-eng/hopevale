@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { getGroupFilter } from '@/lib/auth-utils';
 import { RecipeCard } from '@/components/recipes/recipe-card';
 import { RecipeForm } from '@/components/recipes/recipe-form';
 import { RecipeFilters } from '@/components/recipes/recipe-filters';
@@ -11,12 +12,17 @@ export const metadata: Metadata = {
   description: 'Share and discover recipes from our community',
 };
 
-async function getRecipes(filters?: {
-  search?: string;
-  category?: string;
-  potluckHit?: boolean;
-}) {
-  const where: any = {};
+async function getRecipes(
+  filters?: {
+    search?: string;
+    category?: string;
+    potluckHit?: boolean;
+  },
+  groupFilter?: { groupId?: string }
+) {
+  const where: any = {
+    ...groupFilter,
+  };
 
   if (filters?.search) {
     where.OR = [
@@ -54,8 +60,11 @@ async function getRecipes(filters?: {
   });
 }
 
-async function getAllCategories() {
+async function getAllCategories(groupFilter?: { groupId?: string }) {
   const recipes = await prisma.recipe.findMany({
+    where: {
+      ...groupFilter,
+    },
     select: {
       categories: true,
     },
@@ -76,14 +85,18 @@ export default async function RecipesPage({
 }) {
   const params = await searchParams;
   const session = await auth();
+  const groupFilter = await getGroupFilter();
 
   const [recipes, allCategories] = await Promise.all([
-    getRecipes({
-      search: params.search,
-      category: params.category,
-      potluckHit: params.potluckHit === 'true',
-    }),
-    getAllCategories(),
+    getRecipes(
+      {
+        search: params.search,
+        category: params.category,
+        potluckHit: params.potluckHit === 'true',
+      },
+      groupFilter
+    ),
+    getAllCategories(groupFilter),
   ]);
 
   return (

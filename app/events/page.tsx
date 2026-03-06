@@ -6,19 +6,24 @@ import { EventFilters } from '@/components/events/event-filters';
 import { EventCalendar } from '@/components/events/event-calendar';
 import { CalendarIcon, PlusIcon } from '@heroicons/react/24/outline';
 import { auth } from '@/lib/auth';
+import { getGroupFilter } from '@/lib/auth-utils';
 
 export const metadata: Metadata = {
   title: 'Events - Church Friends',
   description: 'Browse and RSVP to community events',
 };
 
-async function getEvents(filters?: {
-  search?: string;
-  upcoming?: boolean;
-  potluck?: boolean;
-}) {
+async function getEvents(
+  filters?: {
+    search?: string;
+    upcoming?: boolean;
+    potluck?: boolean;
+  },
+  groupFilter?: { groupId?: string }
+) {
   const where: any = {
     isPublished: true,
+    ...groupFilter,
   };
 
   if (filters?.upcoming) {
@@ -81,13 +86,14 @@ export default async function EventsPage({
 }) {
   const params = await searchParams;
   const session = await auth();
+  const groupFilter = await getGroupFilter();
   const filters = {
     search: params.search,
     upcoming: params.filter === 'upcoming',
     potluck: params.filter === 'potluck',
   };
 
-  const events = await getEvents(filters);
+  const events = await getEvents(filters, groupFilter);
   const now = new Date();
   const upcomingEvents = events.filter((e) => !e.startAt || new Date(e.startAt) >= now);
   const pastEvents = events.filter((e) => e.startAt && new Date(e.startAt) < now);

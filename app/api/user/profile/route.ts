@@ -50,7 +50,7 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    const isAdmin = currentUser.role === 'ADMIN';
+    const isAdmin = currentUser.role !== 'MEMBER';
 
     // Handle image upload if provided
     let imageUrl: string | undefined;
