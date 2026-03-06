@@ -8,6 +8,7 @@ import {
   TrashIcon,
   ClipboardDocumentIcon,
   UserCircleIcon,
+  PencilIcon,
 } from '@heroicons/react/24/outline';
 
 interface Member {
@@ -53,6 +54,9 @@ export function GroupSettings({
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState<'MEMBER' | 'GROUP_ADMIN'>('MEMBER');
   const [isLoading, setIsLoading] = useState(false);
+  const [isEditingGroup, setIsEditingGroup] = useState(false);
+  const [groupName, setGroupName] = useState(group.name);
+  const [groupDescription, setGroupDescription] = useState(group.description || '');
 
   const handleCreateInvite = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -130,29 +134,125 @@ export function GroupSettings({
     }
   };
 
+  const handleUpdateGroup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!groupName.trim()) {
+      toast.error('Group name is required');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch(`/api/groups/${group.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: groupName.trim(),
+          description: groupDescription.trim() || null,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to update group');
+      }
+
+      toast.success('Group updated successfully');
+      setIsEditingGroup(false);
+      router.refresh();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to update group');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="mt-8 space-y-8">
       {/* Group Info */}
       <div className="card">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-          Group Information
-        </h2>
-        <div className="mt-4 space-y-3">
-          <div>
-            <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Name</label>
-            <p className="text-gray-900 dark:text-white">{group.name}</p>
-          </div>
-          <div>
-            <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Slug</label>
-            <p className="text-gray-900 dark:text-white">{group.slug}</p>
-          </div>
-          {group.description && (
-            <div>
-              <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Description</label>
-              <p className="text-gray-900 dark:text-white">{group.description}</p>
-            </div>
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+            Group Information
+          </h2>
+          {!isEditingGroup && (
+            <button
+              onClick={() => setIsEditingGroup(true)}
+              className="btn-secondary"
+            >
+              <PencilIcon className="mr-2 h-4 w-4" />
+              Edit
+            </button>
           )}
         </div>
+
+        {isEditingGroup ? (
+          <form onSubmit={handleUpdateGroup} className="mt-4 space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Group Name *
+              </label>
+              <input
+                type="text"
+                value={groupName}
+                onChange={(e) => setGroupName(e.target.value)}
+                className="input mt-1"
+                placeholder="Enter group name"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Description
+              </label>
+              <textarea
+                value={groupDescription}
+                onChange={(e) => setGroupDescription(e.target.value)}
+                className="input mt-1"
+                rows={3}
+                placeholder="Optional description for your group"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Slug</label>
+              <p className="text-gray-900 dark:text-white">{group.slug}</p>
+              <p className="text-xs text-gray-500 mt-1">Slug cannot be changed</p>
+            </div>
+            <div className="flex gap-2">
+              <button type="submit" disabled={isLoading} className="btn-primary">
+                {isLoading ? 'Saving...' : 'Save Changes'}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsEditingGroup(false);
+                  setGroupName(group.name);
+                  setGroupDescription(group.description || '');
+                }}
+                className="btn-secondary"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        ) : (
+          <div className="mt-4 space-y-3">
+            <div>
+              <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Name</label>
+              <p className="text-gray-900 dark:text-white">{group.name}</p>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Slug</label>
+              <p className="text-gray-900 dark:text-white">{group.slug}</p>
+            </div>
+            {group.description && (
+              <div>
+                <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Description</label>
+                <p className="text-gray-900 dark:text-white">{group.description}</p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Invites Section */}
