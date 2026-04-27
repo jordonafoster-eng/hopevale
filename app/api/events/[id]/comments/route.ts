@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { sendCommentNotifications } from '@/lib/comment-notifications';
 
 const commentSchema = z.object({
   body: z.string().min(1, 'Comment cannot be empty').max(1000),
@@ -20,9 +21,10 @@ export async function POST(
 
     const { id: eventId } = await params;
 
-    // Verify event exists
+    // Verify event exists and get owner info
     const event = await prisma.event.findUnique({
       where: { id: eventId },
+      include: { createdBy: { select: { id: true, name: true, email: true } } },
     });
 
     if (!event) {
@@ -50,6 +52,19 @@ export async function POST(
         },
       },
     });
+
+    // Fire-and-forget notifications
+    const commentAuthorName = session.user.name || session.user.email || 'Someone';
+    sendCommentNotifications({
+      commentId: comment.id,
+      commentBody: validatedData.body,
+      commentAuthorId: session.user.id,
+      commentAuthorName,
+      contentType: 'event',
+      contentTitle: event.title,
+      contentLink: `/events/${eventId}`,
+      contentOwnerId: event.createdById,
+    }).catch((err) => console.error('Comment notification error:', err));
 
     return NextResponse.json({ comment }, { status: 201 });
   } catch (error) {

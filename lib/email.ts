@@ -213,6 +213,10 @@ function shouldSendEmailForType(
       return prefs.emailNewReflection;
     case 'WEEKLY_DIGEST':
       return prefs.emailWeeklyDigest;
+    case 'COMMENT_ON_CONTENT':
+      return prefs.emailCommentOnContent ?? true;
+    case 'MENTION_IN_COMMENT':
+      return prefs.emailMentionInComment ?? true;
     case 'SYSTEM':
       return true; // Always send system notifications
     default:
@@ -244,6 +248,10 @@ function shouldCreateInAppForType(
       return prefs.inAppNewReflection;
     case 'WEEKLY_DIGEST':
       return false; // Not supported for in-app yet
+    case 'COMMENT_ON_CONTENT':
+      return prefs.inAppCommentOnContent ?? true;
+    case 'MENTION_IN_COMMENT':
+      return prefs.inAppMentionInComment ?? true;
     case 'SYSTEM':
       return true; // Always create system notifications
     default:

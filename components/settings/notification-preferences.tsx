@@ -15,11 +15,15 @@ interface NotificationPreferences {
   emailNewPrayerRequest: boolean;
   emailNewReflection: boolean;
   emailWeeklyDigest: boolean;
+  emailCommentOnContent: boolean;
+  emailMentionInComment: boolean;
   pushEnabled: boolean;
   pushNewEvent: boolean;
   pushEventReminder: boolean;
   pushPrayerReaction: boolean;
   pushNewPrayerRequest: boolean;
+  pushCommentOnContent: boolean;
+  pushMentionInComment: boolean;
   inAppEnabled: boolean;
   inAppNewEvent: boolean;
   inAppEventReminder: boolean;
@@ -27,6 +31,8 @@ interface NotificationPreferences {
   inAppPrayerReaction: boolean;
   inAppNewPrayerRequest: boolean;
   inAppNewReflection: boolean;
+  inAppCommentOnContent: boolean;
+  inAppMentionInComment: boolean;
 }
 
 export function NotificationPreferences() {
@@ -321,6 +327,54 @@ export function NotificationPreferences() {
                   />
                 </button>
               </div>
+
+              <div className="flex items-center justify-between py-3">
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-white">Comments on Your Content</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    When someone comments on your prayer, reflection, recipe, or event
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={preferences.emailCommentOnContent}
+                  onClick={() => updatePreference('emailCommentOnContent', !preferences.emailCommentOnContent)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    preferences.emailCommentOnContent ? 'bg-brand-600' : 'bg-gray-300 dark:bg-gray-600'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      preferences.emailCommentOnContent ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between py-3">
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-white">Mentions in Comments</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    When someone @mentions you in a comment
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={preferences.emailMentionInComment}
+                  onClick={() => updatePreference('emailMentionInComment', !preferences.emailMentionInComment)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    preferences.emailMentionInComment ? 'bg-brand-600' : 'bg-gray-300 dark:bg-gray-600'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      preferences.emailMentionInComment ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
             </>
           )}
         </div>
@@ -459,6 +513,54 @@ export function NotificationPreferences() {
                   <span
                     className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
                       preferences.pushNewPrayerRequest ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between py-3">
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-white">Comments on Your Content</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    When someone comments on your content
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={preferences.pushCommentOnContent}
+                  onClick={() => updatePreference('pushCommentOnContent', !preferences.pushCommentOnContent)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    preferences.pushCommentOnContent ? 'bg-brand-600' : 'bg-gray-300 dark:bg-gray-600'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      preferences.pushCommentOnContent ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between py-3">
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-white">Mentions in Comments</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    When someone @mentions you in a comment
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={preferences.pushMentionInComment}
+                  onClick={() => updatePreference('pushMentionInComment', !preferences.pushMentionInComment)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    preferences.pushMentionInComment ? 'bg-brand-600' : 'bg-gray-300 dark:bg-gray-600'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      preferences.pushMentionInComment ? 'translate-x-6' : 'translate-x-1'
                     }`}
                   />
                 </button>
@@ -644,6 +746,54 @@ export function NotificationPreferences() {
                   <span
                     className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
                       preferences.inAppNewReflection ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between py-3">
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-white">Comments on Your Content</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    When someone comments on your prayer, reflection, recipe, or event
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={preferences.inAppCommentOnContent}
+                  onClick={() => updatePreference('inAppCommentOnContent', !preferences.inAppCommentOnContent)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    preferences.inAppCommentOnContent ? 'bg-brand-600' : 'bg-gray-300 dark:bg-gray-600'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      preferences.inAppCommentOnContent ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between py-3">
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-white">Mentions in Comments</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    When someone @mentions you in a comment
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={preferences.inAppMentionInComment}
+                  onClick={() => updatePreference('inAppMentionInComment', !preferences.inAppMentionInComment)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    preferences.inAppMentionInComment ? 'bg-brand-600' : 'bg-gray-300 dark:bg-gray-600'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      preferences.inAppMentionInComment ? 'translate-x-6' : 'translate-x-1'
                     }`}
                   />
                 </button>

@@ -19,16 +19,16 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { id: prayerId } = await params;
+    const { id: recipeId } = await params;
 
-    // Verify prayer exists and get owner info
-    const prayer = await prisma.prayer.findUnique({
-      where: { id: prayerId },
+    // Verify recipe exists and get owner info
+    const recipe = await prisma.recipe.findUnique({
+      where: { id: recipeId },
       include: { author: { select: { id: true, name: true, email: true } } },
     });
 
-    if (!prayer) {
-      return NextResponse.json({ error: 'Prayer not found' }, { status: 404 });
+    if (!recipe) {
+      return NextResponse.json({ error: 'Recipe not found' }, { status: 404 });
     }
 
     const body = await request.json();
@@ -39,7 +39,7 @@ export async function POST(
       data: {
         body: validatedData.body,
         authorId: session.user.id,
-        prayerId,
+        recipeId,
       },
       include: {
         author: {
@@ -60,10 +60,10 @@ export async function POST(
       commentBody: validatedData.body,
       commentAuthorId: session.user.id,
       commentAuthorName,
-      contentType: 'prayer',
-      contentTitle: prayer.isAnonymous ? 'Prayer Request' : prayer.title,
-      contentLink: `/prayer`,
-      contentOwnerId: prayer.authorId ?? null,
+      contentType: 'recipe',
+      contentTitle: recipe.title,
+      contentLink: `/recipes/${recipeId}`,
+      contentOwnerId: recipe.authorId,
     }).catch((err) => console.error('Comment notification error:', err));
 
     return NextResponse.json({ comment }, { status: 201 });
@@ -88,10 +88,10 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: prayerId } = await params;
+    const { id: recipeId } = await params;
 
     const comments = await prisma.comment.findMany({
-      where: { prayerId },
+      where: { recipeId },
       include: {
         author: {
           select: {

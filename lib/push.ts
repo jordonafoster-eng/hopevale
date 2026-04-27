@@ -246,6 +246,10 @@ export function shouldSendPushForType(
       return prefs.pushPrayerReaction;
     case 'NEW_PRAYER_REQUEST':
       return prefs.pushNewPrayerRequest;
+    case 'COMMENT_ON_CONTENT':
+      return prefs.pushCommentOnContent ?? false;
+    case 'MENTION_IN_COMMENT':
+      return prefs.pushMentionInComment ?? false;
     case 'RSVP_CONFIRMATION':
     case 'NEW_REFLECTION':
     case 'WEEKLY_DIGEST':

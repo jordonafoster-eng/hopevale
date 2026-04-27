@@ -7,6 +7,8 @@ import { getInitials, getAvatarColor } from '@/lib/utils';
 import { RatingStars } from '@/components/recipes/rating-stars';
 import { RatingForm } from '@/components/recipes/rating-form';
 import { RecipeActions } from '@/components/recipes/recipe-actions';
+import { CommentForm } from '@/components/comments/comment-form';
+import { CommentList } from '@/components/comments/comment-list';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -26,6 +28,10 @@ async function getRecipe(id: string) {
       ratings: {
         include: { user: { select: { name: true, email: true, image: true } } },
         orderBy: { createdAt: 'desc' },
+      },
+      comments: {
+        include: { author: { select: { id: true, name: true, email: true, image: true } } },
+        orderBy: { createdAt: 'asc' },
       },
     },
   });
@@ -99,6 +105,17 @@ export default async function RecipeDetailPage({ params }: { params: Promise<{ i
             <RatingForm recipeId={recipe.id} existingRating={userRating} />
           </div>
         )}
+
+        {/* Comments */}
+        <div className="card mt-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            Comments ({recipe.comments.length})
+          </h3>
+          <CommentList comments={recipe.comments} />
+          {session?.user && (
+            <CommentForm targetType="recipe" targetId={recipe.id} />
+          )}
+        </div>
 
         {recipe.ratings.length > 0 && (
           <div className="mt-6">

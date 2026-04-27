@@ -53,11 +53,15 @@ export async function PUT(request: Request) {
       'emailNewPrayerRequest',
       'emailNewReflection',
       'emailWeeklyDigest',
+      'emailCommentOnContent',
+      'emailMentionInComment',
       'pushEnabled',
       'pushNewEvent',
       'pushEventReminder',
       'pushPrayerReaction',
       'pushNewPrayerRequest',
+      'pushCommentOnContent',
+      'pushMentionInComment',
       'inAppEnabled',
       'inAppNewEvent',
       'inAppEventReminder',
@@ -65,6 +69,8 @@ export async function PUT(request: Request) {
       'inAppPrayerReaction',
       'inAppNewPrayerRequest',
       'inAppNewReflection',
+      'inAppCommentOnContent',
+      'inAppMentionInComment',
     ];
 
     const updateData: any = {};

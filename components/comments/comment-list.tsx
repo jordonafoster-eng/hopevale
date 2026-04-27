@@ -54,6 +54,35 @@ function getInitials(name: string | null, email: string) {
   return email.slice(0, 2).toUpperCase();
 }
 
+// Render comment body with @[Name](userId) mentions highlighted
+function renderCommentBody(body: string): React.ReactNode {
+  const MENTION_REGEX = /@\[([^\]]+)\]\(([^)]+)\)/g;
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let match;
+
+  while ((match = MENTION_REGEX.exec(body)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(body.slice(lastIndex, match.index));
+    }
+    parts.push(
+      <span
+        key={match.index}
+        className="font-medium text-brand-600 dark:text-brand-400"
+      >
+        @{match[1]}
+      </span>
+    );
+    lastIndex = match.index + match[0].length;
+  }
+
+  if (lastIndex < body.length) {
+    parts.push(body.slice(lastIndex));
+  }
+
+  return parts.length > 0 ? parts : body;
+}
+
 export function CommentList({ comments }: CommentListProps) {
   if (comments.length === 0) {
     return (
@@ -99,7 +128,7 @@ export function CommentList({ comments }: CommentListProps) {
                 </span>
               </div>
               <div className="mt-1 text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-                {comment.body}
+                {renderCommentBody(comment.body)}
               </div>
             </div>
           </div>

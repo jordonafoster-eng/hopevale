@@ -43,6 +43,7 @@ model User {
   notifications Notification[]
   deviceTokens  DeviceToken[]
   comments      Comment[]
+  commentMentions CommentMention[]
 
   @@index([email])
   @@index([role])
@@ -266,9 +267,10 @@ model Recipe {
   updatedAt     DateTime @updatedAt
 
   // Relations
-  author  User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  group   Group?         @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  ratings RecipeRating[]
+  author   User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  group    Group?         @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  ratings  RecipeRating[]
+  comments Comment[]
 
   @@index([authorId])
   @@index([createdAt])
@@ -423,30 +425,36 @@ model NotificationPreference {
   userId                String   @unique
 
   // Email notifications
-  emailEnabled          Boolean  @default(true)
-  emailNewEvent         Boolean  @default(true)
-  emailEventReminder    Boolean  @default(true)
-  emailRsvpConfirmation Boolean  @default(true)
-  emailPrayerReaction   Boolean  @default(true)
-  emailNewPrayerRequest Boolean  @default(true)
-  emailNewReflection    Boolean  @default(true)
-  emailWeeklyDigest     Boolean  @default(false)
+  emailEnabled              Boolean  @default(true)
+  emailNewEvent             Boolean  @default(true)
+  emailEventReminder        Boolean  @default(true)
+  emailRsvpConfirmation     Boolean  @default(true)
+  emailPrayerReaction       Boolean  @default(true)
+  emailNewPrayerRequest     Boolean  @default(true)
+  emailNewReflection        Boolean  @default(true)
+  emailWeeklyDigest         Boolean  @default(false)
+  emailCommentOnContent     Boolean  @default(true)
+  emailMentionInComment     Boolean  @default(true)
 
   // Push notifications (for future PWA)
-  pushEnabled           Boolean  @default(false)
-  pushNewEvent          Boolean  @default(false)
-  pushEventReminder     Boolean  @default(false)
-  pushPrayerReaction    Boolean  @default(false)
-  pushNewPrayerRequest  Boolean  @default(false)
+  pushEnabled               Boolean  @default(false)
+  pushNewEvent              Boolean  @default(false)
+  pushEventReminder         Boolean  @default(false)
+  pushPrayerReaction        Boolean  @default(false)
+  pushNewPrayerRequest      Boolean  @default(false)
+  pushCommentOnContent      Boolean  @default(false)
+  pushMentionInComment      Boolean  @default(false)
 
   // In-app notifications
-  inAppEnabled          Boolean  @default(true)
-  inAppNewEvent         Boolean  @default(true)
-  inAppEventReminder    Boolean  @default(true)
-  inAppRsvpConfirmation Boolean  @default(true)
-  inAppPrayerReaction   Boolean  @default(true)
-  inAppNewPrayerRequest Boolean  @default(true)
-  inAppNewReflection    Boolean  @default(true)
+  inAppEnabled              Boolean  @default(true)
+  inAppNewEvent             Boolean  @default(true)
+  inAppEventReminder        Boolean  @default(true)
+  inAppRsvpConfirmation     Boolean  @default(true)
+  inAppPrayerReaction       Boolean  @default(true)
+  inAppNewPrayerRequest     Boolean  @default(true)
+  inAppNewReflection        Boolean  @default(true)
+  inAppCommentOnContent     Boolean  @default(true)
+  inAppMentionInComment     Boolean  @default(true)
 
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
@@ -488,6 +496,8 @@ enum NotificationType {
   NEW_REFLECTION
   WEEKLY_DIGEST
   SYSTEM
+  COMMENT_ON_CONTENT
+  MENTION_IN_COMMENT
 }
 
 model DeviceToken {
@@ -520,6 +530,10 @@ model Comment {
   reflection    Reflection? @relation(fields: [reflectionId], references: [id], onDelete: Cascade)
   eventId       String?
   event         Event?      @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  recipeId      String?
+  recipe        Recipe?     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  mentions  CommentMention[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -528,7 +542,21 @@ model Comment {
   @@index([prayerId])
   @@index([reflectionId])
   @@index([eventId])
+  @@index([recipeId])
   @@index([createdAt])
+}
+
+model CommentMention {
+  id        String   @id @default(cuid())
+  commentId String
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([commentId, userId])
+  @@index([commentId])
+  @@index([userId])
 }
 
 // ==================== SITE SETTINGS ====================

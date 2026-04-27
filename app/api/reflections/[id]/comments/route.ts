@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { sendCommentNotifications } from '@/lib/comment-notifications';
 
 const commentSchema = z.object({
   body: z.string().min(1, 'Comment cannot be empty').max(1000),
@@ -20,9 +21,10 @@ export async function POST(
 
     const { id: reflectionId } = await params;
 
-    // Verify reflection exists
+    // Verify reflection exists and get owner info
     const reflection = await prisma.reflection.findUnique({
       where: { id: reflectionId },
+      include: { author: { select: { id: true, name: true, email: true } } },
     });
 
     if (!reflection) {
@@ -50,6 +52,19 @@ export async function POST(
         },
       },
     });
+
+    // Fire-and-forget notifications
+    const commentAuthorName = session.user.name || session.user.email || 'Someone';
+    sendCommentNotifications({
+      commentId: comment.id,
+      commentBody: validatedData.body,
+      commentAuthorId: session.user.id,
+      commentAuthorName,
+      contentType: 'reflection',
+      contentTitle: reflection.title,
+      contentLink: `/reflections/${reflectionId}`,
+      contentOwnerId: reflection.authorId,
+    }).catch((err) => console.error('Comment notification error:', err));
 
     return NextResponse.json({ comment }, { status: 201 });
   } catch (error) {
