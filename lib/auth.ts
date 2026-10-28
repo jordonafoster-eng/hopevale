@@ -14,6 +14,36 @@ const credentialsSchema = z.object({
 export const { handlers, signIn, signOut, auth } = NextAuth({
   ...authConfig,
   adapter: PrismaAdapter(prisma) as any,
+  callbacks: {
+    ...authConfig.callbacks,
+    async jwt(params) {
+      const token = await authConfig.callbacks.jwt(params);
+      const { trigger, session } = params;
+
+      if (trigger !== 'update') return token;
+
+      // Never trust client-supplied role/group: reload them from the database
+      const dbUser = await prisma.user.findUnique({
+        where: { id: token.id as string },
+        select: { role: true, groupId: true, group: { select: { slug: true } } },
+      });
+
+      if (dbUser) {
+        token.role = dbUser.role;
+        token.groupId = dbUser.groupId;
+        token.groupSlug = dbUser.group?.slug ?? null;
+      }
+
+      // Only SUPER_ADMIN may view a group other than their own
+      if (token.role === 'SUPER_ADMIN' && session?.viewingGroupId !== undefined) {
+        token.viewingGroupId = session.viewingGroupId;
+      } else if (token.role !== 'SUPER_ADMIN') {
+        token.viewingGroupId = undefined;
+      }
+
+      return token;
+    },
+  },
   providers: [
     Credentials({
       name: 'credentials',

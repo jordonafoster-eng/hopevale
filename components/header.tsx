@@ -7,6 +7,7 @@ import { ThemeToggle } from './theme-toggle';
 import { MobileMenu } from './mobile-menu';
 import { NotificationBell } from './notification-bell';
 import { GroupSwitcher } from './group-switcher';
+import { GroupMenu } from './groups/group-menu';
 
 const navigation = [
   { name: 'Home', href: '/' },
@@ -24,6 +25,7 @@ export async function Header() {
   // Get group info for display
   let groupName: string | null = null;
   let allGroups: { id: string; name: string }[] = [];
+  let myGroups: { id: string; name: string }[] = [];
 
   if (session?.user?.groupId) {
     const group = await prisma.group.findUnique({
@@ -40,6 +42,13 @@ export async function Header() {
       select: { id: true, name: true },
       orderBy: { name: 'asc' },
     });
+  } else if (session?.user) {
+    const memberships = await prisma.groupMembership.findMany({
+      where: { userId: session.user.id, group: { deletedAt: null } },
+      select: { group: { select: { id: true, name: true } } },
+      orderBy: { group: { name: 'asc' } },
+    });
+    myGroups = memberships.map((m) => m.group);
   }
 
   const isAdmin = session?.user?.role === 'GROUP_ADMIN' || session?.user?.role === 'SUPER_ADMIN';
@@ -59,7 +68,7 @@ export async function Header() {
                 className="h-8 w-8 rounded-lg"
               />
               <span className="text-xl font-bold text-gray-900 dark:text-white">
-                Church Friends
+                Church Friends <span aria-hidden="true">🎃</span>
               </span>
             </Link>
           </div>
@@ -82,18 +91,22 @@ export async function Header() {
           {/* Right Side */}
           <div className="flex items-center space-x-2">
             {/* Group Name Badge */}
-            {session?.user && groupName && (
+            {session?.user && (
               <div className="hidden items-center md:flex">
                 {session.user.role === 'SUPER_ADMIN' ? (
-                  <GroupSwitcher
-                    groups={allGroups}
-                    currentGroupId={session.user.viewingGroupId ?? session.user.groupId}
+                  groupName && (
+                    <GroupSwitcher
+                      groups={allGroups}
+                      currentGroupId={session.user.viewingGroupId ?? session.user.groupId}
+                      currentGroupName={groupName}
+                    />
+                  )
+                ) : (
+                  <GroupMenu
+                    groups={myGroups}
+                    currentGroupId={session.user.groupId}
                     currentGroupName={groupName}
                   />
-                ) : (
-                  <span className="rounded-full bg-brand-100 px-3 py-1 text-xs font-medium text-brand-700 dark:bg-brand-900 dark:text-brand-300">
-                    {groupName}
-                  </span>
                 )}
               </div>
             )}

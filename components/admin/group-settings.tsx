@@ -124,7 +124,7 @@ export function GroupSettings({
       const response = await fetch(`/api/admin/users/${userId}/role`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ role: newRole }),
+        body: JSON.stringify({ role: newRole, groupId: group.id }),
       });
 
       if (!response.ok) {
@@ -384,7 +384,7 @@ export function GroupSettings({
                     {invite.email || 'Generic invite link'}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    Role: {invite.role} | Expires: {new Date(invite.expiresAt).toLocaleDateString()}
+                    Role: {invite.role} | {!invite.email && invite.role === 'MEMBER' ? 'Reusable' : 'Single use'} | Expires: {new Date(invite.expiresAt).toLocaleDateString()}
                   </p>
                 </div>
                 <div className="flex gap-2">
@@ -408,7 +408,8 @@ export function GroupSettings({
           </div>
         ) : (
           <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
-            No active invites. Create one to invite new members.
+            No active invites. Create one to invite new members. Generic member links can be
+            shared with as many people as you like until they expire.
           </p>
         )}
       </div>

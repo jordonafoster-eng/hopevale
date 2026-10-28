@@ -3,6 +3,13 @@ import { z } from 'zod';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { verifyGroupMembership, canManageGroup } from '@/lib/auth-utils';
+import {
+  addMembership,
+  countGroupAdmins,
+  getMembershipRole,
+  removeMembership,
+  setActiveGroup,
+} from '@/lib/groups';
 
 const moveMemberSchema = z.object({
   userId: z.string(),
@@ -33,25 +40,31 @@ export async function GET(
 
     const canManage = await canManageGroup(id);
 
-    const members = await prisma.user.findMany({
+    const memberships = await prisma.groupMembership.findMany({
       where: {
         groupId: id,
-        status: 'ACTIVE',
+        user: { status: 'ACTIVE' },
       },
       select: {
-        id: true,
-        name: true,
-        image: true,
         role: true,
         createdAt: true,
-        // Only include email for admins
-        ...(canManage ? { email: true } : {}),
+        user: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            // Only include email for admins
+            ...(canManage ? { email: true } : {}),
+          },
+        },
       },
       orderBy: [
         { role: 'desc' }, // GROUP_ADMIN first
-        { name: 'asc' },
+        { user: { name: 'asc' } },
       ],
     });
+
+    const members = memberships.map((m) => ({ ...m.user, role: m.role, createdAt: m.createdAt }));
 
     return NextResponse.json({ members });
   } catch (error) {
@@ -65,7 +78,8 @@ export async function GET(
 
 /**
  * DELETE /api/groups/[id]/members?userId=xxx
- * Remove a member from the group (GROUP_ADMIN or SUPER_ADMIN)
+ * Remove a member from the group (GROUP_ADMIN or SUPER_ADMIN),
+ * or leave the group when userId is the current user.
  */
 export async function DELETE(
   request: NextRequest,
@@ -84,60 +98,58 @@ export async function DELETE(
       return NextResponse.json({ error: 'userId is required' }, { status: 400 });
     }
 
-    // Check if user can manage this group
-    const canManage = await canManageGroup(groupId);
-    if (!canManage) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
-    // Cannot remove yourself
-    if (userId === session.user.id) {
-      return NextResponse.json(
-        { error: 'Cannot remove yourself from the group' },
-        { status: 400 }
-      );
-    }
-
-    // Get the target user
-    const targetUser = await prisma.user.findUnique({
-      where: { id: userId },
-    });
-
-    if (!targetUser) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
-
-    // Verify user is in this group
-    if (targetUser.groupId !== groupId) {
+    const targetRole = await getMembershipRole(userId, groupId);
+    if (!targetRole) {
       return NextResponse.json(
         { error: 'User is not in this group' },
         { status: 400 }
       );
     }
 
-    // GROUP_ADMIN cannot remove SUPER_ADMIN
-    if (targetUser.role === 'SUPER_ADMIN' && session.user.role !== 'SUPER_ADMIN') {
-      return NextResponse.json(
-        { error: 'Cannot remove a SUPER_ADMIN' },
-        { status: 403 }
-      );
+    const isLeaving = userId === session.user.id;
+
+    if (isLeaving) {
+      // The last admin can't leave, or nobody could manage the group
+      if (targetRole === 'GROUP_ADMIN' && (await countGroupAdmins(groupId)) <= 1) {
+        return NextResponse.json(
+          { error: 'You are the only admin. Make someone else an admin before leaving.' },
+          { status: 400 }
+        );
+      }
+    } else {
+      // Check if user can manage this group
+      const canManage = await canManageGroup(groupId);
+      if (!canManage) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      }
+
+      const targetUser = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { role: true },
+      });
+
+      // GROUP_ADMIN cannot remove SUPER_ADMIN
+      if (targetUser?.role === 'SUPER_ADMIN' && session.user.role !== 'SUPER_ADMIN') {
+        return NextResponse.json(
+          { error: 'Cannot remove a SUPER_ADMIN' },
+          { status: 403 }
+        );
+      }
+
+      // GROUP_ADMIN cannot remove other GROUP_ADMINs (only SUPER_ADMIN can)
+      if (targetRole === 'GROUP_ADMIN' && session.user.role !== 'SUPER_ADMIN') {
+        return NextResponse.json(
+          { error: 'Only SUPER_ADMIN can remove GROUP_ADMINs' },
+          { status: 403 }
+        );
+      }
     }
 
-    // GROUP_ADMIN cannot remove other GROUP_ADMINs (only SUPER_ADMIN can)
-    if (targetUser.role === 'GROUP_ADMIN' && session.user.role !== 'SUPER_ADMIN') {
-      return NextResponse.json(
-        { error: 'Only SUPER_ADMIN can remove GROUP_ADMINs' },
-        { status: 403 }
-      );
-    }
+    await prisma.$transaction((tx) => removeMembership(tx, userId, groupId));
 
-    // Remove user from group (set groupId to null)
-    await prisma.user.update({
-      where: { id: userId },
-      data: { groupId: null },
+    return NextResponse.json({
+      message: isLeaving ? 'You left the group' : 'Member removed from group',
     });
-
-    return NextResponse.json({ message: 'Member removed from group' });
   } catch (error) {
     console.error('Error removing member:', error);
     return NextResponse.json(
@@ -182,17 +194,8 @@ export async function PATCH(
       );
     }
 
-    // Get the target user
-    const targetUser = await prisma.user.findUnique({
-      where: { id: userId },
-    });
-
-    if (!targetUser) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
-
-    // Verify user is in the source group
-    if (targetUser.groupId !== groupId) {
+    const sourceRole = await getMembershipRole(userId, groupId);
+    if (!sourceRole) {
       return NextResponse.json(
         { error: 'User is not in this group' },
         { status: 400 }
@@ -200,6 +203,7 @@ export async function PATCH(
     }
 
     // If moving to a new group, verify the target group exists
+    let targetGroupName: string | null = null;
     if (targetGroupId) {
       const targetGroup = await prisma.group.findUnique({
         where: { id: targetGroupId },
@@ -211,28 +215,26 @@ export async function PATCH(
           { status: 404 }
         );
       }
+      targetGroupName = targetGroup.name;
     }
 
-    // Move user to new group
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: { groupId: targetGroupId },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        groupId: true,
-        group: {
-          select: { name: true },
-        },
-      },
+    // Move user: leave the source group, join the target and make it active
+    await prisma.$transaction(async (tx) => {
+      if (targetGroupId) {
+        const existingRole = await tx.groupMembership.findUnique({
+          where: { userId_groupId: { userId, groupId: targetGroupId } },
+          select: { role: true },
+        });
+        await addMembership(tx, userId, targetGroupId, existingRole?.role === 'GROUP_ADMIN' ? 'GROUP_ADMIN' : sourceRole);
+        await setActiveGroup(tx, userId, targetGroupId);
+      }
+      await removeMembership(tx, userId, groupId);
     });
 
     return NextResponse.json({
       message: targetGroupId
-        ? `Member moved to ${updatedUser.group?.name}`
+        ? `Member moved to ${targetGroupName}`
         : 'Member removed from group',
-      user: updatedUser,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

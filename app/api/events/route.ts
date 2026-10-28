@@ -57,7 +57,8 @@ export async function POST(request: NextRequest) {
       const users = await prisma.user.findMany({
         where: {
           status: 'ACTIVE',
-          groupId: session.user.groupId, // Only notify users in the same group
+          // Only notify members of the event's group
+          memberships: { some: { groupId: session.user.groupId } },
         },
         select: { id: true },
       });

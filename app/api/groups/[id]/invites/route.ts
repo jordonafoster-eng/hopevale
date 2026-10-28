@@ -74,20 +74,9 @@ export async function POST(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // Only SUPER_ADMIN can create invites with GROUP_ADMIN role
+    // Any admin of the group (or SUPER_ADMIN) can invite members or co-admins
     const body = await request.json();
     const data = createInviteSchema.parse(body);
-
-    if (data.role === 'GROUP_ADMIN' && session.user.role !== 'SUPER_ADMIN') {
-      // GROUP_ADMIN can only create MEMBER invites
-      // unless they're inviting for their own group
-      if (session.user.role !== 'GROUP_ADMIN' || session.user.groupId !== id) {
-        return NextResponse.json(
-          { error: 'Only SUPER_ADMIN can create GROUP_ADMIN invites' },
-          { status: 403 }
-        );
-      }
-    }
 
     // Verify the group exists and is not deleted
     const group = await prisma.group.findUnique({

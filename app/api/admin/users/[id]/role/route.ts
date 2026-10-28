@@ -2,9 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { canManageGroup } from '@/lib/auth-utils';
+import { addMembership, getMembershipRole, setActiveGroup, updateMembershipRole } from '@/lib/groups';
 
 const roleSchema = z.object({
   role: z.enum(['MEMBER', 'GROUP_ADMIN', 'SUPER_ADMIN']),
+  // Group whose role is being changed; defaults to the admin's active group
+  groupId: z.string().optional(),
 });
 
 export async function PATCH(
@@ -21,7 +25,7 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { role: newRole } = roleSchema.parse(body);
+    const { role: newRole, groupId: requestedGroupId } = roleSchema.parse(body);
 
     // Prevent user from changing their own role
     if (params.id === session.user.id) {
@@ -56,20 +60,46 @@ export async function PATCH(
       );
     }
 
-    // GROUP_ADMIN can only manage users in their own group
-    if (session.user.role === 'GROUP_ADMIN') {
-      if (targetUser.groupId !== session.user.groupId) {
-        return NextResponse.json(
-          { error: 'Cannot manage users outside your group' },
-          { status: 403 }
-        );
+    // SUPER_ADMIN is a global role, stored only on the user
+    if (newRole === 'SUPER_ADMIN' || targetUser.role === 'SUPER_ADMIN') {
+      const user = await prisma.user.update({
+        where: { id: params.id },
+        data: { role: newRole === 'SUPER_ADMIN' ? 'SUPER_ADMIN' : 'MEMBER' },
+        select: { id: true, name: true, email: true, role: true, groupId: true },
+      });
+
+      // Restore their group role when demoting from SUPER_ADMIN
+      if (newRole !== 'SUPER_ADMIN' && user.groupId) {
+        const groupId = user.groupId;
+        await prisma.$transaction(async (tx) => {
+          await addMembership(tx, user.id, groupId, newRole);
+          await setActiveGroup(tx, user.id, groupId);
+        });
       }
+
+      return NextResponse.json(user);
     }
 
-    // Update user role
-    const user = await prisma.user.update({
+    // Group roles are per-membership; admins can only change roles in groups they manage
+    const groupId = requestedGroupId ?? session.user.groupId;
+    if (!groupId || !(await canManageGroup(groupId))) {
+      return NextResponse.json(
+        { error: 'Cannot manage users outside your group' },
+        { status: 403 }
+      );
+    }
+
+    if (!(await getMembershipRole(params.id, groupId))) {
+      return NextResponse.json(
+        { error: 'User is not in this group' },
+        { status: 400 }
+      );
+    }
+
+    await prisma.$transaction((tx) => updateMembershipRole(tx, params.id, groupId, newRole));
+
+    const user = await prisma.user.findUniqueOrThrow({
       where: { id: params.id },
-      data: { role: newRole },
       select: {
         id: true,
         name: true,

@@ -1,5 +1,6 @@
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
+import { getMembershipRole } from '@/lib/groups';
 
 // Re-export auth for convenience
 export { auth };
@@ -108,9 +109,9 @@ export async function getGroupFilter(): Promise<{ groupId?: string }> {
 }
 
 /**
- * Check if user can manage content in a specific group.
+ * Check if user can manage a specific group.
  * - SUPER_ADMIN can manage any group
- * - GROUP_ADMIN can only manage their own group
+ * - Otherwise the user must be a GROUP_ADMIN member of that group
  */
 export async function canManageGroup(targetGroupId: string): Promise<boolean> {
   const session = await auth();
@@ -119,12 +120,7 @@ export async function canManageGroup(targetGroupId: string): Promise<boolean> {
   // SUPER_ADMIN can manage any group
   if (session.user.role === 'SUPER_ADMIN') return true;
 
-  // GROUP_ADMIN can manage their own group
-  if (session.user.role === 'GROUP_ADMIN' && session.user.groupId === targetGroupId) {
-    return true;
-  }
-
-  return false;
+  return (await getMembershipRole(session.user.id, targetGroupId)) === 'GROUP_ADMIN';
 }
 
 /**
@@ -165,7 +161,7 @@ export async function verifyGroupMembership(groupId: string): Promise<boolean> {
   // SUPER_ADMIN can access any group
   if (session.user.role === 'SUPER_ADMIN') return true;
 
-  return session.user.groupId === groupId;
+  return (await getMembershipRole(session.user.id, groupId)) !== null;
 }
 
 /**

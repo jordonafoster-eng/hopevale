@@ -14,24 +14,35 @@ export const metadata: Metadata = {
   description: 'Manage users and roles',
 };
 
+const userSelect = {
+  id: true,
+  name: true,
+  email: true,
+  role: true,
+  status: true,
+  createdAt: true,
+  image: true,
+} as const;
+
 async function getUsers(groupFilter?: { groupId?: string }) {
-  return prisma.user.findMany({
-    where: {
-      ...groupFilter,
-    },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      role: true,
-      status: true,
-      createdAt: true,
-      image: true,
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
+  if (!groupFilter?.groupId) {
+    return prisma.user.findMany({
+      select: userSelect,
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  // Show everyone in the group, with their role in this group
+  const memberships = await prisma.groupMembership.findMany({
+    where: { groupId: groupFilter.groupId },
+    select: { role: true, user: { select: userSelect } },
+    orderBy: { user: { createdAt: 'desc' } },
   });
+
+  return memberships.map(({ role, user }) => ({
+    ...user,
+    role: user.role === 'SUPER_ADMIN' ? user.role : role,
+  }));
 }
 
 export default async function AdminUsersPage() {

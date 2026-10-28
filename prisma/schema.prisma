@@ -22,12 +22,13 @@ model User {
   password      String?    // null for OAuth users
   role          Role       @default(MEMBER)
   status        UserStatus @default(ACTIVE)
-  groupId       String?    // null allowed during migration, required for most users
+  groupId       String?    // the user's currently active group (one of their memberships)
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
 
   // Relations
   group         Group?     @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  memberships   GroupMembership[]
   accounts      Account[]
   sessions      Session[]
   eventsCreated Event[]
@@ -118,9 +119,27 @@ model Group {
   events      Event[]
   recipes     Recipe[]
   invites     GroupInvite[]
+  memberships GroupMembership[]
 
   @@index([slug])
   @@index([deletedAt])
+}
+
+// A user can belong to many groups; role here is their role within that group.
+// User.role mirrors the role for the user's active group (User.groupId).
+model GroupMembership {
+  id        String   @id @default(cuid())
+  userId    String
+  groupId   String
+  role      Role     @default(MEMBER) // MEMBER or GROUP_ADMIN
+  createdAt DateTime @default(now())
+
+  // Relations
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, groupId])
+  @@index([groupId])
 }
 
 model GroupInvite {

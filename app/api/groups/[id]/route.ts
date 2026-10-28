@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
-import { canManageGroup } from '@/lib/auth-utils';
+import { canManageGroup, verifyGroupMembership } from '@/lib/auth-utils';
 
 const updateGroupSchema = z.object({
   name: z.string().min(2).max(100).optional(),
@@ -31,7 +31,7 @@ export async function GET(
       include: {
         _count: {
           select: {
-            users: true,
+            memberships: true,
             prayers: true,
             events: true,
             reflections: true,
@@ -46,7 +46,7 @@ export async function GET(
     }
 
     // Check access: must be member of group or SUPER_ADMIN
-    if (session.user.role !== 'SUPER_ADMIN' && session.user.groupId !== id) {
+    if (!(await verifyGroupMembership(id))) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

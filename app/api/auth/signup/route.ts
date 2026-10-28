@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { hash } from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
+import { acceptInvite, addMembership, findUsableInvite, generateUniqueSlug } from '@/lib/groups';
 
 // Schema for creating a new group
 const createGroupSchema = z.object({
@@ -18,17 +19,6 @@ const joinGroupSchema = z.object({
   password: z.string().min(6, 'Password must be at least 6 characters'),
   inviteToken: z.string().min(1, 'Invite token is required'),
 });
-
-/**
- * Generate a URL-safe slug from a group name
- */
-function generateSlug(name: string): string {
-  return name
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
-}
 
 export async function POST(request: NextRequest) {
   try {
@@ -52,7 +42,7 @@ export async function POST(request: NextRequest) {
 
     if (existingUser) {
       return NextResponse.json(
-        { error: 'An account with this email already exists' },
+        { error: 'An account with this email already exists. Sign in to create or join groups.' },
         { status: 400 }
       );
     }
@@ -87,28 +77,12 @@ export async function POST(request: NextRequest) {
 async function handleCreateGroup(body: unknown) {
   const data = createGroupSchema.parse(body);
 
-  // Generate slug and check uniqueness
-  let slug = generateSlug(data.groupName);
-  let existingGroup = await prisma.group.findUnique({
-    where: { slug },
-  });
-
-  // If slug exists, append a random suffix
-  if (existingGroup) {
-    const suffix = Math.random().toString(36).substring(2, 6);
-    slug = `${slug}-${suffix}`;
-
-    // Double-check the new slug
-    existingGroup = await prisma.group.findUnique({
-      where: { slug },
-    });
-
-    if (existingGroup) {
-      return NextResponse.json(
-        { error: 'A group with a similar name already exists. Please choose a different name.' },
-        { status: 400 }
-      );
-    }
+  const slug = await generateUniqueSlug(data.groupName);
+  if (!slug) {
+    return NextResponse.json(
+      { error: 'A group with a similar name already exists. Please choose a different name.' },
+      { status: 400 }
+    );
   }
 
   // Create group and user in a transaction
@@ -135,6 +109,8 @@ async function handleCreateGroup(body: unknown) {
       },
     });
 
+    await addMembership(tx, user.id, group.id, 'GROUP_ADMIN');
+
     // Create default notification preferences
     await tx.notificationPreference.create({
       data: { userId: user.id },
@@ -159,34 +135,11 @@ async function handleCreateGroup(body: unknown) {
 async function handleJoinGroup(body: unknown) {
   const data = joinGroupSchema.parse(body);
 
-  // Find and validate the invite
-  const invite = await prisma.groupInvite.findUnique({
-    where: { token: data.inviteToken },
-    include: {
-      group: true,
-    },
-  });
-
-  if (!invite) {
-    return NextResponse.json(
-      { error: 'Invalid invite link' },
-      { status: 400 }
-    );
+  const inviteResult = await findUsableInvite(data.inviteToken);
+  if ('error' in inviteResult) {
+    return NextResponse.json({ error: inviteResult.error }, { status: 400 });
   }
-
-  if (invite.usedAt) {
-    return NextResponse.json(
-      { error: 'This invite has already been used' },
-      { status: 400 }
-    );
-  }
-
-  if (invite.expiresAt < new Date()) {
-    return NextResponse.json(
-      { error: 'This invite has expired' },
-      { status: 400 }
-    );
-  }
+  const { invite } = inviteResult;
 
   // If invite is email-specific, verify it matches
   if (invite.email && invite.email.toLowerCase() !== data.email.toLowerCase()) {
@@ -196,35 +149,21 @@ async function handleJoinGroup(body: unknown) {
     );
   }
 
-  // Check if the group is deleted
-  if (invite.group.deletedAt) {
-    return NextResponse.json(
-      { error: 'This group no longer exists' },
-      { status: 400 }
-    );
-  }
-
-  // Create user and mark invite as used in a transaction
+  // Create user and join the group in a transaction
   const result = await prisma.$transaction(async (tx) => {
     // Hash password
     const hashedPassword = await hash(data.password, 12);
 
-    // Create the user with the role specified in the invite
     const user = await tx.user.create({
       data: {
         name: data.name,
         email: data.email.toLowerCase(),
         password: hashedPassword,
-        role: invite.role,
-        groupId: invite.groupId,
       },
     });
 
-    // Mark invite as used
-    await tx.groupInvite.update({
-      where: { id: invite.id },
-      data: { usedAt: new Date() },
-    });
+    // Adds the membership with the invite's role and sets it as the active group
+    await acceptInvite(tx, user.id, invite);
 
     // Create default notification preferences
     await tx.notificationPreference.create({

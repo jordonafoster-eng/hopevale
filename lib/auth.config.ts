@@ -11,21 +11,13 @@ export const authConfig = {
   },
   providers: [], // Providers are added in auth.ts
   callbacks: {
-    async jwt({ token, user, trigger, session }) {
+    // Session updates (group switching) are handled in auth.ts, which can reach the database
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
         token.role = user.role;
         token.groupId = user.groupId;
         token.groupSlug = user.groupSlug;
-      }
-
-      // Handle SUPER_ADMIN switching group view or other session updates
-      if (trigger === 'update' && session) {
-        if (session.viewingGroupId !== undefined) {
-          token.viewingGroupId = session.viewingGroupId;
-        }
-        // Allow updating other fields as needed
-        token = { ...token, ...session };
       }
 
       return token;

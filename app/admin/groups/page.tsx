@@ -21,7 +21,7 @@ export default async function AllGroupsPage() {
     include: {
       _count: {
         select: {
-          users: true,
+          memberships: true,
           prayers: true,
           reflections: true,
           events: true,
@@ -73,7 +73,7 @@ export default async function AllGroupsPage() {
                 <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
                   <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
                     <UsersIcon className="h-4 w-4" />
-                    {group._count.users} members
+                    {group._count.memberships} members
                   </div>
                   <div className="text-gray-600 dark:text-gray-400">
                     {group._count.prayers + group._count.reflections + group._count.events + group._count.recipes} items
@@ -115,7 +115,7 @@ export default async function AllGroupsPage() {
                   </div>
 
                   <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
-                    {group._count.users} members | {group._count.prayers + group._count.reflections + group._count.events + group._count.recipes} items archived
+                    {group._count.memberships} members | {group._count.prayers + group._count.reflections + group._count.events + group._count.recipes} items archived
                   </div>
                 </div>
               ))}

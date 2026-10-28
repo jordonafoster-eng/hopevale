@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { SignUpForm } from '@/components/auth/signup-form';
+import { AcceptInvite } from '@/components/groups/accept-invite';
 
 export const metadata: Metadata = {
   title: 'Sign Up - Church Friends',
@@ -16,8 +17,8 @@ export default async function SignUpPage({
   const params = await searchParams;
   const session = await auth();
 
-  // Redirect if already signed in
-  if (session?.user) {
+  // Redirect if already signed in (unless they're accepting an invite)
+  if (session?.user && !params.invite) {
     redirect(params.callbackUrl || '/');
   }
 
@@ -33,15 +34,21 @@ export default async function SignUpPage({
           </h2>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
             {params.invite
-              ? 'Complete your registration to join'
+              ? session?.user
+                ? 'Add this group to your account'
+                : 'Complete your registration to join'
               : 'Start your own community group'}
           </p>
         </div>
 
-        <SignUpForm
-          callbackUrl={params.callbackUrl}
-          inviteToken={params.invite}
-        />
+        {session?.user && params.invite ? (
+          <AcceptInvite inviteToken={params.invite} userEmail={session.user.email} />
+        ) : (
+          <SignUpForm
+            callbackUrl={params.callbackUrl}
+            inviteToken={params.invite}
+          />
+        )}
       </div>
     </div>
   );

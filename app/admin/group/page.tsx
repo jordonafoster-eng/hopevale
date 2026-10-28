@@ -19,14 +19,19 @@ export default async function GroupSettingsPage() {
   const group = await prisma.group.findUnique({
     where: { id: session.user.groupId },
     include: {
-      users: {
+      memberships: {
         select: {
-          id: true,
-          name: true,
-          email: true,
           role: true,
-          status: true,
-          createdAt: true,
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              role: true,
+              status: true,
+              createdAt: true,
+            },
+          },
         },
         orderBy: { createdAt: 'asc' },
       },
@@ -79,7 +84,11 @@ export default async function GroupSettingsPage() {
             slug: group.slug,
             description: group.description,
           }}
-          members={group.users}
+          members={group.memberships.map(({ role, user }) => ({
+            ...user,
+            // SUPER_ADMIN is global; everyone else shows their role in this group
+            role: user.role === 'SUPER_ADMIN' ? user.role : role,
+          }))}
           invites={group.invites}
           currentUserId={session.user.id}
           isSuperAdmin={session.user.role === 'SUPER_ADMIN'}

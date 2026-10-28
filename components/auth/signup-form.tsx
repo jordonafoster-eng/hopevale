@@ -312,7 +312,11 @@ export function SignUpForm({
       <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
         Already have an account?{' '}
         <Link
-          href="/auth/signin"
+          href={
+            inviteToken
+              ? `/auth/signin?callbackUrl=${encodeURIComponent(`/auth/signup?invite=${inviteToken}`)}`
+              : '/auth/signin'
+          }
           className="font-medium text-brand-600 hover:text-brand-500 dark:text-brand-400"
         >
           Sign in

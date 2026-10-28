@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
 
     const users = await prisma.user.findMany({
       where: {
-        groupId: currentUser.groupId,
+        memberships: { some: { groupId: currentUser.groupId } },
         id: { not: session.user.id },
         status: 'ACTIVE',
         ...(q.length > 0

@@ -117,6 +117,13 @@ export function MobileMenu({
                         Profile
                       </Link>
                       <Link
+                        href="/groups"
+                        onClick={() => setIsOpen(false)}
+                        className="block rounded-lg px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+                      >
+                        My Groups
+                      </Link>
+                      <Link
                         href="/settings"
                         onClick={() => setIsOpen(false)}
                         className="block rounded-lg px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"

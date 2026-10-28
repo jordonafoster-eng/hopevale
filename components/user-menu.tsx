@@ -5,6 +5,7 @@ import { Menu, Transition } from '@headlessui/react';
 import {
   UserCircleIcon,
   Cog6ToothIcon,
+  UserGroupIcon,
   ArrowRightOnRectangleIcon,
 } from '@heroicons/react/24/outline';
 import { signOut } from 'next-auth/react';
@@ -71,6 +72,22 @@ export function UserMenu({ user }: { user: User }) {
                 >
                   <UserCircleIcon className="mr-3 h-5 w-5" />
                   Profile
+                </Link>
+              )}
+            </Menu.Item>
+
+            <Menu.Item>
+              {({ active }) => (
+                <Link
+                  href="/groups"
+                  className={`flex items-center px-4 py-2 text-sm ${
+                    active
+                      ? 'bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white'
+                      : 'text-gray-700 dark:text-gray-300'
+                  }`}
+                >
+                  <UserGroupIcon className="mr-3 h-5 w-5" />
+                  My Groups
                 </Link>
               )}
             </Menu.Item>

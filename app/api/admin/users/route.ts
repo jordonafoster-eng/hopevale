@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { hash } from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { addMembership } from '@/lib/groups';
 
 const createUserSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -63,7 +64,8 @@ export async function POST(request: NextRequest) {
       : session.user.groupId;
 
     // Create user
-    const user = await prisma.user.create({
+    const user = await prisma.$transaction(async (tx) => {
+      const user = await tx.user.create({
       data: {
         name: data.name,
         email: data.email.toLowerCase(),
@@ -81,6 +83,13 @@ export async function POST(request: NextRequest) {
         groupId: true,
         createdAt: true,
       },
+      });
+
+      if (groupId) {
+        await addMembership(tx, user.id, groupId, data.role === 'GROUP_ADMIN' ? 'GROUP_ADMIN' : 'MEMBER');
+      }
+
+      return user;
     });
 
     // Create default notification preferences

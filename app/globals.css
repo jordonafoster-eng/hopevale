@@ -14,10 +14,23 @@
 
   body {
     @apply bg-gray-50 text-gray-900 transition-colors duration-200;
+    /* Halloween: faint pumpkin glow in the corner, purple haze below */
+    background-image:
+      radial-gradient(circle at 100% 0%, rgb(249 115 22 / 0.08), transparent 40%),
+      radial-gradient(circle at 0% 100%, rgb(168 85 247 / 0.06), transparent 45%);
+    background-attachment: fixed;
   }
 
-  body.dark {
-    @apply bg-gray-900 text-gray-100;
+  .dark body {
+    @apply bg-gray-950 text-gray-100;
+    /* Harvest moon glow over a midnight sky */
+    background-image:
+      radial-gradient(circle at 90% 0%, rgb(249 115 22 / 0.14), transparent 35%),
+      radial-gradient(circle at 0% 100%, rgb(126 34 206 / 0.18), transparent 50%);
+  }
+
+  ::selection {
+    @apply bg-brand-500 text-white;
   }
 }
 

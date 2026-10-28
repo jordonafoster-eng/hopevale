@@ -4,6 +4,7 @@ import { Fragment, useState } from 'react';
 import { Menu, Transition } from '@headlessui/react';
 import { ChevronDownIcon, BuildingOffice2Icon, CheckIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import toast from 'react-hot-toast';
 
 interface GroupSwitcherProps {
@@ -14,6 +15,7 @@ interface GroupSwitcherProps {
 
 export function GroupSwitcher({ groups, currentGroupId, currentGroupName }: GroupSwitcherProps) {
   const router = useRouter();
+  const { update } = useSession();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSwitchGroup = async (groupId: string | null) => {
@@ -33,7 +35,8 @@ export function GroupSwitcher({ groups, currentGroupId, currentGroupName }: Grou
       }
 
       const data = await response.json();
-      toast.success(groupId ? `Viewing ${data.groupName}` : 'Viewing all groups');
+      await update({ viewingGroupId: groupId });
+      toast.success(data.message);
       router.refresh();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to switch group');
