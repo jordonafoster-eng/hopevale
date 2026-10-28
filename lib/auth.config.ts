@@ -44,6 +44,7 @@ export const authConfig = {
         '/auth/forgot-password',
         '/api/auth',
         '/privacy-policy',
+        '/api/keep-alive', // Vercel Cron; the route checks CRON_SECRET itself
       ];
 
       // Check if the current path is a public route
