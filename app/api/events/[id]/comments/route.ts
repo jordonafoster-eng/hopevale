@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { canViewGroupContent } from '@/lib/auth-utils';
 import { sendCommentNotifications } from '@/lib/comment-notifications';
 
 const commentSchema = z.object({
@@ -27,7 +28,7 @@ export async function POST(
       include: { createdBy: { select: { id: true, name: true, email: true } } },
     });
 
-    if (!event) {
+    if (!event || !(await canViewGroupContent(event.groupId))) {
       return NextResponse.json({ error: 'Event not found' }, { status: 404 });
     }
 

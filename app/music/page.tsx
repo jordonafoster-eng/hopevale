@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { prisma } from '@/lib/prisma';
+import { getSharedContentFilter } from '@/lib/auth-utils';
 import { PlaylistEmbed } from '@/components/music/playlist-embed';
 import { MusicalNoteIcon } from '@heroicons/react/24/outline';
 
@@ -11,11 +12,11 @@ export const metadata: Metadata = {
 async function getPlaylists() {
   return prisma.playlist.findMany({
     where: {
+      ...(await getSharedContentFilter()),
       isPublic: true,
     },
-    orderBy: {
-      sortOrder: 'asc',
-    },
+    // Playlists shared with all groups come first
+    orderBy: [{ isGlobal: 'desc' }, { sortOrder: 'asc' }],
   });
 }
 

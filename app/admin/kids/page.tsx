@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { auth } from '@/lib/auth';
-import { isAdmin } from '@/lib/auth-utils';
+import { isAdmin, isSuperAdmin, getSharedContentFilter } from '@/lib/auth-utils';
 import { prisma } from '@/lib/prisma';
 import { ArrowLeftIcon, PlusIcon } from '@heroicons/react/24/outline';
 import { KidsAssetForm } from '@/components/admin/kids-asset-form';
@@ -15,9 +15,8 @@ export const metadata: Metadata = {
 
 async function getKidsAssets() {
   return prisma.kidsAsset.findMany({
-    orderBy: {
-      createdAt: 'desc',
-    },
+    where: await getSharedContentFilter(),
+    orderBy: [{ isGlobal: 'desc' }, { createdAt: 'desc' }],
   });
 }
 
@@ -28,7 +27,7 @@ export default async function AdminKidsPage() {
     redirect('/');
   }
 
-  const assets = await getKidsAssets();
+  const [assets, superAdmin] = await Promise.all([getKidsAssets(), isSuperAdmin()]);
 
   return (
     <div className="section">
@@ -54,7 +53,7 @@ export default async function AdminKidsPage() {
             <PlusIcon className="mr-2 inline-block h-5 w-5" />
             Add New Asset
           </h2>
-          <KidsAssetForm />
+          <KidsAssetForm isSuperAdmin={superAdmin} />
         </div>
 
         {/* Assets List */}
@@ -62,7 +61,7 @@ export default async function AdminKidsPage() {
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
             Existing Assets ({assets.length})
           </h2>
-          <KidsAssetList assets={assets} />
+          <KidsAssetList assets={assets} isSuperAdmin={superAdmin} />
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { prisma } from '@/lib/prisma';
+import { getSharedContentFilter } from '@/lib/auth-utils';
 import { KidsAssetCard } from '@/components/kids/kids-asset-card';
 import { KidsFilters } from '@/components/kids/kids-filters';
 import { SparklesIcon, PuzzlePieceIcon } from '@heroicons/react/24/outline';
@@ -14,7 +15,8 @@ async function getKidsAssets(filters?: {
   type?: 'VERSE' | 'ACTIVITY' | 'COLORING';
   search?: string;
 }) {
-  const where: any = {};
+  // AND keeps the group/shared OR separate from the search OR below
+  const where: any = { AND: [await getSharedContentFilter()] };
 
   if (filters?.type) {
     where.type = filters.type;

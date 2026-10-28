@@ -3,7 +3,7 @@ import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
-import { isAdmin } from '@/lib/auth-utils';
+import { isAdmin, canViewGroupContent } from '@/lib/auth-utils';
 import { formatDate, getInitials, getAvatarColor } from '@/lib/utils';
 import { BookOpenIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { CommentList } from '@/components/comments/comment-list';
@@ -55,7 +55,7 @@ export async function generateMetadata({
   const { id } = await params;
   const reflection = await getReflection(id);
 
-  if (!reflection) {
+  if (!reflection || !(await canViewGroupContent(reflection.groupId))) {
     return {
       title: 'Reflection Not Found - Church Friends',
     };
@@ -78,7 +78,7 @@ export default async function ReflectionDetailPage({
 
   const reflection = await getReflection(id);
 
-  if (!reflection) {
+  if (!reflection || !(await canViewGroupContent(reflection.groupId))) {
     notFound();
   }
 

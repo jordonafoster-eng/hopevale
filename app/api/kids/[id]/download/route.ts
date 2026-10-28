@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { canViewGroupContent } from '@/lib/auth-utils';
 
 export async function POST(
   request: NextRequest,
@@ -7,6 +8,15 @@ export async function POST(
 ) {
   try {
     const params = await props.params;
+
+    const asset = await prisma.kidsAsset.findUnique({
+      where: { id: params.id },
+      select: { groupId: true, isGlobal: true },
+    });
+    if (!asset || (!asset.isGlobal && !(await canViewGroupContent(asset.groupId)))) {
+      return NextResponse.json({ success: true });
+    }
+
     // Increment download count
     await prisma.kidsAsset.update({
       where: { id: params.id },

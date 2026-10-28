@@ -2,12 +2,13 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { CloudArrowUpIcon } from '@heroicons/react/24/outline';
+import { CloudArrowUpIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 
-export function KidsAssetForm() {
+export function KidsAssetForm({ isSuperAdmin = false }: { isSuperAdmin?: boolean }) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGlobal, setIsGlobal] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [formData, setFormData] = useState({
     title: '',
@@ -37,6 +38,7 @@ export function KidsAssetForm() {
       formDataToSend.append('title', formData.title);
       formDataToSend.append('type', formData.type);
       formDataToSend.append('description', formData.description);
+      formDataToSend.append('isGlobal', String(isGlobal));
 
       const response = await fetch('/api/admin/kids', {
         method: 'POST',
@@ -51,6 +53,7 @@ export function KidsAssetForm() {
       toast.success('Asset uploaded successfully!');
       setFile(null);
       setFormData({ title: '', type: 'COLORING', description: '' });
+      setIsGlobal(false);
       // Reset file input
       const fileInput = document.getElementById('file-upload') as HTMLInputElement;
       if (fileInput) fileInput.value = '';
@@ -145,6 +148,26 @@ export function KidsAssetForm() {
           </div>
         </div>
       </div>
+
+      {isSuperAdmin && (
+        <label className="flex items-start gap-3 rounded-lg border border-accent-200 bg-accent-50 p-3 dark:border-accent-800 dark:bg-accent-950/40">
+          <input
+            type="checkbox"
+            checked={isGlobal}
+            onChange={(e) => setIsGlobal(e.target.checked)}
+            className="mt-0.5 rounded border-gray-300 text-accent-600 focus:ring-accent-500"
+          />
+          <span className="text-sm">
+            <span className="flex items-center gap-1 font-medium text-gray-900 dark:text-white">
+              <LockClosedIcon className="h-4 w-4" />
+              Share with all groups
+            </span>
+            <span className="text-gray-600 dark:text-gray-400">
+              Every group will see this file. Only super admins can edit or remove it.
+            </span>
+          </span>
+        </label>
+      )}
 
       <button type="submit" disabled={isSubmitting} className="btn-primary">
         {isSubmitting ? 'Uploading...' : 'Upload Asset'}

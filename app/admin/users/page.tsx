@@ -8,6 +8,7 @@ import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { UserRoleToggle } from '@/components/admin/user-role-toggle';
 import { UserInviteForm } from '@/components/admin/user-invite-form';
 import { UserManagementActions } from '@/components/admin/user-management-actions';
+import { SuperAdminToggle } from '@/components/admin/super-admin-toggle';
 
 export const metadata: Metadata = {
   title: 'User Management - Admin',
@@ -171,6 +172,13 @@ export default async function AdminUsersPage() {
                           currentRole={user.role}
                           disabled={user.id === session?.user?.id}
                         />
+                        {session?.user?.role === 'SUPER_ADMIN' && user.id !== session.user.id && (
+                          <SuperAdminToggle
+                            userId={user.id}
+                            userName={user.name || user.email}
+                            isSuperAdmin={user.role === 'SUPER_ADMIN'}
+                          />
+                        )}
                         <UserManagementActions
                           userId={user.id}
                           userName={user.name || user.email}

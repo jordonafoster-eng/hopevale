@@ -68,16 +68,25 @@ export async function PATCH(
         select: { id: true, name: true, email: true, role: true, groupId: true },
       });
 
-      // Restore their group role when demoting from SUPER_ADMIN
+      // When demoting from SUPER_ADMIN, restore their role in their active group
+      // (keeping an existing membership's role, otherwise using the requested role)
       if (newRole !== 'SUPER_ADMIN' && user.groupId) {
         const groupId = user.groupId;
         await prisma.$transaction(async (tx) => {
-          await addMembership(tx, user.id, groupId, newRole);
+          const membership = await tx.groupMembership.findUnique({
+            where: { userId_groupId: { userId: user.id, groupId } },
+          });
+          if (!membership) await addMembership(tx, user.id, groupId, newRole);
           await setActiveGroup(tx, user.id, groupId);
         });
       }
 
-      return NextResponse.json(user);
+      const updated = await prisma.user.findUniqueOrThrow({
+        where: { id: params.id },
+        select: { id: true, name: true, email: true, role: true, groupId: true },
+      });
+
+      return NextResponse.json(updated);
     }
 
     // Group roles are per-membership; admins can only change roles in groups they manage

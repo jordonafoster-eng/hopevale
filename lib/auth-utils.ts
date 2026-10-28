@@ -96,16 +96,38 @@ export async function getEffectiveGroupId(): Promise<string | null> {
  * - For regular users: { groupId: <their groupId> }
  * - For SUPER_ADMIN viewing specific group: { groupId: <viewingGroupId> }
  * - For SUPER_ADMIN viewing all: {} (no filter)
+ * - For users with no group: a filter that matches nothing
  */
 export async function getGroupFilter(): Promise<{ groupId?: string }> {
+  const session = await auth();
   const groupId = await getEffectiveGroupId();
 
-  // If groupId is null (SUPER_ADMIN viewing all), return empty filter
   if (groupId === null) {
-    return {};
+    // SUPER_ADMIN viewing all groups: no filter
+    if (session?.user?.role === 'SUPER_ADMIN') return {};
+
+    // Users without a group (e.g. just signed up) see no group content
+    return { groupId: NO_GROUP };
   }
 
   return { groupId };
+}
+
+// A groupId that never matches, for users who don't belong to any group
+const NO_GROUP = '__no_group__';
+
+/**
+ * Check if the current user may view or interact with content from a group.
+ * SUPER_ADMIN can see everything; others must be a member of the content's group.
+ */
+export async function canViewGroupContent(contentGroupId: string | null): Promise<boolean> {
+  const session = await auth();
+  if (!session?.user) return false;
+
+  if (session.user.role === 'SUPER_ADMIN') return true;
+  if (!contentGroupId) return false;
+
+  return (await getMembershipRole(session.user.id, contentGroupId)) !== null;
 }
 
 /**
@@ -176,4 +198,68 @@ export async function requireGroupId(): Promise<string> {
   }
 
   return session.user.groupId;
+}
+
+/**
+ * Check if the current user can edit or delete admin-managed group content
+ * (music playlists, kids corner assets). Content shared with all groups, or
+ * without a group, is SUPER_ADMIN-only.
+ */
+export async function canManageGroupContent(
+  contentGroupId: string | null,
+  isGlobal = false
+): Promise<boolean> {
+  if (isGlobal || !contentGroupId) return isSuperAdmin();
+  return canManageGroup(contentGroupId);
+}
+
+/**
+ * Prisma filter for content that SUPER_ADMINs can share with every group
+ * (music playlists, kids corner assets): the user's group plus shared items.
+ */
+export async function getSharedContentFilter(): Promise<
+  { OR: [{ groupId?: string }, { isGlobal: true }] } | Record<string, never>
+> {
+  const groupFilter = await getGroupFilter();
+
+  // SUPER_ADMIN viewing all groups: no filter
+  if (!('groupId' in groupFilter)) return {};
+
+  return { OR: [groupFilter, { isGlobal: true }] };
+}
+
+/**
+ * The group that new admin-managed content should belong to:
+ * the group being viewed (SUPER_ADMIN) or the user's active group.
+ */
+export async function getGroupIdForNewContent(): Promise<string | null> {
+  const session = await auth();
+  if (!session?.user) return null;
+
+  return (await getEffectiveGroupId()) ?? session.user.groupId;
+}
+
+/**
+ * Decide which group new music/kids content belongs to and whether the
+ * current user may add it. Only SUPER_ADMINs may share content with all groups.
+ */
+export async function resolveNewContentGroup(
+  isGlobal: boolean
+): Promise<{ groupId: string | null } | { error: string; status: number }> {
+  const superAdmin = await isSuperAdmin();
+
+  if (isGlobal && !superAdmin) {
+    return { error: 'Only super admins can share content with all groups', status: 403 };
+  }
+
+  const groupId = await getGroupIdForNewContent();
+
+  // Shared content doesn't need a home group
+  if (isGlobal) return { groupId };
+
+  if (!groupId || !(await canManageGroup(groupId))) {
+    return { error: 'You must be an admin of a group to add content', status: 403 };
+  }
+
+  return { groupId };
 }

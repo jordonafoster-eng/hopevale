@@ -120,6 +120,8 @@ model Group {
   recipes     Recipe[]
   invites     GroupInvite[]
   memberships GroupMembership[]
+  playlists   Playlist[]
+  kidsAssets  KidsAsset[]
 
   @@index([slug])
   @@index([deletedAt])
@@ -325,10 +327,16 @@ model Playlist {
   description String?  @db.Text
   isPublic    Boolean  @default(true)
   sortOrder   Int      @default(0)
+  groupId     String?  // null allowed during migration
+  isGlobal    Boolean  @default(false) // shared with every group; only SUPER_ADMIN can edit
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  group Group? @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
   @@index([isPublic])
+  @@index([groupId])
+  @@index([isGlobal])
   @@index([sortOrder])
 }
 
@@ -343,10 +351,16 @@ model KidsAsset {
   thumbnailUrl String?
   tags         String[]   @default([])
   downloadCount Int       @default(0)
+  groupId      String?    // null allowed during migration
+  isGlobal     Boolean    @default(false) // shared with every group; only SUPER_ADMIN can edit
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
+  group Group? @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
   @@index([type])
+  @@index([groupId])
+  @@index([isGlobal])
   @@index([createdAt])
 }
 

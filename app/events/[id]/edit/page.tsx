@@ -3,6 +3,7 @@ import { redirect, notFound } from 'next/navigation';
 import Link from 'next/link';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { canViewGroupContent } from '@/lib/auth-utils';
 import { EventForm } from '@/components/events/event-form';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 
@@ -33,7 +34,7 @@ export default async function EditEventPage({
   const { id } = await params;
   const event = await getEvent(id);
 
-  if (!event) {
+  if (!event || !(await canViewGroupContent(event.groupId))) {
     notFound();
   }
 

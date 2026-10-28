@@ -2,7 +2,14 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { TrashIcon, PencilIcon, SparklesIcon } from '@heroicons/react/24/outline';
+import {
+  TrashIcon,
+  PencilIcon,
+  SparklesIcon,
+  LockClosedIcon,
+  LockOpenIcon,
+  GlobeAltIcon,
+} from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 
 type KidsAsset = {
@@ -13,11 +20,19 @@ type KidsAsset = {
   fileUrl: string;
   createdAt: Date;
   downloadCount: number;
+  isGlobal: boolean;
 };
 
-export function KidsAssetList({ assets }: { assets: KidsAsset[] }) {
+export function KidsAssetList({
+  assets,
+  isSuperAdmin = false,
+}: {
+  assets: KidsAsset[];
+  isSuperAdmin?: boolean;
+}) {
   const router = useRouter();
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [sharingId, setSharingId] = useState<string | null>(null);
   const [editingAsset, setEditingAsset] = useState<KidsAsset | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
   const [editForm, setEditForm] = useState({
@@ -87,6 +102,30 @@ export function KidsAssetList({ assets }: { assets: KidsAsset[] }) {
     }
   };
 
+  const handleToggleShared = async (item: { id: string; isGlobal: boolean }) => {
+    setSharingId(item.id);
+
+    try {
+      const response = await fetch(`/api/admin/kids/${item.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isGlobal: !item.isGlobal }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to update sharing');
+      }
+
+      toast.success(item.isGlobal ? 'File is now only in its own group' : 'File shared with all groups');
+      router.refresh();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to update sharing');
+    } finally {
+      setSharingId(null);
+    }
+  };
+
   if (assets.length === 0) {
     return (
       <div className="card mt-4 text-center">
@@ -108,6 +147,12 @@ export function KidsAssetList({ assets }: { assets: KidsAsset[] }) {
                 <h3 className="font-semibold text-gray-900 dark:text-white">
                   {asset.title}
                 </h3>
+                {asset.isGlobal && (
+                  <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-accent-100 px-2 py-0.5 text-xs font-medium text-accent-800 dark:bg-accent-900/40 dark:text-accent-300">
+                    <LockClosedIcon className="h-3 w-3" />
+                    All groups
+                  </span>
+                )}
                 {asset.description && (
                   <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
                     {asset.description}
@@ -121,19 +166,37 @@ export function KidsAssetList({ assets }: { assets: KidsAsset[] }) {
                 </p>
               </div>
               <div className="ml-2 flex gap-2">
-                <button
-                  onClick={() => handleEdit(asset)}
-                  className="text-blue-600 hover:text-blue-700 dark:text-blue-400"
-                >
-                  <PencilIcon className="h-5 w-5" />
-                </button>
-                <button
-                  onClick={() => handleDelete(asset.id, asset.title)}
-                  disabled={deletingId === asset.id}
-                  className="text-red-600 hover:text-red-700 disabled:opacity-50 dark:text-red-400"
-                >
-                  <TrashIcon className="h-5 w-5" />
-                </button>
+                {isSuperAdmin && (
+                  <button
+                    onClick={() => handleToggleShared(asset)}
+                    disabled={sharingId === asset.id}
+                    className="text-accent-600 hover:text-accent-700 disabled:opacity-50 dark:text-accent-400"
+                    title={asset.isGlobal ? 'Stop sharing with all groups' : 'Share with all groups (locked)'}
+                  >
+                    {asset.isGlobal ? <LockOpenIcon className="h-5 w-5" /> : <GlobeAltIcon className="h-5 w-5" />}
+                  </button>
+                )}
+                {asset.isGlobal && !isSuperAdmin ? (
+                  <span title="Shared by a super admin; can't be edited or removed">
+                    <LockClosedIcon className="h-5 w-5 text-gray-400" />
+                  </span>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => handleEdit(asset)}
+                      className="text-blue-600 hover:text-blue-700 dark:text-blue-400"
+                    >
+                      <PencilIcon className="h-5 w-5" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(asset.id, asset.title)}
+                      disabled={deletingId === asset.id}
+                      className="text-red-600 hover:text-red-700 disabled:opacity-50 dark:text-red-400"
+                    >
+                      <TrashIcon className="h-5 w-5" />
+                    </button>
+                  </>
+                )}
               </div>
             </div>
             <a

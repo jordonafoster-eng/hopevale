@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
+import { canViewGroupContent } from '@/lib/auth-utils';
 import { auth } from '@/lib/auth';
 import { getInitials, getAvatarColor } from '@/lib/utils';
 import { RatingStars } from '@/components/recipes/rating-stars';
@@ -15,9 +16,10 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const { id } = await params;
   const recipe = await prisma.recipe.findUnique({
     where: { id },
-    select: { title: true },
+    select: { title: true, groupId: true },
   });
-  return { title: recipe ? `${recipe.title} - Recipes` : 'Recipe Not Found' };
+  const visible = recipe && (await canViewGroupContent(recipe.groupId));
+  return { title: visible ? `${recipe.title} - Recipes` : 'Recipe Not Found' };
 }
 
 async function getRecipe(id: string) {
@@ -40,7 +42,7 @@ async function getRecipe(id: string) {
 export default async function RecipeDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const [recipe, session] = await Promise.all([getRecipe(id), auth()]);
-  if (!recipe) notFound();
+  if (!recipe || !(await canViewGroupContent(recipe.groupId))) notFound();
 
   const userRating = session?.user ? recipe.ratings.find((r) => r.userId === session.user.id) : null;
   const canEdit = session?.user && (recipe.author.id === session.user.id || session.user.role !== 'MEMBER');

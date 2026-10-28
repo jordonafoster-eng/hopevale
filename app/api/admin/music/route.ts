@@ -2,12 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { resolveNewContentGroup } from '@/lib/auth-utils';
 
 const playlistSchema = z.object({
   title: z.string().min(1),
   youtubeUrl: z.string().url().optional().or(z.literal('')),
   spotifyUrl: z.string().url().optional().or(z.literal('')),
   description: z.string().optional(),
+  isGlobal: z.boolean().optional().default(false),
 });
 
 export async function POST(request: NextRequest) {
@@ -21,8 +23,15 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const data = playlistSchema.parse(body);
 
-    // Get the max sortOrder and add 1
+    const target = await resolveNewContentGroup(data.isGlobal);
+    if ('error' in target) {
+      return NextResponse.json({ error: target.error }, { status: target.status });
+    }
+    const { groupId } = target;
+
+    // Get the max sortOrder within the group and add 1
     const maxOrderPlaylist = await prisma.playlist.findFirst({
+      where: { groupId },
       orderBy: { sortOrder: 'desc' },
       select: { sortOrder: true },
     });
@@ -36,6 +45,8 @@ export async function POST(request: NextRequest) {
         spotifyUrl: data.spotifyUrl || null,
         description: data.description || null,
         sortOrder: nextSortOrder,
+        groupId,
+        isGlobal: data.isGlobal,
       },
     });
 

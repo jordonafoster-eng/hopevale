@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
+import { canViewGroupContent } from '@/lib/auth-utils';
 import { auth } from '@/lib/auth';
 import { formatDateTime } from '@/lib/utils';
 import { RSVPForm } from '@/components/events/rsvp-form';
@@ -28,10 +29,10 @@ export async function generateMetadata({
   const { id } = await params;
   const event = await prisma.event.findUnique({
     where: { id },
-    select: { title: true, description: true },
+    select: { title: true, description: true, groupId: true },
   });
 
-  if (!event) {
+  if (!event || !(await canViewGroupContent(event.groupId))) {
     return {
       title: 'Event Not Found',
     };
@@ -109,7 +110,7 @@ export default async function EventDetailPage({
     auth(),
   ]);
 
-  if (!event) {
+  if (!event || !(await canViewGroupContent(event.groupId))) {
     notFound();
   }
 

@@ -2,7 +2,14 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { TrashIcon, MusicalNoteIcon, PencilIcon } from '@heroicons/react/24/outline';
+import {
+  TrashIcon,
+  MusicalNoteIcon,
+  PencilIcon,
+  LockClosedIcon,
+  LockOpenIcon,
+  GlobeAltIcon,
+} from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 
 type Playlist = {
@@ -12,11 +19,19 @@ type Playlist = {
   spotifyUrl: string | null;
   description: string | null;
   sortOrder: number;
+  isGlobal: boolean;
 };
 
-export function MusicPlaylistList({ playlists }: { playlists: Playlist[] }) {
+export function MusicPlaylistList({
+  playlists,
+  isSuperAdmin = false,
+}: {
+  playlists: Playlist[];
+  isSuperAdmin?: boolean;
+}) {
   const router = useRouter();
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [sharingId, setSharingId] = useState<string | null>(null);
   const [editingPlaylist, setEditingPlaylist] = useState<Playlist | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
   const [editForm, setEditForm] = useState({
@@ -88,6 +103,30 @@ export function MusicPlaylistList({ playlists }: { playlists: Playlist[] }) {
     }
   };
 
+  const handleToggleShared = async (item: { id: string; isGlobal: boolean }) => {
+    setSharingId(item.id);
+
+    try {
+      const response = await fetch(`/api/admin/music/${item.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isGlobal: !item.isGlobal }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to update sharing');
+      }
+
+      toast.success(item.isGlobal ? 'Playlist is now only in its own group' : 'Playlist shared with all groups');
+      router.refresh();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to update sharing');
+    } finally {
+      setSharingId(null);
+    }
+  };
+
   if (playlists.length === 0) {
     return (
       <div className="card mt-4 text-center">
@@ -109,6 +148,12 @@ export function MusicPlaylistList({ playlists }: { playlists: Playlist[] }) {
                 <h3 className="font-semibold text-gray-900 dark:text-white">
                   {playlist.title}
                 </h3>
+                {playlist.isGlobal && (
+                  <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-accent-100 px-2 py-0.5 text-xs font-medium text-accent-800 dark:bg-accent-900/40 dark:text-accent-300">
+                    <LockClosedIcon className="h-3 w-3" />
+                    All groups
+                  </span>
+                )}
                 {playlist.description && (
                   <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
                     {playlist.description}
@@ -138,19 +183,37 @@ export function MusicPlaylistList({ playlists }: { playlists: Playlist[] }) {
                 </div>
               </div>
               <div className="ml-4 flex gap-2">
-                <button
-                  onClick={() => handleEdit(playlist)}
-                  className="text-blue-600 hover:text-blue-700 dark:text-blue-400"
-                >
-                  <PencilIcon className="h-5 w-5" />
-                </button>
-                <button
-                  onClick={() => handleDelete(playlist.id)}
-                  disabled={deletingId === playlist.id}
-                  className="text-red-600 hover:text-red-700 disabled:opacity-50 dark:text-red-400"
-                >
-                  <TrashIcon className="h-5 w-5" />
-                </button>
+                {isSuperAdmin && (
+                  <button
+                    onClick={() => handleToggleShared(playlist)}
+                    disabled={sharingId === playlist.id}
+                    className="text-accent-600 hover:text-accent-700 disabled:opacity-50 dark:text-accent-400"
+                    title={playlist.isGlobal ? 'Stop sharing with all groups' : 'Share with all groups (locked)'}
+                  >
+                    {playlist.isGlobal ? <LockOpenIcon className="h-5 w-5" /> : <GlobeAltIcon className="h-5 w-5" />}
+                  </button>
+                )}
+                {playlist.isGlobal && !isSuperAdmin ? (
+                  <span title="Shared by a super admin; can't be edited or removed">
+                    <LockClosedIcon className="h-5 w-5 text-gray-400" />
+                  </span>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => handleEdit(playlist)}
+                      className="text-blue-600 hover:text-blue-700 dark:text-blue-400"
+                    >
+                      <PencilIcon className="h-5 w-5" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(playlist.id)}
+                      disabled={deletingId === playlist.id}
+                      className="text-red-600 hover:text-red-700 disabled:opacity-50 dark:text-red-400"
+                    >
+                      <TrashIcon className="h-5 w-5" />
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </div>

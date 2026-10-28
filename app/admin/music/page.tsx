@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { auth } from '@/lib/auth';
-import { isAdmin } from '@/lib/auth-utils';
+import { isAdmin, isSuperAdmin, getSharedContentFilter } from '@/lib/auth-utils';
 import { prisma } from '@/lib/prisma';
 import { ArrowLeftIcon, PlusIcon } from '@heroicons/react/24/outline';
 import { MusicPlaylistForm } from '@/components/admin/music-playlist-form';
@@ -15,9 +15,8 @@ export const metadata: Metadata = {
 
 async function getPlaylists() {
   return prisma.playlist.findMany({
-    orderBy: {
-      sortOrder: 'asc',
-    },
+    where: await getSharedContentFilter(),
+    orderBy: [{ isGlobal: 'desc' }, { sortOrder: 'asc' }],
   });
 }
 
@@ -28,7 +27,7 @@ export default async function AdminMusicPage() {
     redirect('/');
   }
 
-  const playlists = await getPlaylists();
+  const [playlists, superAdmin] = await Promise.all([getPlaylists(), isSuperAdmin()]);
 
   return (
     <div className="section">
@@ -54,7 +53,7 @@ export default async function AdminMusicPage() {
             <PlusIcon className="mr-2 inline-block h-5 w-5" />
             Add New Playlist
           </h2>
-          <MusicPlaylistForm />
+          <MusicPlaylistForm isSuperAdmin={superAdmin} />
         </div>
 
         {/* Playlists List */}
@@ -62,7 +61,7 @@ export default async function AdminMusicPage() {
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
             Existing Playlists ({playlists.length})
           </h2>
-          <MusicPlaylistList playlists={playlists} />
+          <MusicPlaylistList playlists={playlists} isSuperAdmin={superAdmin} />
         </div>
       </div>
     </div>

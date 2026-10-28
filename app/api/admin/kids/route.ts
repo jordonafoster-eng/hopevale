@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { resolveNewContentGroup } from '@/lib/auth-utils';
 import { createClient } from '@supabase/supabase-js';
 
 function getSupabaseClient() {
@@ -30,6 +31,14 @@ export async function POST(request: NextRequest) {
     }
 
     const formData = await request.formData();
+    const isGlobal = formData.get('isGlobal') === 'true';
+
+    const target = await resolveNewContentGroup(isGlobal);
+    if ('error' in target) {
+      return NextResponse.json({ error: target.error }, { status: target.status });
+    }
+    const { groupId } = target;
+
     const file = formData.get('file') as File;
     const title = formData.get('title') as string;
     const type = formData.get('type') as string;
@@ -78,6 +87,8 @@ export async function POST(request: NextRequest) {
         type: data.type,
         description: data.description || null,
         fileUrl: urlData.publicUrl,
+        groupId,
+        isGlobal,
       },
     });
 

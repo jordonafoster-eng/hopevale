@@ -1,16 +1,22 @@
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
+import { auth } from '@/lib/auth';
+import { getGroupFilter } from '@/lib/auth-utils';
 import { FormattedDate } from '@/components/ui/formatted-date';
 import {
   CalendarIcon,
   HeartIcon,
   BookOpenIcon,
   MusicalNoteIcon,
+  UserGroupIcon,
 } from '@heroicons/react/24/outline';
 
-async function getUpcomingEvents() {
+type GroupFilter = { groupId?: string };
+
+async function getUpcomingEvents(groupFilter: GroupFilter) {
   return prisma.event.findMany({
     where: {
+      ...groupFilter,
       startAt: {
         gte: new Date(),
       },
@@ -28,9 +34,10 @@ async function getUpcomingEvents() {
   });
 }
 
-async function getLatestPrayer() {
+async function getLatestPrayer(groupFilter: GroupFilter) {
   return prisma.prayer.findFirst({
     where: {
+      ...groupFilter,
       isApproved: true,
       deletedAt: null,
     },
@@ -40,9 +47,10 @@ async function getLatestPrayer() {
   });
 }
 
-async function getLatestReflection() {
+async function getLatestReflection(groupFilter: GroupFilter) {
   return prisma.reflection.findFirst({
     where: {
+      ...groupFilter,
       isApproved: true,
       deletedAt: null,
     },
@@ -60,14 +68,31 @@ async function getLatestReflection() {
 }
 
 export default async function HomePage() {
+  const [session, groupFilter] = await Promise.all([auth(), getGroupFilter()]);
   const [events, latestPrayer, latestReflection] = await Promise.all([
-    getUpcomingEvents(),
-    getLatestPrayer(),
-    getLatestReflection(),
+    getUpcomingEvents(groupFilter),
+    getLatestPrayer(groupFilter),
+    getLatestReflection(groupFilter),
   ]);
+
+  const needsGroup = session?.user && !session.user.groupId && session.user.role !== 'SUPER_ADMIN';
 
   return (
     <div>
+      {needsGroup && (
+        <div className="border-b border-brand-200 bg-brand-50 dark:border-brand-800 dark:bg-brand-950/40">
+          <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
+            <p className="flex items-center gap-2 text-sm text-brand-800 dark:text-brand-200">
+              <UserGroupIcon className="h-5 w-5" />
+              You&apos;re not in a group yet. Start your own or join one with an invite link.
+            </p>
+            <Link href="/groups" className="btn-primary">
+              Create or join a group
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-brand-600 to-accent-600 py-20 text-white">
         <div className="section">

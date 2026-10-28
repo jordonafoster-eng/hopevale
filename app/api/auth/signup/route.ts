@@ -4,6 +4,13 @@ import { hash } from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 import { acceptInvite, addMembership, findUsableInvite, generateUniqueSlug } from '@/lib/groups';
 
+// Schema for a plain account (no group yet)
+const accountSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  email: z.string().email('Valid email is required'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+});
+
 // Schema for creating a new group
 const createGroupSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -28,13 +35,6 @@ export async function POST(request: NextRequest) {
     const hasInviteToken = body.inviteToken && body.inviteToken.trim() !== '';
     const hasGroupName = body.groupName && body.groupName.trim() !== '';
 
-    if (!hasInviteToken && !hasGroupName) {
-      return NextResponse.json(
-        { error: 'Either groupName (to create a new group) or inviteToken (to join an existing group) is required' },
-        { status: 400 }
-      );
-    }
-
     // Check for existing user first
     const existingUser = await prisma.user.findUnique({
       where: { email: body.email?.toLowerCase() },
@@ -50,9 +50,12 @@ export async function POST(request: NextRequest) {
     if (hasInviteToken) {
       // Join existing group via invite token
       return await handleJoinGroup(body);
-    } else {
+    } else if (hasGroupName) {
       // Create new group
       return await handleCreateGroup(body);
+    } else {
+      // Just an account; they can create or join a group later
+      return await handleCreateAccount(body);
     }
   } catch (error) {
     console.error('Signup error:', error);
@@ -69,6 +72,38 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+/**
+ * Handle self-registration without a group
+ */
+async function handleCreateAccount(body: unknown) {
+  const data = accountSchema.parse(body);
+  const hashedPassword = await hash(data.password, 12);
+
+  await prisma.$transaction(async (tx) => {
+    const user = await tx.user.create({
+      data: {
+        name: data.name,
+        email: data.email.toLowerCase(),
+        password: hashedPassword,
+      },
+    });
+
+    // Create default notification preferences
+    await tx.notificationPreference.create({
+      data: { userId: user.id },
+    });
+  });
+
+  return NextResponse.json(
+    {
+      message: 'Account created successfully',
+      groupSlug: null,
+      groupName: null,
+    },
+    { status: 201 }
+  );
 }
 
 /**

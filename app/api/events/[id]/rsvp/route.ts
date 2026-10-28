@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { canViewGroupContent } from '@/lib/auth-utils';
 import { createNotification } from '@/lib/email';
 import { formatDateTime } from '@/lib/utils';
 
@@ -40,7 +41,7 @@ export async function POST(
       },
     });
 
-    if (!event) {
+    if (!event || !(await canViewGroupContent(event.groupId))) {
       return NextResponse.json({ error: 'Event not found' }, { status: 404 });
     }
 

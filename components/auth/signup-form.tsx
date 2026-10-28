@@ -73,12 +73,6 @@ export function SignUpForm({
   };
 
   const onSubmit = async (data: SignUpFormData) => {
-    // Validate group name if not using invite
-    if (!inviteToken && !data.groupName?.trim()) {
-      toast.error('Please enter a group name');
-      return;
-    }
-
     try {
       setIsLoading(true);
 
@@ -91,7 +85,7 @@ export function SignUpForm({
           password: data.password,
           ...(inviteToken
             ? { inviteToken }
-            : { groupName: data.groupName }),
+            : { groupName: data.groupName?.trim() || undefined }),
         }),
       });
 
@@ -112,6 +106,14 @@ export function SignUpForm({
       if (signInResult?.error) {
         toast.error('Account created, but failed to sign in. Please sign in manually.');
         router.push('/auth/signin');
+        return;
+      }
+
+      if (!result.groupName) {
+        // No group yet: send them to create or join one
+        toast.success('Account created! Now create or join a group.');
+        router.push('/groups');
+        router.refresh();
         return;
       }
 
@@ -154,7 +156,7 @@ export function SignUpForm({
           <h3 className="text-lg font-medium text-gray-900 dark:text-white">Invalid Invite</h3>
           <p className="text-gray-600 dark:text-gray-400">{inviteInfo.error}</p>
           <Link href="/auth/signup" className="btn-primary inline-block mt-4">
-            Create Your Own Group
+            Sign Up Without an Invite
           </Link>
         </div>
       </div>
@@ -227,7 +229,7 @@ export function SignUpForm({
               htmlFor="groupName"
               className="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
-              Group name
+              Group name <span className="font-normal text-gray-500 dark:text-gray-400">(optional)</span>
             </label>
             <input
               {...register('groupName')}
@@ -237,7 +239,7 @@ export function SignUpForm({
               placeholder="My Church Small Group"
             />
             <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-              This will be the name of your community group
+              Start your own group now, or leave blank and join one later with an invite link
             </p>
             {errors.groupName && (
               <p className="mt-1 text-sm text-red-600 dark:text-red-400">
@@ -299,12 +301,12 @@ export function SignUpForm({
           {isLoading ? (
             <>
               <span className="spinner mr-2"></span>
-              {inviteToken ? 'Joining group...' : 'Creating group...'}
+              {inviteToken ? 'Joining group...' : 'Creating account...'}
             </>
           ) : inviteToken ? (
             'Join Group'
           ) : (
-            'Create Group'
+            'Create Account'
           )}
         </button>
       </form>

@@ -6,7 +6,7 @@ import { AcceptInvite } from '@/components/groups/accept-invite';
 
 export const metadata: Metadata = {
   title: 'Sign Up - Church Friends',
-  description: 'Create an account or join a group',
+  description: 'Create an account, start a group, or join one',
 };
 
 export default async function SignUpPage({
@@ -30,14 +30,14 @@ export default async function SignUpPage({
             <span className="text-2xl font-bold text-white">C</span>
           </div>
           <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-            {params.invite ? 'Join a Group' : 'Create Your Group'}
+            {params.invite ? 'Join a Group' : 'Create Your Account'}
           </h2>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
             {params.invite
               ? session?.user
                 ? 'Add this group to your account'
                 : 'Complete your registration to join'
-              : 'Start your own community group'}
+              : 'Sign up to start or join a community group'}
           </p>
         </div>
 

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { canManageGroupContent, isSuperAdmin } from '@/lib/auth-utils';
 import { createClient } from '@supabase/supabase-js';
 
 function getSupabaseClient() {
@@ -19,6 +20,7 @@ const updateAssetSchema = z.object({
   title: z.string().min(1).optional(),
   type: z.enum(['VERSE', 'ACTIVITY', 'COLORING']).optional(),
   description: z.string().optional(),
+  isGlobal: z.boolean().optional(),
 });
 
 export async function PATCH(
@@ -33,15 +35,38 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const existing = await prisma.kidsAsset.findUnique({
+      where: { id: params.id },
+      select: { groupId: true, isGlobal: true },
+    });
+
+    if (!existing) {
+      return NextResponse.json({ error: 'Asset not found' }, { status: 404 });
+    }
+
+    // Admins can only change their own group's content; shared items are SUPER_ADMIN-only
+    if (!(await canManageGroupContent(existing.groupId, existing.isGlobal))) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
     const body = await request.json();
     const data = updateAssetSchema.parse(body);
 
+    if (data.isGlobal !== undefined && !(await isSuperAdmin())) {
+      return NextResponse.json(
+        { error: 'Only super admins can share content with all groups' },
+        { status: 403 }
+      );
+    }
+
+    // Only update fields that were sent (a blank description clears it)
     const asset = await prisma.kidsAsset.update({
       where: { id: params.id },
       data: {
         title: data.title,
         type: data.type,
-        description: data.description || null,
+        description: data.description === undefined ? undefined : data.description || null,
+        isGlobal: data.isGlobal,
       },
     });
 
@@ -81,6 +106,11 @@ export async function DELETE(
 
     if (!asset) {
       return NextResponse.json({ error: 'Asset not found' }, { status: 404 });
+    }
+
+    // Admins can only delete their own group's content; shared items are SUPER_ADMIN-only
+    if (!(await canManageGroupContent(asset.groupId, asset.isGlobal))) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     // Extract the file path from the URL

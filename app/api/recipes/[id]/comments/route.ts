@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { canViewGroupContent } from '@/lib/auth-utils';
 import { sendCommentNotifications } from '@/lib/comment-notifications';
 
 const commentSchema = z.object({
@@ -27,7 +28,7 @@ export async function POST(
       include: { author: { select: { id: true, name: true, email: true } } },
     });
 
-    if (!recipe) {
+    if (!recipe || !(await canViewGroupContent(recipe.groupId))) {
       return NextResponse.json({ error: 'Recipe not found' }, { status: 404 });
     }
 

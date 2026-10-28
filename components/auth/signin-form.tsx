@@ -155,7 +155,13 @@ export function SignInForm({
       </form>
 
       <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-        Need an account? Contact an administrator to get invited.
+        Need an account?{' '}
+        <Link
+          href="/auth/signup"
+          className="font-medium text-brand-600 hover:text-brand-500 dark:text-brand-400"
+        >
+          Sign up
+        </Link>
       </p>
     </div>
   );
